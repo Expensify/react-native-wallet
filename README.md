@@ -1,4 +1,6 @@
-# `react-native-x-maps`
+# `react-native-wallet`
+
+A package that enables handles handles adding payment cards to Apple Pay and Google Pay
 
 # Deploying
 This repo automatically publishes to NPM when PRs are merged to main.
