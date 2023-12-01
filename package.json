@@ -15,7 +15,7 @@
     "url": "git+https://github.com/Expensify/react-native-wallet.git"
   },
   "files": [
-    "src",
+    "js",
     "android",
     "ios",
     "rtn-wallet.podspec",
@@ -60,7 +60,7 @@
     "npm": "8.11.0"
   },
   "codegenConfig": {
-    "name": "RTNWallet",
+    "name": "RTNWalletSpec",
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
