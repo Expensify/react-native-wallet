@@ -1,7 +1,33 @@
-# `react-native-x-maps`
+# react-native-wallet
 
-# Deploying
-This repo automatically publishes to NPM when PRs are merged to main.
+A React Native module designed for seamless integration of Card Push Provisioning into Apple Wallet and Google Wallet, enabling easy and secure addition of payment cards directly from your application.
 
-# Contributing
-Right now, contributions to this library are done under https://github.com/Expensify/App. Please refer to that repo and all it's guidelines for contributing.
+## Installation
+
+```sh
+npm install react-native-wallet
+```
+
+## Usage
+
+
+```js
+import { multiply } from 'react-native-wallet';
+
+// ...
+
+const result = multiply(3, 7);
+```
+
+
+## Contributing
+
+See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+
+## License
+
+MIT
+
+---
+
+Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
