@@ -1,7 +1,7 @@
 {
-  "name": "react-native-wallet",
+  "name": "@expensify/react-native-wallet",
   "version": "0.1.0",
-  "description": "A React Native module designed for seamless integration of Card Push Provisioning into Apple Wallet and Google Wallet, enabling easy and secure addition of payment cards directly from your application.",
+  "description": "react-native-wallet POC",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -24,7 +24,7 @@
     "ios",
     "cpp",
     "*.podspec",
-    "react-native.config.js",
+    "react-native.config.json",
     "!ios/build",
     "!android/build",
     "!android/gradle",
@@ -37,12 +37,16 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-wallet-example",
+    "example": "npm run --workspace=react-native-wallet-example",
     "test": "jest",
-    "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .js,.ts,.tsx",
+    "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/parser/**/*' --ignore-pattern '/example/**/*' --ignore-pattern '/WebExample/**/*'",
+    "lint:parser": "eslint parser --ext .js,.ts,.tsx",
+    "lint:example": "eslint example --ext .js,.ts,.tsx",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
     "prepare": "bob build",
+    "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
     "release": "release-it"
   },
   "keywords": [
@@ -54,7 +58,7 @@
     "type": "git",
     "url": "git+https://github.com/Expensify/react-native-wallet.git"
   },
-  "author": "Expensify, Inc. <michal.skalka@swmansion.com> (https://github.com/Expensify)",
+  "author": "Expensify, Inc.",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Expensify/react-native-wallet/issues"
@@ -66,7 +70,6 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
-    "@react-native-community/cli": "15.0.1",
     "@react-native/eslint-config": "^0.73.1",
     "@release-it/conventional-changelog": "^9.0.2",
     "@types/jest": "^29.5.5",
@@ -95,17 +98,13 @@
     "turbo": "^1.10.7",
     "typescript": "^5.2.2"
   },
-  "resolutions": {
-    "@types/react": "^18.2.44"
-  },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "workspaces": [
-    "example"
+    "./example"
   ],
-  "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
@@ -209,5 +208,5 @@
     "type": "turbo-module",
     "languages": "kotlin-objc",
     "version": "0.45.5"
-  }
+    }
 }
