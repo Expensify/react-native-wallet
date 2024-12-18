@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-wallet": ["./src/index"]
+      "@expensify/react-native-wallet": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

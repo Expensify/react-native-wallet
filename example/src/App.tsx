@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'react-native-wallet';
+import { multiply } from '@expensify/react-native-wallet';
 
 const result = multiply(3, 7);
 
