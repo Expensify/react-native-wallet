@@ -5,14 +5,14 @@ A React Native module designed for seamless integration of Card Push Provisionin
 ## Installation
 
 ```sh
-npm install react-native-wallet
+npm install @expensify/react-native-wallet
 ```
 
 ## Usage
 
 
 ```js
-import { multiply } from 'react-native-wallet';
+import { multiply } from '@expensify/react-native-wallet';
 
 // ...
 
@@ -20,9 +20,11 @@ const result = multiply(3, 7);
 ```
 
 
-## Contributing
+# Deploying
+This repo automatically publishes to NPM when PRs are merged to main.
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+# Contributing
+Right now, contributions to this library are done under https://github.com/Expensify/App. Please refer to that repo and all it's guidelines for contributing.w.
 
 ## License
 
@@ -30,4 +32,10 @@ MIT
 
 ---
 
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="./assets/signature-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/signature-dark.png" />
+    <img alt="Brought to you by Software Mansion + Expensify" src="./assets/signature-light.png" width="600" />
+  </picture>
+</p>
