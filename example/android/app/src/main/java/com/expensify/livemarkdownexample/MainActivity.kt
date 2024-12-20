@@ -1,4 +1,4 @@
-package wallet.example
+package com.expensify.WalletExample
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

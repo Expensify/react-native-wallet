@@ -1,23 +1,21 @@
 package com.wallet
 
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.module.annotations.ReactModule
+import com.facebook.react.bridge.ReactMethod
 
-@ReactModule(name = WalletModule.NAME)
-class WalletModule(reactContext: ReactApplicationContext) :
-  NativeWalletSpec(reactContext) {
+
+class WalletModule internal constructor(context: ReactApplicationContext) : WalletSpec(context) {
+  companion object {
+    const val NAME = "Wallet"
+  }
 
   override fun getName(): String {
     return NAME
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
-  override fun multiply(a: Double, b: Double): Double {
-    return a * b
-  }
-
-  companion object {
-    const val NAME = "Wallet"
+  @ReactMethod
+  override fun multiply(a: Double, b: Double, promise: Promise) {
+    return promise.resolve(a * b)
   }
 }
