@@ -25,13 +25,14 @@ module.exports = {
   ],
   settings: {
     'import/resolver': {
-      alias: [['@expensify/react-native-live-markdown', './src/index.tsx']],
+      alias: [['@expensify/react-native-wallet', './src/index.tsx']],
     },
   },
   root: true,
   rules: {
     'rulesdir/prefer-underscore-method': 'off',
     'rulesdir/prefer-import-module-contents': 'off',
+    'rulesdir/no-inline-named-export': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/require-default-props': 'off',
     'react/jsx-filename-extension': ['error', { extensions: ['.tsx', '.jsx'] }],
