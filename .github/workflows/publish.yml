@@ -10,9 +10,9 @@ concurrency: ${{ github.workflow }}
 
 jobs:
   publish:
-    # os-botify[bot] will push commits to update the version on `main`, so this check is important to prevent an infinite loop
+    # os-botify[bot] will update the version on `main`, so this check is important to prevent an infinite loop
     if: ${{ github.actor != 'os-botify[bot]' }}
     uses: Expensify/GitHub-Actions/.github/workflows/npmPublish.yml@main
     secrets: inherit
     with:
-      should_run_build: true
+      should_run_pack: true
