@@ -83,6 +83,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "WalletExample"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
