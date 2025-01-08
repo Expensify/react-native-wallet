@@ -1,3 +1,6 @@
+scripts/**/*
+CODE_OF_CONDUCT.md
+.eslintrc.js
 # The GH actions don't seem to compile and verify themselves well when Prettier is applied to them
 .github/actions/javascript/**/index.js
 .well-known
@@ -15,3 +18,4 @@ package-lock.json
 *.css
 *.scss
 *.md
+metro.config.js

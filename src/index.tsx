@@ -5,4 +5,4 @@ function multiply(a: number, b: number) {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export { multiply };
+export {multiply};

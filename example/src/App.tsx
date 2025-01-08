@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from '@expensify/react-native-wallet';
-import { PlatformInfo } from './PlatformInfo';
+import {useState, useEffect} from 'react';
+import {StyleSheet, View, Text} from 'react-native';
+import {multiply} from '@expensify/react-native-wallet';
+import {PlatformInfo} from './PlatformInfo';
 
 export default function App() {
   const [result, setResult] = useState<number | undefined>();

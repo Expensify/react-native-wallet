@@ -10,20 +10,20 @@ npm install @expensify/react-native-wallet
 
 ## Usage
 
-
 ```js
-import { multiply } from '@expensify/react-native-wallet';
+import {multiply} from '@expensify/react-native-wallet';
 
 // ...
 
 const result = multiply(3, 7);
 ```
 
-
 # Deploying
+
 This repo automatically publishes to NPM when PRs are merged to main.
 
 # Contributing
+
 Right now, contributions to this library are done under https://github.com/Expensify/App. Please refer to that repo and all it's guidelines for contributing.w.
 
 ## License

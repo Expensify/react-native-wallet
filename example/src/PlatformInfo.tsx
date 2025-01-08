@@ -1,4 +1,4 @@
-import { Platform, Text, View, StyleSheet } from 'react-native';
+import {Platform, Text, View, StyleSheet} from 'react-native';
 import React from 'react';
 
 function isWeb() {
@@ -45,7 +45,7 @@ function getArchitecture() {
 }
 
 function getReactNativeVersion() {
-  const { major, minor, patch } = Platform.constants.reactNativeVersion;
+  const {major, minor, patch} = Platform.constants.reactNativeVersion;
   return `${major}.${minor}.${patch}`;
 }
 

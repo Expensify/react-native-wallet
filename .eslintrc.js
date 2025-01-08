@@ -36,15 +36,15 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'react/require-default-props': 'off',
     'react/jsx-filename-extension': ['error', { extensions: ['.tsx', '.jsx'] }],
-    'import/extensions': [
-      'error',
-      'ignorePackages',
+    "import/extensions": [
+      "error",
+      "ignorePackages",
       {
-        jsx: 'never',
-        ts: 'never',
-        tsx: 'never',
-      },
-    ],
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+   ],
     'import/no-unresolved': 'error',
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'no-use-before-define': 'off',
@@ -63,7 +63,7 @@ module.exports = {
     'valid-jsdoc': 'off',
     'tsdoc/syntax': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+    '@typescript-eslint/array-type': ['error', {default: 'array-simple'}],
     '@typescript-eslint/consistent-type-definitions': 'off',
     'curly': ['error', 'all'],
   },
