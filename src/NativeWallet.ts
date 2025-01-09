@@ -22,6 +22,7 @@ export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<WalletData>;
   getCardStatus(last4Digits: string): Promise<number>;
+  getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');

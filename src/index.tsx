@@ -16,5 +16,10 @@ async function getCardStatus(last4Digits: string): Promise<CardStatus> {
   return getCardState(cardState);
 }
 
+async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<CardStatus> {
+  const tokenState = await Wallet.getCardTokenStatus(tsp, tokenRefId);
+  return getCardState(tokenState);
+}
+
 // eslint-disable-next-line import/prefer-default-export
-export {checkWalletAvailability, getSecureWalletInfo, getCardStatus};
+export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus};

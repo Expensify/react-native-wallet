@@ -5,10 +5,14 @@ import {
   checkWalletAvailability,
   getSecureWalletInfo,
   getCardStatus,
+  getCardTokenStatus,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {CardStatus, WalletData} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
+
+const CARD_LAST_4_DIGITS = '4321';
+const TOKEN_REF_ID = 'tokenID123';
 
 const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
   if (walletData?.platform === 'android') {
@@ -24,6 +28,7 @@ export default function App() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
   const [walletData, setWalletData] = useState<WalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
+  const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
 
   const handleCheckWalletAvailability = useCallback(() => {
     checkWalletAvailability().then(setIsWalletAvailable);
@@ -36,7 +41,11 @@ export default function App() {
   }, []);
 
   const handleGetCardStatus = useCallback(() => {
-    getCardStatus('4321').then(setCardStatus);
+    getCardStatus(CARD_LAST_4_DIGITS).then(setCardStatus);
+  }, []);
+
+  const handleGetCardTokenStatus = useCallback(() => {
+    getCardTokenStatus('VISA', TOKEN_REF_ID).then(setTokenStatus);
   }, []);
 
   const walletSecureInfo = useMemo(
@@ -71,10 +80,17 @@ export default function App() {
       />
 
       <LabeledButton
-        text="Card status:"
+        text={`Card status (${CARD_LAST_4_DIGITS}):`}
         value={cardStatus}
         buttonTitle="Get Card Status"
         onPress={handleGetCardStatus}
+      />
+
+      <LabeledButton
+        text={`Token status (${TOKEN_REF_ID}):`}
+        value={tokenStatus}
+        buttonTitle="Get Token Status"
+        onPress={handleGetCardTokenStatus}
       />
     </View>
   );
