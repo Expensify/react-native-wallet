@@ -1,18 +1,11 @@
 import {Platform, Text, View, StyleSheet} from 'react-native';
 import React from 'react';
 
-function isWeb() {
-  return Platform.OS === 'web';
-}
-
 function isBridgeless() {
   return (global as Record<string, unknown>)._IS_BRIDGELESS;
 }
 
 function getPlatform() {
-  if (isWeb()) {
-    return 'web';
-  }
   // @ts-ignore it works
   return Platform.constants.systemName || Platform.constants.Brand;
 }
@@ -56,14 +49,10 @@ export function PlatformInfo() {
         Platform: {getPlatform()} {getPlatformVersion()}
       </Text>
       <Text>Bundle: {getBundle()}</Text>
-      {!isWeb() && (
-        <>
-          <Text>Architecture: {getArchitecture()}</Text>
-          <Text>Bridgeless: {isBridgeless() ? 'yes' : 'no'}</Text>
-          <Text>RN version: {getReactNativeVersion()}</Text>
-          <Text>RN runtime: {getRuntime()}</Text>
-        </>
-      )}
+      <Text>Architecture: {getArchitecture()}</Text>
+      <Text>Bridgeless: {isBridgeless() ? 'yes' : 'no'}</Text>
+      <Text>RN version: {getReactNativeVersion()}</Text>
+      <Text>RN runtime: {getRuntime()}</Text>
     </View>
   );
 }
