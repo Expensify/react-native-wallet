@@ -4,9 +4,10 @@ import {StyleSheet, View, Text} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
+  getCardStatus,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {WalletData} from '../../src/NativeWallet';
+import type {CardStatus, WalletData} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
 
 const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
@@ -22,6 +23,7 @@ const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
 export default function App() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
   const [walletData, setWalletData] = useState<WalletData | undefined>();
+  const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
 
   const handleCheckWalletAvailability = useCallback(() => {
     checkWalletAvailability().then(setIsWalletAvailable);
@@ -31,6 +33,10 @@ export default function App() {
     getSecureWalletInfo().then(data => {
       setWalletData(data);
     });
+  }, []);
+
+  const handleGetCardStatus = useCallback(() => {
+    getCardStatus('4321').then(setCardStatus);
   }, []);
 
   const walletSecureInfo = useMemo(
@@ -60,8 +66,15 @@ export default function App() {
       <LabeledButton
         text="Wallet Info:"
         value={walletSecureInfo}
-        buttonTitle="Check Wallet Availability"
+        buttonTitle="Get Secure Wallet Info"
         onPress={handleGetSecureWalletInfo}
+      />
+
+      <LabeledButton
+        text="Card status:"
+        value={cardStatus}
+        buttonTitle="Get Card Status"
+        onPress={handleGetCardStatus}
       />
     </View>
   );

@@ -16,11 +16,14 @@ type IOSWalletData = {
   certificates: string;
 };
 
+type CardStatus = 'not found' | 'requireActivation' | 'activating' | 'activated' | 'suspended' | 'deactivated';
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<WalletData>;
+  getCardStatus(last4Digits: string): Promise<number>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');
 
-export type {WalletData, AndroidWalletData};
+export type {WalletData, AndroidWalletData, CardStatus};

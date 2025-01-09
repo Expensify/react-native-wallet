@@ -3,7 +3,7 @@ import React from 'react';
 
 type LabelProps = {
   text: string;
-  value: string;
+  value?: string;
   buttonTitle: string;
   onPress?: () => void;
 };
