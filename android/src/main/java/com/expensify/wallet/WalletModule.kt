@@ -5,12 +5,20 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import com.facebook.react.bridge.ActivityEventListener
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.PromiseImpl
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.WritableMap
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import com.wallet.Utils.getAsyncResult
+import com.wallet.model.WalletData
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
@@ -67,6 +75,29 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     }
   }
 
+  @ReactMethod
+  override fun getSecureWalletInfo(promise: Promise) {
+    CoroutineScope(Dispatchers.Main).launch {
+      try {
+        val walletId = async { getWalletIdAsync() }
+        val hardwareId = async { getHardwareIdAsync() }
+        val walletData = WalletData(
+          platform = "android", deviceID = hardwareId.await(), walletAccountID = walletId.await()
+        )
+
+        val walletDataMap: WritableMap = Arguments.createMap().apply {
+          putString("platform", walletData.platform)
+          putString("deviceID", walletData.deviceID)
+          putString("walletAccountID", walletData.walletAccountID)
+        }
+
+        promise.resolve(walletDataMap)
+      } catch (e: Exception) {
+        promise.reject("Error", "Failed to retrieve IDs: ${e.localizedMessage}")
+      }
+    }
+  }
+
   private fun ensureTapAndPayClientInitialized(promise: Promise): Boolean {
     if (tapAndPayClient == null && currentActivity != null) {
       tapAndPayClient = TapAndPay.getClient(currentActivity!!)
@@ -76,6 +107,32 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       return false
     }
     return true
+  }
+
+  private fun getHardwareId(promise: Promise) {
+    if (!ensureTapAndPayClientInitialized(promise)) {
+      return
+    }
+    tapAndPayClient!!.stableHardwareId.addOnCompleteListener { task ->
+      if (task.isSuccessful) {
+        val hardwareId = task.result
+        promise.resolve(hardwareId)
+      }
+    }.addOnFailureListener { e ->
+      promise.reject("Stable hardware id retrieval failed", e)
+    }.addOnCanceledListener {
+      promise.reject(
+        "Reject: ", "Stable hardware id retrieval canceled"
+      )
+    }
+  }
+
+  private suspend fun getWalletIdAsync(): String = getAsyncResult (String::class.java) { promise ->
+    getWalletId(promise)
+  }
+
+  private suspend fun getHardwareIdAsync(): String = getAsyncResult(String::class.java) { promise ->
+    getHardwareId(promise)
   }
 
   override fun getName(): String {
