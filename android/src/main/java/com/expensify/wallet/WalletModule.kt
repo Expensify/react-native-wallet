@@ -54,27 +54,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     })
     getWalletId(localPromise)
   }
-
-  private fun getWalletId(promise: Promise) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-    tapAndPayClient!!.activeWalletId.addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        val walletId = task.result
-        if (walletId != null) {
-          promise.resolve(walletId)
-        }
-      }
-    }.addOnFailureListener { e ->
-      promise.reject("Wallet id retrieval failed", e)
-    }.addOnCanceledListener {
-      promise.reject(
-        "Reject: ", "Wallet id retrieval canceled"
-      )
-    }
-  }
-
+  
   @ReactMethod
   override fun getSecureWalletInfo(promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
@@ -107,6 +87,26 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       return false
     }
     return true
+  }
+
+  private fun getWalletId(promise: Promise) {
+    if (!ensureTapAndPayClientInitialized(promise)) {
+      return
+    }
+    tapAndPayClient!!.activeWalletId.addOnCompleteListener { task ->
+      if (task.isSuccessful) {
+        val walletId = task.result
+        if (walletId != null) {
+          promise.resolve(walletId)
+        }
+      }
+    }.addOnFailureListener { e ->
+      promise.reject("Wallet id retrieval failed", e)
+    }.addOnCanceledListener {
+      promise.reject(
+        "Reject: ", "Wallet id retrieval canceled"
+      )
+    }
   }
 
   private fun getHardwareId(promise: Promise) {
