@@ -39,5 +39,6 @@ allprojects {
         }
         mavenCentral()
         google()
+        maven { url "file://${rootDir}/libs" }
     }
 }

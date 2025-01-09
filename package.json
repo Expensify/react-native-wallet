@@ -73,7 +73,7 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "del-cli": "^5.0.0",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.1",
     "eslint-config-expensify": "^2.0.24",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -151,6 +151,20 @@
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.expensify.wallet"
+    }
+  },
+  "dependencies": {
+    "expo": "^52.0.31",
+    "expo-image": "^2.0.4"
+  },
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "expo-application",
+        "expo-constants",
+        "expo-font",
+        "expo-keep-awake"
+      ]
     }
   }
 }
