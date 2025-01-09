@@ -1,20 +1,22 @@
 import * as React from 'react';
 import {useState, useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import {multiply} from '@expensify/react-native-wallet';
+import {checkWalletAvailability} from '@expensify/react-native-wallet';
 import {PlatformInfo} from './PlatformInfo';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
+  const [isWalletAvailable, setIsWalletAvailable] = useState(false);
 
   useEffect(() => {
-    multiply(3, 7).then(setResult);
+    checkWalletAvailability().then(test => {
+      setIsWalletAvailable(test);
+    });
   }, []);
 
   return (
     <View style={styles.container}>
       <PlatformInfo />
-      <Text>Result: {result}</Text>
+      <Text>Is wallet available: {`${isWalletAvailable}`}</Text>
     </View>
   );
 }

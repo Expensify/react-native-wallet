@@ -1,8 +1,8 @@
 import Wallet from './NativeWallet';
 
-function multiply(a: number, b: number) {
-  return Wallet.multiply(a, b);
+function checkWalletAvailability(): Promise<boolean> {
+  return Wallet.checkWalletAvailability();
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export {multiply};
+export {checkWalletAvailability};
