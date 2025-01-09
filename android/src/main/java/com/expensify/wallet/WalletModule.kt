@@ -21,12 +21,16 @@ import kotlinx.coroutines.launch
 import com.wallet.Utils.getAsyncResult
 import com.wallet.model.CardStatus
 import com.wallet.model.WalletData
+import java.util.Locale
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
   companion object {
     const val NAME = "Wallet"
     const val REQUEST_CREATE_WALLET: Int = 4
+
+    const val TSP_VISA: String = "VISA"
+    const val TSP_MASTERCARD: String = "MASTERCARD"
   }
 
   private var tapAndPayClient: TapAndPayClient? = null
@@ -108,6 +112,33 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       }
   }
 
+  @ReactMethod
+  override fun getCardTokenStatus(tsp: String, tokenRefId: String, promise: Promise) {
+    if (!ensureTapAndPayClientInitialized(promise)) {
+      return
+    }
+
+    tapAndPayClient!!.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
+      .addOnCompleteListener { task ->
+        if (!task.isSuccessful || task.result == null) {
+          promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
+          return@addOnCompleteListener
+        }
+        task.result?.let {
+          promise.resolve(
+            getCardStatusCode(it.tokenState)
+          )
+        } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
+      }
+      .addOnFailureListener { e -> promise.reject("getCardStatus function failed", e) }
+      .addOnCanceledListener {
+        promise.reject(
+          "Reject",
+          "Card status retrieval canceled"
+        )
+      }
+  }
+
   private fun ensureTapAndPayClientInitialized(promise: Promise): Boolean {
     if (tapAndPayClient == null && currentActivity != null) {
       tapAndPayClient = TapAndPay.getClient(currentActivity!!)
@@ -165,6 +196,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION -> CardStatus.REQUIRE_IDENTITY_VERIFICATION.code
       TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING -> CardStatus.PENDING.code
       else -> CardStatus.NOT_FOUND_IN_WALLET.code
+    }
+  }
+
+  private fun getTokenServiceProvider(network: String): Int {
+    return when (network.uppercase(Locale.getDefault())) {
+      TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
+      TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
+      else -> 1000
     }
   }
 
