@@ -11,22 +11,27 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.PromiseImpl
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import com.wallet.Utils.getAsyncResult
+import com.wallet.Utils.toCardData
 import com.wallet.model.CardStatus
 import com.wallet.model.WalletData
+import java.nio.charset.Charset
 import java.util.Locale
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
   companion object {
     const val NAME = "Wallet"
+    const val REQUEST_CODE_PUSH_TOKENIZE: Int = 3
     const val REQUEST_CREATE_WALLET: Int = 4
 
     const val TSP_VISA: String = "VISA"
@@ -139,6 +144,39 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       }
   }
 
+  @ReactMethod
+  override fun addCardToWallet(
+    data: ReadableMap, promise: Promise
+  ) {
+
+    if (!ensureTapAndPayClientInitialized(promise)) return
+
+    try {
+      val cardData = data.toCardData() ?: return promise.reject("Reject: ", "Insufficient data")
+
+      val cardNetwork = getCardNetwork(cardData.network)
+      val tokenServiceProvider = getTokenServiceProvider(cardData.network)
+      if (cardNetwork == 1000 || tokenServiceProvider == 1000) {
+        return promise.reject("Reject: ", "Invalid card network")
+      }
+
+      val pushTokenizeRequest = PushTokenizeRequest.Builder()
+        .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
+        .setNetwork(cardNetwork)
+        .setTokenServiceProvider(tokenServiceProvider)
+        .setDisplayName(cardData.cardHolderName)
+        .setLastDigits(cardData.lastDigits)
+        .setUserAddress(cardData.userAddress)
+        .build()
+
+      tapAndPayClient!!.pushTokenize(
+        currentActivity!!, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
+      )
+    } catch (e: java.lang.Exception) {
+      promise.reject(e)
+    }
+  }
+
   private fun ensureTapAndPayClientInitialized(promise: Promise): Boolean {
     if (tapAndPayClient == null && currentActivity != null) {
       tapAndPayClient = TapAndPay.getClient(currentActivity!!)
@@ -196,6 +234,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION -> CardStatus.REQUIRE_IDENTITY_VERIFICATION.code
       TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING -> CardStatus.PENDING.code
       else -> CardStatus.NOT_FOUND_IN_WALLET.code
+    }
+  }
+
+  private fun getCardNetwork(network: String): Int {
+    return when (network.uppercase(Locale.getDefault())) {
+      TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
+      TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
+      else -> 1000
     }
   }
 
