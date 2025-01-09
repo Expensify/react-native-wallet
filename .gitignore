@@ -70,3 +70,6 @@ lib/
 # React Native Codegen
 ios/generated
 android/generated
+
+# Android  libs (Google Tap And Pay SDK)
+example/android/libs
