@@ -2,7 +2,8 @@ import * as React from 'react';
 import {useState, useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {checkWalletAvailability} from '@expensify/react-native-wallet';
-import {PlatformInfo} from './PlatformInfo';
+import PlatformInfo from './PlatformInfo';
+import Label from './Label';
 
 export default function App() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
@@ -15,17 +16,31 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <PlatformInfo />
-      <Text>Is wallet available: {`${isWalletAvailable}`}</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>react-native-wallet example app</Text>
+        <PlatformInfo />
+      </View>
+      <Label text="Is wallet available:" value={`${isWalletAvailable}`} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
+  },
+  header: {
+    gap: 10,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+  },
+  label: {
+    fontSize: 16,
   },
   box: {
     width: 60,
