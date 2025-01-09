@@ -18,13 +18,49 @@ type IOSWalletData = {
 
 type CardStatus = 'not found' | 'requireActivation' | 'activating' | 'activated' | 'suspended' | 'deactivated';
 
+type UserAddress = {
+  name: string;
+  addressOne: string;
+  addressTwo?: string;
+  administrativeArea: string;
+  locality: string;
+  countryCode: string;
+  postalCode: string;
+  phoneNumber: string;
+};
+
+type CardData = AndroidCardData | IOSCardData;
+
+type AndroidCardData = {
+  platform: 'android';
+  network: string;
+  opaquePaymentCard: string;
+  cardHolderName: string;
+  lastDigits: string;
+  userAddress: UserAddress;
+};
+
+type IOSCardData = {
+  platform: 'ios';
+  network: string;
+  activationData: string;
+  encryptedPassData: string;
+  ephemeralPublicKey: string;
+  cardHolderTitle: string;
+  cardHolderName: string;
+  lastDigits: string;
+  cardDescription: string;
+  cardDescriptionComment: string;
+};
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<WalletData>;
   getCardStatus(last4Digits: string): Promise<number>;
   getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
+  addCardToWallet(cardData: CardData): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');
 
-export type {WalletData, AndroidWalletData, CardStatus};
+export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress};

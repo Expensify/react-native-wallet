@@ -1,6 +1,6 @@
 /* eslint-disable @lwc/lwc/no-async-await */
 import Wallet from './NativeWallet';
-import type {CardStatus, WalletData} from './NativeWallet';
+import type {CardData, CardStatus, WalletData} from './NativeWallet';
 import {getCardState} from './utils';
 
 function checkWalletAvailability(): Promise<boolean> {
@@ -21,5 +21,9 @@ async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<Card
   return getCardState(tokenState);
 }
 
+function addCardToWallet(cardData: CardData): Promise<void> {
+  return Wallet.addCardToWallet(cardData);
+}
+
 // eslint-disable-next-line import/prefer-default-export
-export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus};
+export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet};

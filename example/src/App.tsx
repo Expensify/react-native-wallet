@@ -6,13 +6,39 @@ import {
   getSecureWalletInfo,
   getCardStatus,
   getCardTokenStatus,
+  addCardToWallet,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {CardStatus, WalletData} from '../../src/NativeWallet';
+import type {
+  CardData,
+  CardStatus,
+  UserAddress,
+  WalletData,
+} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';
+
+const dummyAddress: UserAddress = {
+  name: 'John Doe',
+  addressOne: '1234 Fictional Road',
+  addressTwo: 'Unit 5678',
+  administrativeArea: 'Imaginary State',
+  locality: '9090',
+  countryCode: 'XX',
+  postalCode: '99999',
+  phoneNumber: '000-123-4567',
+};
+
+const dummyCardData: CardData = {
+  platform: 'android',
+  network: 'VISA',
+  opaquePaymentCard: 'encryptedCardInformation123456',
+  cardHolderName: 'John Doe',
+  lastDigits: '4321',
+  userAddress: dummyAddress,
+};
 
 const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
   if (walletData?.platform === 'android') {
@@ -29,6 +55,7 @@ export default function App() {
   const [walletData, setWalletData] = useState<WalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
   const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
+  const [addCardStatus, setAddCardStatus] = useState<string | undefined>();
 
   const handleCheckWalletAvailability = useCallback(() => {
     checkWalletAvailability().then(setIsWalletAvailable);
@@ -46,6 +73,16 @@ export default function App() {
 
   const handleGetCardTokenStatus = useCallback(() => {
     getCardTokenStatus('VISA', TOKEN_REF_ID).then(setTokenStatus);
+  }, []);
+
+  const handleAddCardToWallet = useCallback(() => {
+    addCardToWallet(dummyCardData)
+      .then(() => {
+        setAddCardStatus('Completed');
+      })
+      .catch(() => {
+        setAddCardStatus('Failed');
+      });
   }, []);
 
   const walletSecureInfo = useMemo(
@@ -91,6 +128,13 @@ export default function App() {
         value={tokenStatus}
         buttonTitle="Get Token Status"
         onPress={handleGetCardTokenStatus}
+      />
+
+      <LabeledButton
+        text="Add Card status:"
+        value={addCardStatus}
+        buttonTitle="Add Card To Wallet"
+        onPress={handleAddCardToWallet}
       />
     </View>
   );
