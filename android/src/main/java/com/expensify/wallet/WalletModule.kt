@@ -10,9 +10,11 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.PromiseImpl
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
@@ -22,6 +24,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import com.wallet.Utils.getAsyncResult
 import com.wallet.Utils.toCardData
+import com.wallet.event.OnCardActivatedEvent
 import com.wallet.model.CardStatus
 import com.wallet.model.WalletData
 import java.nio.charset.Charset
@@ -49,6 +52,15 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         if (requestCode == REQUEST_CREATE_WALLET) {
           pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
           pendingCreateWalletPromise = null
+        } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
+          if (resultCode == RESULT_OK) {
+            intent?.let{
+              val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
+              sendEvent(context, "onCardActivated", OnCardActivatedEvent("active", tokenId).toMap())
+            }
+          } else if (resultCode == RESULT_CANCELED) {
+            sendEvent(context, "onCardActivated", OnCardActivatedEvent("cancelled", null).toMap())
+          }
         }
       }
       override fun onNewIntent(p0: Intent?) {}
@@ -259,6 +271,12 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
   private suspend fun getHardwareIdAsync(): String = getAsyncResult(String::class.java) { promise ->
     getHardwareId(promise)
+  }
+
+  private fun sendEvent(reactContext: ReactContext, eventName: String, params: WritableMap?) {
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(eventName, params)
   }
 
   override fun getName(): String {

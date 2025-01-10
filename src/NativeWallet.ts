@@ -53,6 +53,11 @@ type IOSCardData = {
   cardDescriptionComment: string;
 };
 
+type onCardActivatedPayload = {
+  tokenId: string;
+  cardStatus: 'activated' | 'canceled';
+};
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<WalletData>;
@@ -63,4 +68,4 @@ export interface Spec extends TurboModule {
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');
 
-export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress};
+export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress, onCardActivatedPayload};

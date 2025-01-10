@@ -1,12 +1,14 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, Alert} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
   getCardStatus,
   getCardTokenStatus,
   addCardToWallet,
+  addListener,
+  removeListener,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {
@@ -92,6 +94,15 @@ export default function App() {
 
   useEffect(() => {
     handleCheckWalletAvailability();
+
+    const subscription = addListener('onCardActivated', data => {
+      Alert.alert('onCardActivated listener', JSON.stringify(data));
+    });
+
+    return () => {
+      removeListener(subscription);
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

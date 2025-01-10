@@ -1,6 +1,8 @@
 /* eslint-disable @lwc/lwc/no-async-await */
+import {NativeEventEmitter} from 'react-native';
+import type {EmitterSubscription} from 'react-native';
 import Wallet from './NativeWallet';
-import type {CardData, CardStatus, WalletData} from './NativeWallet';
+import type {CardData, CardStatus, WalletData, onCardActivatedPayload} from './NativeWallet';
 import {getCardState} from './utils';
 
 function checkWalletAvailability(): Promise<boolean> {
@@ -25,5 +27,15 @@ function addCardToWallet(cardData: CardData): Promise<void> {
   return Wallet.addCardToWallet(cardData);
 }
 
+const eventEmitter = new NativeEventEmitter();
+
+function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
+  return eventEmitter.addListener(event, callback);
+}
+
+function removeListener(subscription: EmitterSubscription): void {
+  subscription.remove();
+}
+
 // eslint-disable-next-line import/prefer-default-export
-export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet};
+export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet, addListener, removeListener};
