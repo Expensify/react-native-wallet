@@ -1,13 +1,21 @@
 package com.wallet
 
-import com.facebook.react.TurboReactPackage
+import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.NativeModule
+import com.facebook.react.module.annotations.ReactModuleList
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.module.model.ReactModuleInfo
 import java.util.HashMap
 
-class WalletPackage : TurboReactPackage() {
+// Fool autolinking for older versions that do not support BaseReactPackage.
+// public class RNScreensPackage implements TurboReactPackage {
+@ReactModuleList(
+  nativeModules = [
+    WalletModule::class,
+  ],
+)
+class WalletPackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
     return if (name == WalletModule.NAME) {
       WalletModule(reactContext)
