@@ -144,6 +144,9 @@
   "codegenConfig": {
     "name": "RNWalletSpec",
     "type": "all",
-    "jsSrcsDir": "src"
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.wallet"
+    }
   }
 }
