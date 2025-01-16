@@ -150,7 +150,7 @@
     "type": "all",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.wallet"
+      "javaPackageName": "com.expensify.wallet"
     }
   }
 }

@@ -1,4 +1,4 @@
-package com.wallet
+package com.expensify.wallet
 
 import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.ReactApplicationContext

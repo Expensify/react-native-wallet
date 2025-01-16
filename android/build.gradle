@@ -39,7 +39,7 @@ def getExtOrIntegerDefault(name) {
 }
 
 android {
-  namespace "com.wallet"
+  namespace "com.expensify.wallet"
 
   sourceSets {
     main {

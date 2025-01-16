@@ -10,7 +10,7 @@
  * @nolint
  */
 
-package com.wallet;
+package com.expensify.wallet;
 
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.Promise;
