@@ -5,7 +5,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 
 
-class WalletModule internal constructor(context: ReactApplicationContext) : WalletSpec(context) {
+class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
   companion object {
     const val NAME = "Wallet"
   }

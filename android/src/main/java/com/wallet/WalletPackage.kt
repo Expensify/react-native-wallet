@@ -9,7 +9,7 @@ import com.facebook.react.module.model.ReactModuleInfo
 import java.util.HashMap
 
 // Fool autolinking for older versions that do not support BaseReactPackage.
-// public class RNScreensPackage implements TurboReactPackage {
+// public class WalletPackage implements TurboReactPackage {
 @ReactModuleList(
   nativeModules = [
     WalletModule::class,
