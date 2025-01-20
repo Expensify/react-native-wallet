@@ -19,6 +19,3 @@ Pod::Spec.new do |s|
 
   install_modules_dependencies(s);
 end
-
-
-
