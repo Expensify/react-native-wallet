@@ -1,4 +1,4 @@
-package com.wallet.model
+package com.expensify.wallet.model
 
 import com.google.android.gms.tapandpay.issuer.UserAddress
 

@@ -1,4 +1,4 @@
-package com.wallet.model
+package com.expensify.wallet.model
 
 enum class CardStatus(val code: Int, val message: String) {
   NOT_FOUND_IN_WALLET(0, "THe card can;t be found in your active wallet"),

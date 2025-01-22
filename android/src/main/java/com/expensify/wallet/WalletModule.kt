@@ -22,11 +22,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import com.wallet.Utils.getAsyncResult
-import com.wallet.Utils.toCardData
-import com.wallet.event.OnCardActivatedEvent
-import com.wallet.model.CardStatus
-import com.wallet.model.WalletData
+import com.expensify.wallet.Utils.getAsyncResult
+import com.expensify.wallet.Utils.toCardData
+import com.expensify.wallet.event.OnCardActivatedEvent
+import com.expensify.wallet.model.CardStatus
+import com.expensify.wallet.model.WalletData
 import java.nio.charset.Charset
 import java.util.Locale
 

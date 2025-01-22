@@ -1,4 +1,4 @@
-package com.wallet.event
+package com.expensify.wallet.event
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap

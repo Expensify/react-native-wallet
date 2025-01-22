@@ -1,4 +1,4 @@
-package com.wallet.model
+package com.expensify.wallet.model
 
 data class WalletData(
   val platform: String = "android",
