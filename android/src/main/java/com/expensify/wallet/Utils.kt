@@ -1,10 +1,10 @@
-package com.wallet
+package com.expensify.wallet
 
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.google.android.gms.tapandpay.issuer.UserAddress
-import com.wallet.model.CardData
+import com.expensify.wallet.model.CardData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -41,19 +41,23 @@ object Utils {
   ): String = withContext(Dispatchers.IO) {
     suspendCancellableCoroutine { continuation ->
       val promise = object : Promise {
-        override fun resolve(result: Any?) {
-          if (resultType.isInstance(result)) {
-            continuation.resume(result as String)
-          } else {
-            continuation.resumeWithException(
-              RuntimeException("Expected result of type ${resultType.simpleName}, but got ${result?.javaClass?.simpleName}")
-            )
-          }
+        @Deprecated(
+          "Prefer passing a module-specific error code to JS. Using this method will pass the\n        error code EUNSPECIFIED",
+          replaceWith = ReplaceWith("reject(code, message)")
+        )
+        override fun reject(message: String) {
+          continuation.resumeWithException(
+            Exception(message)
+          )
         }
 
-        override fun reject(code: String?, message: String?) {
+        override fun reject(code: String, userInfo: WritableMap) {
+          TODO("Not yet implemented")
+        }
+
+        override fun reject(code: String, message: String?) {
           var errorMessage = "Unknown error during async operation"
-          if (code != null || message != null) {
+          if (message != null) {
             errorMessage = "Error during async operation\nCode: $code\nMessage: $message"
           }
           continuation.resumeWithException(
@@ -61,52 +65,57 @@ object Utils {
           )
         }
 
-        override fun reject(message: String?, e: Throwable?) {
-          continuation.resumeWithException(
-            e ?: Exception(message ?: "Unknown error during async operation")
-          )
+        override fun reject(code: String, message: String?, userInfo: WritableMap) {
+          TODO("Not yet implemented")
         }
 
-        override fun reject(p0: String?, p1: String?, e: Throwable?) {
-          var message = "Unknown error during async operation"
-          if(p0 != null || p1 != null){
-            message = "Error during async operation: $p0\n$p1"
+        override fun reject(code: String, message: String?, throwable: Throwable?) {
+          var errorMessage = "Unknown error during async operation"
+          if(message != null){
+            errorMessage = "Error during async operation: $code\n$message"
           }
           continuation.resumeWithException(
-            e ?: Exception(message)
+            throwable ?: Exception(errorMessage)
           )
         }
 
-        override fun reject(e: Throwable?) {
+        override fun reject(code: String, throwable: Throwable?) {
           continuation.resumeWithException(
-            e ?: Exception("Unknown error during async operation")
+            throwable ?: Exception(code)
           )
         }
 
-        override fun reject(p0: Throwable?, p1: WritableMap?) {
+        override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) {
           TODO("Not yet implemented")
         }
 
-        override fun reject(p0: String?, p1: WritableMap) {
+        override fun reject(
+          code: String?,
+          message: String?,
+          throwable: Throwable?,
+          userInfo: WritableMap?
+        ) {
           TODO("Not yet implemented")
         }
 
-        override fun reject(p0: String?, p1: Throwable?, p2: WritableMap?) {
-          TODO("Not yet implemented")
-        }
-
-        override fun reject(p0: String?, p1: String?, p2: WritableMap) {
-          TODO("Not yet implemented")
-        }
-
-        override fun reject(p0: String?, p1: String?, p2: Throwable?, p3: WritableMap?) {
-          TODO("Not yet implemented")
-        }
-
-        override fun reject(message: String?) {
+        override fun reject(throwable: Throwable) {
           continuation.resumeWithException(
-            Exception(message ?: "Unknown error during async operation")
+            throwable
           )
+        }
+
+        override fun reject(throwable: Throwable, userInfo: WritableMap) {
+          TODO("Not yet implemented")
+        }
+
+        override fun resolve(value: Any?) {
+          if (resultType.isInstance(value)) {
+            continuation.resume(value as String)
+          } else {
+            continuation.resumeWithException(
+              RuntimeException("Expected result of type ${resultType.simpleName}, but got ${value?.javaClass?.simpleName}")
+            )
+          }
         }
 
       }
