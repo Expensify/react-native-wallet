@@ -20,13 +20,13 @@ import com.google.android.gms.tapandpay.TapAndPayClient
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
 import com.expensify.wallet.model.WalletData
+import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
 import java.util.Locale
 
@@ -82,8 +82,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   override fun getSecureWalletInfo(promise: Promise) {
     CoroutineScope(Dispatchers.Main).launch {
       try {
-        val walletId = async { getWalletIdAsync() }
-        val hardwareId = async { getHardwareIdAsync() }
+        val walletId = getWalletIdAsync()
+        val hardwareId = getHardwareIdAsync()
         val walletData = WalletData(
           platform = "android", deviceID = hardwareId.await(), walletAccountID = walletId.await()
         )
@@ -265,11 +265,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     }
   }
 
-  private suspend fun getWalletIdAsync(): String = getAsyncResult (String::class.java) { promise ->
+  private suspend fun getWalletIdAsync(): Deferred<String> = getAsyncResult (String::class.java) { promise ->
     getWalletId(promise)
   }
 
-  private suspend fun getHardwareIdAsync(): String = getAsyncResult(String::class.java) { promise ->
+  private suspend fun getHardwareIdAsync(): Deferred<String> = getAsyncResult(String::class.java) { promise ->
     getHardwareId(promise)
   }
 
