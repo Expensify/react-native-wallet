@@ -1,5 +1,6 @@
 package com.expensify.wallet
 
+import InvalidNetworkError
 import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
@@ -171,9 +172,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
       val cardNetwork = getCardNetwork(cardData.network)
       val tokenServiceProvider = getTokenServiceProvider(cardData.network)
-      if (cardNetwork == 1000 || tokenServiceProvider == 1000) {
-        return promise.reject("Reject: ", "Invalid card network")
-      }
 
       val pushTokenizeRequest = PushTokenizeRequest.Builder()
         .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
@@ -250,7 +248,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     return when (network.uppercase(Locale.getDefault())) {
       TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
       TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
-      else -> 1000
+      else -> throw InvalidNetworkError()
     }
   }
 
@@ -258,7 +256,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     return when (network.uppercase(Locale.getDefault())) {
       TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
       TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
-      else -> 1000
+      else -> throw InvalidNetworkError()
     }
   }
 
