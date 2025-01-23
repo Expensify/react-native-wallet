@@ -5,11 +5,14 @@ import com.facebook.react.bridge.WritableMap
 
 
 class OnCardActivatedEvent(private val status: String, private val tokenId: String?) {
+  companion object {
+    const val NAME = "OnCardActivatedEvent"
+  }
+
   fun toMap(): WritableMap? {
     val params = Arguments.createMap()
     params.putString("status", status)
     params.putString("tokenId", tokenId)
     return params
   }
-
 }

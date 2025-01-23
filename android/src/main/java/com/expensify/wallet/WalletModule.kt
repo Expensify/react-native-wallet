@@ -26,6 +26,8 @@ import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
 import com.expensify.wallet.model.WalletData
+import com.facebook.react.uimanager.events.PointerEventHelper.EVENT
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
 import java.util.Locale
@@ -39,6 +41,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
     const val TSP_VISA: String = "VISA"
     const val TSP_MASTERCARD: String = "MASTERCARD"
+
+    const val E_SDK_API = "SDK API Error"
+    const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
+    const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
+    const val E_INVALID_DATA = "E_INVALID_DATA"
+    const val E_INIT = "E_INIT"
+
   }
 
   private var tapAndPayClient: TapAndPayClient? = null
@@ -56,10 +65,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
           if (resultCode == RESULT_OK) {
             intent?.let{
               val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-              sendEvent(context, "onCardActivated", OnCardActivatedEvent("active", tokenId).toMap())
+              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
             }
           } else if (resultCode == RESULT_CANCELED) {
-            sendEvent(context, "onCardActivated", OnCardActivatedEvent("cancelled", null).toMap())
+            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("cancelled", null).toMap())
           }
         }
       }
@@ -95,8 +104,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         }
 
         promise.resolve(walletDataMap)
+      } catch (e: ApiException) {
+        promise.reject(E_SDK_API, e.localizedMessage)
       } catch (e: Exception) {
-        promise.reject("Error", "Failed to retrieve IDs: ${e.localizedMessage}")
+        promise.reject(E_OPERATION_FAILED, "Failed to retrieve IDs: ${e.localizedMessage}")
       }
     }
   }
@@ -110,22 +121,17 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     tapAndPayClient!!.listTokens()
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
-          promise.reject("Error", "No tokens available")
+          promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
           return@addOnCompleteListener
         }
         task.result.find { it.fpanLastFour == last4Digits }?.let {
-          Log.i("getCardStatus", "Card Token State: ${it.tokenState}")
           promise.resolve(
             getCardStatusCode(it.tokenState)
           )
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
-      .addOnFailureListener { e -> promise.reject("getCardStatus function failed", e) }
-      .addOnCanceledListener {
-        promise.reject(
-          "Reject",
-          "Card status retrieval canceled"
-        )
+      .addOnFailureListener { e ->
+        promise.reject(E_OPERATION_FAILED, "getCardStatus function failed", e)
       }
   }
 
@@ -147,12 +153,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
           )
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
-      .addOnFailureListener { e -> promise.reject("getCardStatus function failed", e) }
-      .addOnCanceledListener {
-        promise.reject(
-          "Reject",
-          "Card status retrieval canceled"
-        )
+      .addOnFailureListener { e ->
+        promise.reject(E_OPERATION_FAILED, "getCardStatus: ${e.localizedMessage}")
       }
   }
 
@@ -160,11 +162,12 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   override fun addCardToWallet(
     data: ReadableMap, promise: Promise
   ) {
-
-    if (!ensureTapAndPayClientInitialized(promise)) return
+    if (!ensureTapAndPayClientInitialized(promise)) {
+      return
+    }
 
     try {
-      val cardData = data.toCardData() ?: return promise.reject("Reject: ", "Insufficient data")
+      val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
 
       val cardNetwork = getCardNetwork(cardData.network)
       val tokenServiceProvider = getTokenServiceProvider(cardData.network)
@@ -194,7 +197,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       tapAndPayClient = TapAndPay.getClient(currentActivity!!)
     }
     if (tapAndPayClient == null) {
-      promise.reject("Initialization error", "TapAndPay client initialization failed")
+      promise.reject(E_INIT, "TapAndPay SDK client initialization failed")
       return false
     }
     return true
@@ -204,6 +207,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     if (!ensureTapAndPayClientInitialized(promise)) {
       return
     }
+
     tapAndPayClient!!.activeWalletId.addOnCompleteListener { task ->
       if (task.isSuccessful) {
         val walletId = task.result
@@ -212,11 +216,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         }
       }
     }.addOnFailureListener { e ->
-      promise.reject("Wallet id retrieval failed", e)
-    }.addOnCanceledListener {
-      promise.reject(
-        "Reject: ", "Wallet id retrieval canceled"
-      )
+      promise.reject(E_OPERATION_FAILED, "Wallet id retrieval failed: ${e.localizedMessage}")
     }
   }
 
@@ -224,17 +224,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     if (!ensureTapAndPayClientInitialized(promise)) {
       return
     }
+
     tapAndPayClient!!.stableHardwareId.addOnCompleteListener { task ->
       if (task.isSuccessful) {
         val hardwareId = task.result
         promise.resolve(hardwareId)
       }
     }.addOnFailureListener { e ->
-      promise.reject("Stable hardware id retrieval failed", e)
-    }.addOnCanceledListener {
-      promise.reject(
-        "Reject: ", "Stable hardware id retrieval canceled"
-      )
+      promise.reject(E_OPERATION_FAILED, "Stable hardware id retrieval failed: ${e.localizedMessage}")
     }
   }
 
