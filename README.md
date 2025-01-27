@@ -45,7 +45,7 @@ With all the required data, submit the form and wait for Google's response. Afte
 
 #### Step 3: Test your app
 
-Before publishing your app with implemented In-App Push Provisioning, you will need to send your app for Google reveiew. More information about it you can find in the [Deploying your app](#deploying-your-app) section below.
+Before publishing your app with implemented In-App Push Provisioning, you will need to send your app for Google review. More information about it can be found in the [Deploying your app](#deploying-your-app) section below.
 
 
 
