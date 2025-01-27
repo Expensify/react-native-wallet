@@ -8,7 +8,7 @@ Using the `react-native-wallet` Push Provisioning features requires proper confi
 
 ### Android
 
-To be able to interact with the Google Wallet on the Android please make sure to complete all of the steps below:
+To be able to interact with the Google Wallet on the Android please make sure to complete all of the steps below following [the Google Push Provisioning documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/setup):
 
 #### Step 1: Get access to Google TapAndPay SDK
 
@@ -20,6 +20,7 @@ Then connect the SDK to your project in `build.gradle`, for example like in [exa
 
 ```groovy
 allprojects {
+    // ...
     repositories {
         // ...
         google()
@@ -42,6 +43,10 @@ Fingerprint: SHA256: 36:38:63:59:6E:...:00:82:16:4E:FF
 You can display your SHA-256 certificate checksum using `apksigner` or `keytool`.
 With all the required data, submit the form and wait for Google's response. After successfully whitelisting your app you will be able to use Google SDK within our library.
 
+#### Step 3: Test your app
+
+Before publishing your app with implemented In-App Push Provisioning, you will need to send your app for Google reveiew. More information about it you can find in the [Deploying your app](#deploying-your-app) section below.
+
 
 
 ## Installation
@@ -62,6 +67,19 @@ import {multiply} from '@expensify/react-native-wallet';
 
 const result = multiply(3, 7);
 ```
+
+# Deploying your app 
+
+To successfully publish your app, you will need to navigate through a series of mandatory test cases on both platforms. 
+
+### Android
+
+Before deploying your app to the Google Play Store, make sure you have taken care of the security when implementing Push Provisioning and properly tested your code. To accopmlish it, please familiarize yourself with [the Google's App Push Provisioning best practices](https://developers.google.com/pay/issuers/apis/push-provisioning/android/best-practices).
+
+The latest information about deploying apps with Google TapAndPay SDK can be found in the [pre-launch process](https://developers.google.com/pay/issuers/apis/push-provisioning/android/launch-process#step_3_issuer_app_product_review) and [beta tests](https://developers.google.com/pay/issuers/apis/push-provisioning/android/beta-testing) sections in Google documentation. Make sure to complete all of the steps specified by Google connected to the _Google's branding_, _API safety_, and _app stability_. 
+
+Before publishing your app, it will need to be reviewed by Google. During this process, it will need to pass 4 mandatory test cases that are specified [here](https://developers.google.com/pay/issuers/apis/push-provisioning/android/test-cases). They verify how your app handles card state tracking in different scenarios. Please make sure to hide the `Add to Google Wallet` buttons when cards are already added to the wallet. 
+
 
 # Deploying
 
