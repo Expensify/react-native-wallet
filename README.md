@@ -21,12 +21,26 @@ Then connect the SDK to your project in `build.gradle`, for example like in [exa
 ```groovy
 allprojects {
     repositories {
-        ...
+        // ...
         google()
         maven { url "file://${rootDir}/libs" }
     }
 }
 ```
+
+#### Step 2: Whitelist your app for SDK use.
+
+To use the Google SDK in your app, you will need to whitelist your app details. Without it, calling some functions will result in a `Not verified` error. To resolve it, please follow the instructions from [the official Google documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/allowlist).
+
+For your builds, you will need to prepare your app's `package name` and `fingerprint` following [these steps](https://developers.google.com/pay/issuers/apis/push-provisioning/android/allowlist#how_to_get_your_apps_fingerprint). The values should, for example, look like this:
+
+```
+Package name: com.app.package.name  
+Fingerprint: SHA256: 36:38:63:59:6E:...:00:82:16:4E:FF
+```
+
+You can display your SHA-256 certificate checksum using `apksigner` or `keytool`.
+With all the required data, submit the form and wait for Google's response. After successfully whitelisting your app you will be able to use Google SDK within our library.
 
 
 
