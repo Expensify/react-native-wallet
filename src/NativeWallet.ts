@@ -16,7 +16,7 @@ type IOSWalletData = {
   certificates: string;
 };
 
-type CardStatus = 'not found' | 'requireActivation' | 'activating' | 'activated' | 'suspended' | 'deactivated';
+type CardStatus = 'not found' | 'requireActivation' | 'pending' | 'active' | 'suspended' | 'deactivated';
 
 type UserAddress = {
   name: string;
@@ -55,7 +55,7 @@ type IOSCardData = {
 
 type onCardActivatedPayload = {
   tokenId: string;
-  actionStatus: 'activated' | 'canceled';
+  actionStatus: 'active' | 'canceled';
 };
 
 export interface Spec extends TurboModule {

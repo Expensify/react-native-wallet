@@ -125,7 +125,7 @@ The library offers five functions for seamless integration and use of the Apple 
 
 | Type | Possible Values |
 |------|-----------------|
-| **CardStatus** | `not found`, `requireActivation`, `activating`, `activated`, `suspended`, `deactivated` |
+| **CardStatus** | `not found`, `requireAuthorization`, `pending`, `active`, `suspended`, `deactivated` |
 
 ## Listeners
 

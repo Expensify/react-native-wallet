@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.util.Log
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -27,7 +26,6 @@ import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
 import com.expensify.wallet.model.WalletData
-import com.facebook.react.uimanager.events.PointerEventHelper.EVENT
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
@@ -41,7 +39,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     const val REQUEST_CREATE_WALLET: Int = 4
 
     const val TSP_VISA: String = "VISA"
-    const val TSP_MASTERCARD: String = "MASTERCARD"
 
     const val E_SDK_API = "SDK API Error"
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
@@ -69,7 +66,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
               sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
             }
           } else if (resultCode == RESULT_CANCELED) {
-            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("cancelled", null).toMap())
+            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("canceled", null).toMap())
           }
         }
       }
@@ -238,7 +235,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       TapAndPay.TOKEN_STATE_ACTIVE -> CardStatus.ACTIVE.code
       TapAndPay.TOKEN_STATE_PENDING -> CardStatus.PENDING.code
       TapAndPay.TOKEN_STATE_SUSPENDED -> CardStatus.SUSPENDED.code
-      TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION -> CardStatus.REQUIRE_IDENTITY_VERIFICATION.code
+      TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION -> CardStatus.REQUIRE_AUTHORIZATION.code
       TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING -> CardStatus.PENDING.code
       else -> CardStatus.NOT_FOUND_IN_WALLET.code
     }
@@ -246,8 +243,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
   private fun getCardNetwork(network: String): Int {
     return when (network.uppercase(Locale.getDefault())) {
-      TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
-      TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
+      TSP_VISA -> TapAndPay.CARD_NETWORK_VISA
       else -> throw InvalidNetworkError()
     }
   }
@@ -255,7 +251,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   private fun getTokenServiceProvider(network: String): Int {
     return when (network.uppercase(Locale.getDefault())) {
       TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
-      TSP_MASTERCARD -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
       else -> throw InvalidNetworkError()
     }
   }
