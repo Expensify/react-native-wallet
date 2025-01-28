@@ -55,7 +55,7 @@ type IOSCardData = {
 
 type onCardActivatedPayload = {
   tokenId: string;
-  cardStatus: 'activated' | 'canceled';
+  actionStatus: 'activated' | 'canceled';
 };
 
 export interface Spec extends TurboModule {
