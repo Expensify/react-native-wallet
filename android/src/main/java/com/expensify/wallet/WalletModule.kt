@@ -35,8 +35,8 @@ import java.util.Locale
 class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
   companion object {
     const val NAME = "Wallet"
-    const val REQUEST_CODE_PUSH_TOKENIZE: Int = 3
-    const val REQUEST_CREATE_WALLET: Int = 4
+    const val REQUEST_CODE_PUSH_TOKENIZE: Int = 0xA001
+    const val REQUEST_CREATE_WALLET: Int = 0xA002
 
     const val TSP_VISA: String = "VISA"
 

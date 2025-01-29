@@ -1,6 +1,5 @@
 package com.expensify.wallet
 
-import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
@@ -48,51 +47,55 @@ object Utils {
         suspendCancellableCoroutine { continuation ->
           val promise = object : Promise {
             @Deprecated(
-              "Prefer passing a module-specific error code to JS. Using this method will pass the\n        error code EUNSPECIFIED",
+              "Prefer passing a module-specific error code to JS. Using this method will pass the error code UNSPECIFIED",
               replaceWith = ReplaceWith("reject(code, message)")
             )
             override fun reject(message: String) {
               continuation.resumeWithException(
-                Exception(message)
+                Exception("Error: $message")
               )
             }
 
             override fun reject(code: String, userInfo: WritableMap) {
-              TODO("Not yet implemented")
+              val errorMessage = "Error: $code\nUserInfo: $userInfo"
+              continuation.resumeWithException(
+                Exception(errorMessage)
+              )
             }
 
             override fun reject(code: String, message: String?) {
-              var errorMessage = "Unknown error during async operation"
-              if (message != null) {
-                errorMessage = "Error during async operation\nCode: $code\nMessage: $message"
-              }
+              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}"
               continuation.resumeWithException(
                 Exception(errorMessage)
               )
             }
 
             override fun reject(code: String, message: String?, userInfo: WritableMap) {
-              TODO("Not yet implemented")
+              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}\nUserInfo: $userInfo"
+              continuation.resumeWithException(
+                Exception(errorMessage)
+              )
             }
 
             override fun reject(code: String, message: String?, throwable: Throwable?) {
-              var errorMessage = "Unknown error during async operation"
-              if (message != null) {
-                errorMessage = "Error during async operation: $code\n$message"
-              }
+              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}"
               continuation.resumeWithException(
                 throwable ?: Exception(errorMessage)
               )
             }
 
             override fun reject(code: String, throwable: Throwable?) {
+              val errorMessage = "Error: $code"
               continuation.resumeWithException(
-                throwable ?: Exception(code)
+                throwable ?: Exception(errorMessage)
               )
             }
 
             override fun reject(code: String, throwable: Throwable?, userInfo: WritableMap) {
-              TODO("Not yet implemented")
+              val errorMessage = "Error: $code\nUserInfo: $userInfo"
+              continuation.resumeWithException(
+                throwable ?: Exception(errorMessage)
+              )
             }
 
             override fun reject(
@@ -101,7 +104,14 @@ object Utils {
               throwable: Throwable?,
               userInfo: WritableMap?
             ) {
-              TODO("Not yet implemented")
+              val errorMessage = buildString {
+                append("Error: ${code ?: "Unknown code"}")
+                if (message != null) append("\nMessage: $message")
+                if (userInfo != null) append("\nUserInfo: $userInfo")
+              }
+              continuation.resumeWithException(
+                throwable ?: Exception(errorMessage)
+              )
             }
 
             override fun reject(throwable: Throwable) {
@@ -111,7 +121,10 @@ object Utils {
             }
 
             override fun reject(throwable: Throwable, userInfo: WritableMap) {
-              TODO("Not yet implemented")
+              val errorMessage = "Exception occurred\nUserInfo: $userInfo"
+              continuation.resumeWithException(
+                Exception(errorMessage, throwable)
+              )
             }
 
             override fun resolve(value: Any?) {

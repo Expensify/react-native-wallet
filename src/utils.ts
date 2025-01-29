@@ -7,9 +7,9 @@ function getCardState(stateId: number): CardStatus {
     case 1:
       return 'requireActivation';
     case 2:
-      return 'activating';
+      return 'pending';
     case 3:
-      return 'activated';
+      return 'active';
     case 4:
       return 'suspended';
     case 5:
