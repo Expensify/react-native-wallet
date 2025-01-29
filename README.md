@@ -19,9 +19,9 @@ To be able to interact with the Google Wallet on the Android please make sure to
 1. Visit [the Google Pay Android Push Provisioning API documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/) and request access to it.
 
 2. Once getting an approval from the Google team
-	2.1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases). 
-	2.2. Unzip it and extract the SDK into the `/android/libs` folder in your React Native project (if there is no `libs` folder, create one). 
-	2.3. Add `/android/libs` to `.gitignore`.
+	1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases). 
+	2. Unzip it and extract the SDK into the `/android/libs` folder in your React Native project (if there is no `libs` folder, create one). 
+	3. Add `/android/libs` to `.gitignore`.
 	
 3. Then connect the SDK to your project in `build.gradle`, for example like in [example/android/build.gradle](https://github.com/Expensify/react-native-wallet/blob/main/example/android/build.gradle):
 
@@ -66,9 +66,9 @@ After completing the setup from the section above, install the `react-native-wal
 
 ```sh
 npm install @expensify/react-native-wallet
-
+```
 or
-
+```sh
 yarn add @expensify/react-native-wallet
 ```
 

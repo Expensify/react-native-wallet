@@ -1,6 +1,5 @@
 package com.expensify.wallet
 
-import InvalidNetworkError
 import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
@@ -23,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
+import com.expensify.wallet.error.InvalidNetworkError
 import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
 import com.expensify.wallet.model.WalletData
