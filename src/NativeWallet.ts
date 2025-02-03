@@ -18,6 +18,8 @@ type IOSWalletData = {
 
 type CardStatus = 'not found' | 'requireActivation' | 'pending' | 'active' | 'suspended' | 'deactivated';
 
+type Platform = 'android' | 'ios';
+
 type UserAddress = {
   name: string;
   addressOne: string;
@@ -68,4 +70,4 @@ export interface Spec extends TurboModule {
 
 export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');
 
-export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress, onCardActivatedPayload};
+export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress, onCardActivatedPayload, Platform};
