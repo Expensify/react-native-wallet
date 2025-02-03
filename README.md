@@ -73,11 +73,13 @@ yarn add @expensify/react-native-wallet
 ```
 
 ## Usage
+soon...
 
 ```js
 import {multiply} from '@expensify/react-native-wallet';
 
 *// ...*
+
 
 const result = multiply(3, 7);
 ```

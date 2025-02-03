@@ -51,27 +51,30 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   private var tapAndPayClient: TapAndPayClient? = null
   private var pendingCreateWalletPromise: Promise? = null
 
-  init {
-    reactApplicationContext.addActivityEventListener(object : ActivityEventListener {
-      override fun onActivityResult(
-        activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?
-      ) {
-        if (requestCode == REQUEST_CREATE_WALLET) {
-          pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
-          pendingCreateWalletPromise = null
-        } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
-          if (resultCode == RESULT_OK) {
-            intent?.let{
-              val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
-            }
-          } else if (resultCode == RESULT_CANCELED) {
-            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("canceled", null).toMap())
+  override fun initialize() {
+    super.initialize()
+    reactApplicationContext.addActivityEventListener(cardListener)
+  }
+
+  private val cardListener = object : ActivityEventListener {
+    override fun onActivityResult(
+      activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?
+    ) {
+      if (requestCode == REQUEST_CREATE_WALLET) {
+        pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
+        pendingCreateWalletPromise = null
+      } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
+        if (resultCode == RESULT_OK) {
+          intent?.let{
+            val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
+            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
           }
+        } else if (resultCode == RESULT_CANCELED) {
+          sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("canceled", null).toMap())
         }
       }
-      override fun onNewIntent(p0: Intent?) {}
-    })
+    }
+    override fun onNewIntent(p0: Intent?) {}
   }
 
   @ReactMethod
