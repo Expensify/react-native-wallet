@@ -37,5 +37,7 @@ function removeListener(subscription: EmitterSubscription): void {
   subscription.remove();
 }
 
+export {default as AddWalletButton} from './AddWalletButton';
+
 // eslint-disable-next-line import/prefer-default-export
 export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet, addListener, removeListener};

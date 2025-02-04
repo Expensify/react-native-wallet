@@ -48,7 +48,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
   }
 
-  private var tapAndPayClient: TapAndPayClient? = null
+  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(currentActivity!!)
   private var pendingCreateWalletPromise: Promise? = null
 
   override fun initialize() {
@@ -83,7 +83,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
       promise.resolve(true)
     }, { _ ->
       pendingCreateWalletPromise = promise
-      tapAndPayClient!!.createWallet(currentActivity!!, REQUEST_CREATE_WALLET)
+      tapAndPayClient.createWallet(currentActivity!!, REQUEST_CREATE_WALLET)
     })
     getWalletId(localPromise)
   }
@@ -115,11 +115,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
   @ReactMethod
   override fun getCardStatus(last4Digits: String, promise: Promise) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-
-    tapAndPayClient!!.listTokens()
+    tapAndPayClient.listTokens()
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
@@ -138,11 +134,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
 
   @ReactMethod
   override fun getCardTokenStatus(tsp: String, tokenRefId: String, promise: Promise) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-
-    tapAndPayClient!!.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
+    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
@@ -163,10 +155,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   override fun addCardToWallet(
     data: ReadableMap, promise: Promise
   ) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
 
@@ -182,7 +170,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         .setUserAddress(cardData.userAddress)
         .build()
 
-      tapAndPayClient!!.pushTokenize(
+      tapAndPayClient.pushTokenize(
         currentActivity!!, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
@@ -190,23 +178,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     }
   }
 
-  private fun ensureTapAndPayClientInitialized(promise: Promise): Boolean {
-    if (tapAndPayClient == null && currentActivity != null) {
-      tapAndPayClient = TapAndPay.getClient(currentActivity!!)
-    }
-    if (tapAndPayClient == null) {
-      promise.reject(E_INIT, "TapAndPay SDK client initialization failed")
-      return false
-    }
-    return true
-  }
-
   private fun getWalletId(promise: Promise) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-
-    tapAndPayClient!!.activeWalletId.addOnCompleteListener { task ->
+    tapAndPayClient.activeWalletId.addOnCompleteListener { task ->
       if (task.isSuccessful) {
         val walletId = task.result
         if (walletId != null) {
@@ -219,11 +192,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   }
 
   private fun getHardwareId(promise: Promise) {
-    if (!ensureTapAndPayClientInitialized(promise)) {
-      return
-    }
-
-    tapAndPayClient!!.stableHardwareId.addOnCompleteListener { task ->
+    tapAndPayClient.stableHardwareId.addOnCompleteListener { task ->
       if (task.isSuccessful) {
         val hardwareId = task.result
         promise.resolve(hardwareId)

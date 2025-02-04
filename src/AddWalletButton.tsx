@@ -15,7 +15,7 @@ type ButtonProps = {
 function AddToWalletButton({onPress, locale, platform, buttonStyle, imageStyle}: ButtonProps) {
   const image = useMemo(() => {
     const platformImages = PATH_MAP[platform];
-    return platformImages ? platformImages[locale] ?? platformImages.default : null;
+    return platformImages[locale] ?? platformImages.default;
   }, [locale, platform]);
 
   return (
