@@ -149,7 +149,7 @@ export default function App() {
         onPress={handleAddCardToWallet}
       />
       <AddWalletButton
-        onPress={() => console.log('dupa')}
+        onPress={() => console.log('Button pressed!')}
         locale="en"
         platform={dummyCardData.platform}
       />
