@@ -135,6 +135,37 @@ The library offers five functions for seamless integration and use of the Apple 
 |----------|-------------------|-------------------|---------------------|
 | **_cardActivation_** | Notifies when a card's status changes to activated. | `addListener(event:  string, callback: (data:  onCardActivatedPayload) =>  void): EmitterSubscription` | `removeListener(subscription:  EmitterSubscription): void` |
 
+## Components
+
+### `AddToWalletButton`
+
+A ready-to-use component that simplifies the addition of payment cards to Google Wallet and Apple Wallet. The button automatically adapts its appearance and functionality according to the platform and language specified.
+
+> [!NOTE]
+> Please bear in mind the brand rules provided by [Google](https://developers.google.com/pay/issuers/apis/push-provisioning/android/branding-guidelines#the_add_to_button) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application.
+
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| **onPress** | `() => void` | Yes | A callback that is triggered when the button is pressed. |
+| **locale** | `string` | Yes | The language code to display the correct button language. |
+| **platform** | `Platform` (`ios \| android`) | Yes | The platform type to ensure the appropriate button image is implemented. |
+| **buttonStyle** | `ViewStyle` | No | Customizes the button style. |
+| **imageStyle** | `ImageStyle` | No | Customizes the button's image style. |
+
+#### Usage Example:
+
+```typescriptreact
+<AddToWalletButton
+  onPress={() => console.log('Button pressed!')}
+  locale="en"
+  platform="android"
+  buttonStyle={{ height: 50 }}
+  imageStyle={{ resizeMode: 'contain' }}
+/>
+```
+
+
 # Publishing your app
 
 To successfully publish your app, you will need to navigate through a series of mandatory test cases on both platforms.
