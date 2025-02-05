@@ -12,7 +12,7 @@ type ButtonProps = {
 };
 
 function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps) {
-  const image1 = useMemo(() => {
+  const image = useMemo(() => {
     const platformImages = PATH_MAP[platform];
     return platformImages[locale] ?? platformImages.default;
   }, [locale, platform]);
@@ -23,7 +23,7 @@ function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps
       onPress={onPress}
     >
       <Image
-        source={image1 as ImageSourcePropType}
+        source={image as ImageSourcePropType}
         style={styles.image}
       />
     </TouchableOpacity>
