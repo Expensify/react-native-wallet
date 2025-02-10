@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
-import {Image, TouchableOpacity, StyleSheet} from 'react-native';
-import type {ImageSourcePropType, ViewStyle} from 'react-native';
+import {TouchableOpacity, StyleSheet} from 'react-native';
+import type {ViewStyle} from 'react-native';
+import {Image} from 'expo-image';
 import PATH_MAP from './constants';
 import type {Platform} from './NativeWallet';
 
@@ -12,9 +13,9 @@ type ButtonProps = {
 };
 
 function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps) {
-  const image = useMemo(() => {
-    const platformImages = PATH_MAP[platform];
-    return platformImages[locale] ?? platformImages.default;
+  const IconComponent = useMemo(() => {
+    const platformIcons = PATH_MAP[platform];
+    return platformIcons[locale] ?? platformIcons.default;
   }, [locale, platform]);
 
   return (
@@ -23,8 +24,9 @@ function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps
       onPress={onPress}
     >
       <Image
-        source={image as ImageSourcePropType}
+        source={IconComponent}
         style={styles.image}
+        contentFit="contain"
       />
     </TouchableOpacity>
   );
@@ -32,6 +34,8 @@ function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps
 
 const styles = StyleSheet.create({
   button: {
+    width: 200,
+    height: 70,
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -39,7 +43,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
   },
 });
 

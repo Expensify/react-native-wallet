@@ -9,7 +9,7 @@ import {
   addCardToWallet,
   addListener,
   removeListener,
-  AddWalletButton,
+  AddToWalletButton,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {
@@ -148,7 +148,7 @@ export default function App() {
         buttonTitle="Add Card To Wallet"
         onPress={handleAddCardToWallet}
       />
-      <AddWalletButton
+      <AddToWalletButton
         onPress={() => console.log('Button pressed!')}
         locale="en"
         platform={dummyCardData.platform}

@@ -139,10 +139,10 @@ The library offers five functions for seamless integration and use of the Apple 
 
 ### `AddToWalletButton`
 
-A ready-to-use component that simplifies the addition of payment cards to Google Wallet and Apple Wallet. The button automatically adapts its appearance and functionality according to the platform and language specified.
+A ready-to-use component that simplifies the addition of payment cards to Google Wallet and Apple Wallet. The button automatically adapts its appearance according to the platform and language specified.
 
 > [!NOTE]
-> Please bear in mind the brand rules provided by [Google](https://developers.google.com/pay/issuers/apis/push-provisioning/android/branding-guidelines#the_add_to_button) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application.
+> Please bear in mind the brand rules provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application.
 
 
 | Property | Type | Required | Description |
@@ -151,7 +151,6 @@ A ready-to-use component that simplifies the addition of payment cards to Google
 | **locale** | `string` | Yes | The language code to display the correct button language. |
 | **platform** | `Platform` (`ios \| android`) | Yes | The platform type to ensure the appropriate button image is implemented. |
 | **buttonStyle** | `ViewStyle` | No | Customizes the button style. |
-| **imageStyle** | `ImageStyle` | No | Customizes the button's image style. |
 
 #### Usage Example:
 
@@ -161,7 +160,6 @@ A ready-to-use component that simplifies the addition of payment cards to Google
   locale="en"
   platform="android"
   buttonStyle={{ height: 50 }}
-  imageStyle={{ resizeMode: 'contain' }}
 />
 ```
 

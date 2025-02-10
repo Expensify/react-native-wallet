@@ -4,6 +4,7 @@ import type {EmitterSubscription} from 'react-native';
 import Wallet from './NativeWallet';
 import type {CardData, CardStatus, WalletData, onCardActivatedPayload} from './NativeWallet';
 import {getCardState} from './utils';
+import AddToWalletButton from './AddWalletButton';
 
 function checkWalletAvailability(): Promise<boolean> {
   return Wallet.checkWalletAvailability();
@@ -37,7 +38,5 @@ function removeListener(subscription: EmitterSubscription): void {
   subscription.remove();
 }
 
-export {default as AddWalletButton} from './AddWalletButton';
-
 // eslint-disable-next-line import/prefer-default-export
-export {checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet, addListener, removeListener};
+export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet, addListener, removeListener};
