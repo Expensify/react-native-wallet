@@ -3,6 +3,7 @@ package com.expensify.wallet
 import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
@@ -45,7 +46,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
     const val E_INVALID_DATA = "E_INVALID_DATA"
     const val E_INIT = "E_INIT"
-
   }
 
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(currentActivity!!)
