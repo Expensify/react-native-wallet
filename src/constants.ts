@@ -50,7 +50,7 @@ import type {Platform} from './NativeWallet';
 
 // Here you can find the expansion of language abbreviations used in the map
 // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes (Set 1)
-const PATH_MAP: Record<Platform, Record<string, string>> = {
+const LOCALIZED_BUTTONS: Record<Platform, Record<string, string>> = {
   android: {
     af: afAndroid,
     ar: arAndroid,
@@ -108,4 +108,4 @@ const PATH_MAP: Record<Platform, Record<string, string>> = {
   },
 };
 
-export default PATH_MAP;
+export default LOCALIZED_BUTTONS;

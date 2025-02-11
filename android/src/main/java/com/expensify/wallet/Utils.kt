@@ -71,7 +71,8 @@ object Utils {
             }
 
             override fun reject(code: String, message: String?, userInfo: WritableMap) {
-              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}\nUserInfo: $userInfo"
+              val errorMessage =
+                "Error: $code\nMessage: ${message ?: "No message provided"}\nUserInfo: $userInfo"
               continuation.resumeWithException(
                 Exception(errorMessage)
               )

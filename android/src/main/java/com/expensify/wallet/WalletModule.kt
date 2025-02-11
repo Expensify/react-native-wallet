@@ -33,7 +33,8 @@ import java.nio.charset.Charset
 import java.util.Locale
 
 
-class WalletModule internal constructor(context: ReactApplicationContext) : NativeWalletSpec(context) {
+class WalletModule internal constructor(context: ReactApplicationContext) :
+  NativeWalletSpec(context) {
   companion object {
     const val NAME = "Wallet"
     const val REQUEST_CODE_PUSH_TOKENIZE: Int = 0xA001
@@ -65,15 +66,24 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
         if (resultCode == RESULT_OK) {
-          intent?.let{
+          intent?.let {
             val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
+            sendEvent(
+              context,
+              OnCardActivatedEvent.NAME,
+              OnCardActivatedEvent("active", tokenId).toMap()
+            )
           }
         } else if (resultCode == RESULT_CANCELED) {
-          sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("canceled", null).toMap())
+          sendEvent(
+            context,
+            OnCardActivatedEvent.NAME,
+            OnCardActivatedEvent("canceled", null).toMap()
+          )
         }
       }
     }
+
     override fun onNewIntent(p0: Intent?) {}
   }
 
@@ -198,7 +208,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
         promise.resolve(hardwareId)
       }
     }.addOnFailureListener { e ->
-      promise.reject(E_OPERATION_FAILED, "Stable hardware id retrieval failed: ${e.localizedMessage}")
+      promise.reject(
+        E_OPERATION_FAILED,
+        "Stable hardware id retrieval failed: ${e.localizedMessage}"
+      )
     }
   }
 
@@ -227,13 +240,15 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     }
   }
 
-  private suspend fun getWalletIdAsync(): Deferred<String> = getAsyncResult (String::class.java) { promise ->
-    getWalletId(promise)
-  }
+  private suspend fun getWalletIdAsync(): Deferred<String> =
+    getAsyncResult(String::class.java) { promise ->
+      getWalletId(promise)
+    }
 
-  private suspend fun getHardwareIdAsync(): Deferred<String> = getAsyncResult(String::class.java) { promise ->
-    getHardwareId(promise)
-  }
+  private suspend fun getHardwareIdAsync(): Deferred<String> =
+    getAsyncResult(String::class.java) { promise ->
+      getHardwareId(promise)
+    }
 
   private fun sendEvent(reactContext: ReactContext, eventName: String, params: WritableMap?) {
     reactContext

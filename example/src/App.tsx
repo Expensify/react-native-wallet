@@ -141,15 +141,12 @@ export default function App() {
         buttonTitle="Get Token Status"
         onPress={handleGetCardTokenStatus}
       />
-
-      <LabeledButton
-        text="Add Card status:"
-        value={addCardStatus}
-        buttonTitle="Add Card To Wallet"
-        onPress={handleAddCardToWallet}
-      />
+      <Text style={styles.label}>
+        Add Card status:{' '}
+        <Text style={styles.value}>{addCardStatus || '-'}</Text>
+      </Text>
       <AddToWalletButton
-        onPress={() => console.log('Button pressed!')}
+        onPress={handleAddCardToWallet}
         locale="en"
         platform={dummyCardData.platform}
       />
@@ -173,6 +170,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
+    marginTop: 4,
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   box: {
     width: 60,

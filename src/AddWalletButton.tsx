@@ -1,8 +1,8 @@
 import React, {useMemo} from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
+import {StyleSheet, Pressable} from 'react-native';
 import type {ViewStyle} from 'react-native';
 import {Image} from 'expo-image';
-import PATH_MAP from './constants';
+import LOCALIZED_BUTTONS from './constants';
 import type {Platform} from './NativeWallet';
 
 type ButtonProps = {
@@ -14,12 +14,12 @@ type ButtonProps = {
 
 function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps) {
   const IconComponent = useMemo(() => {
-    const platformIcons = PATH_MAP[platform];
+    const platformIcons = LOCALIZED_BUTTONS[platform];
     return platformIcons[locale] ?? platformIcons.default;
   }, [locale, platform]);
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.button, buttonStyle]}
       onPress={onPress}
     >
@@ -28,7 +28,7 @@ function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps
         style={styles.image}
         contentFit="contain"
       />
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

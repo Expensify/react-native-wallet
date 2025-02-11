@@ -156,5 +156,15 @@
   "dependencies": {
     "expo": "^52.0.31",
     "expo-image": "^2.0.4"
+  },
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "expo-application",
+        "expo-constants",
+        "expo-font",
+        "expo-keep-awake"
+      ]
+    }
   }
 }
