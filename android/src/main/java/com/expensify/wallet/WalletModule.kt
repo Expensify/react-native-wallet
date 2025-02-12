@@ -45,7 +45,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
     const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
     const val E_INVALID_DATA = "E_INVALID_DATA"
-    const val E_INIT = "E_INIT"
   }
 
   private val activity = currentActivity ?: throw ActivityNotFoundException()
@@ -55,6 +54,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) : Nati
   override fun initialize() {
     super.initialize()
     reactApplicationContext.addActivityEventListener(cardListener)
+  }
+
+  override fun invalidate() {
+    super.invalidate()
+    reactApplicationContext.removeActivityEventListener(cardListener)
   }
 
   private val cardListener = object : ActivityEventListener {
