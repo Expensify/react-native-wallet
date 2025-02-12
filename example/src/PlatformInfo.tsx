@@ -42,7 +42,7 @@ function getReactNativeVersion() {
   return `${major}.${minor}.${patch}`;
 }
 
-export function PlatformInfo() {
+export default function PlatformInfo() {
   return (
     <View style={styles.platform}>
       <Text>
