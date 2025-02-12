@@ -46,15 +46,20 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
     const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
     const val E_INVALID_DATA = "E_INVALID_DATA"
-    const val E_INIT = "E_INIT"
   }
 
-  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(currentActivity!!)
+  private val activity = currentActivity ?: throw ActivityNotFoundException()
+  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
 
   override fun initialize() {
     super.initialize()
     reactApplicationContext.addActivityEventListener(cardListener)
+  }
+
+  override fun invalidate() {
+    super.invalidate()
+    reactApplicationContext.removeActivityEventListener(cardListener)
   }
 
   private val cardListener = object : ActivityEventListener {
@@ -93,7 +98,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       promise.resolve(true)
     }, { _ ->
       pendingCreateWalletPromise = promise
-      tapAndPayClient.createWallet(currentActivity!!, REQUEST_CREATE_WALLET)
+      tapAndPayClient.createWallet(activity, REQUEST_CREATE_WALLET)
     })
     getWalletId(localPromise)
   }
@@ -181,7 +186,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .build()
 
       tapAndPayClient.pushTokenize(
-        currentActivity!!, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
+        activity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
       promise.reject(e)
@@ -208,10 +213,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         promise.resolve(hardwareId)
       }
     }.addOnFailureListener { e ->
-      promise.reject(
-        E_OPERATION_FAILED,
-        "Stable hardware id retrieval failed: ${e.localizedMessage}"
-      )
+      promise.reject(E_OPERATION_FAILED, "Stable hardware id retrieval failed: ${e.localizedMessage}")
     }
   }
 
