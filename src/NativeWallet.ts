@@ -61,13 +61,14 @@ type onCardActivatedPayload = {
 };
 
 export interface Spec extends TurboModule {
-  checkWalletAvailability(): Promise<boolean>;
-  getSecureWalletInfo(): Promise<WalletData>;
-  getCardStatus(last4Digits: string): Promise<number>;
-  getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
-  addCardToWallet(cardData: CardData): Promise<void>;
+  // checkWalletAvailability(): Promise<boolean>;
+  // getSecureWalletInfo(): Promise<WalletData>;
+  // getCardStatus(last4Digits: string): Promise<number>;
+  // getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
+  // addCardToWallet(cardData: CardData): Promise<void>;
+  add(a: number, b: number): Promise<number>;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('Wallet');
+export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
 
 export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress, onCardActivatedPayload, Platform};
