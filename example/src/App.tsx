@@ -11,7 +11,6 @@ import {
   removeListener,
   AddToWalletButton,
 } from '@expensify/react-native-wallet';
-// import {add} from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {
   CardData,
@@ -108,12 +107,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // const [addResult, setAddResult] = useState<number | undefined>();
-
-  // useEffect(() => {
-  //   add(3, 7).then(setAddResult);
-  // }, []);
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -157,15 +150,6 @@ export default function App() {
         locale="en"
         platform={dummyCardData.platform}
       />
-      {/* <View
-        // eslint-disable-next-line react-native/no-inline-styles
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Text>Add: {addResult}</Text>
-      </View> */}
     </View>
   );
 }
