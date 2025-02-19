@@ -108,6 +108,12 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // const [addResult, setAddResult] = useState<number | undefined>();
+
+  // useEffect(() => {
+  //   add(3, 7).then(setAddResult);
+  // }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
