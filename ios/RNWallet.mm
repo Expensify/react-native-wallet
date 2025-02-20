@@ -1,5 +1,10 @@
+#import <PassKit/PassKit.h>
 #import "RNWallet.h"
 #import "react_native_wallet-Swift.h"
+
+
+static WalletManager *walletManager = [WalletManager new];
+
 @implementation RNWallet
 
 RCT_EXPORT_MODULE()
@@ -8,7 +13,14 @@ RCT_REMAP_METHOD(checkWalletAvailability,
                  checkWalletAvailability:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-    resolve(@([Wallet checkWalletAvailability]));
+  resolve(@([walletManager checkWalletAvailability]));
+}
+
+RCT_REMAP_METHOD(addCardToWallet,
+                 addCardToWallet:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve(@([walletManager addCardToWallet]));
 }
 
 
