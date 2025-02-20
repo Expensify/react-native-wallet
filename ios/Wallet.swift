@@ -1,10 +1,11 @@
 import Foundation
+import PassKit
 
 @objc
 open class Wallet: NSObject {
-
+  
   @objc
-  public static func add(a: Int, b: Int) -> Int {
-    return a+b;
+  public static func checkWalletAvailability() -> Bool {
+    return PKPassLibrary.isPassLibraryAvailable();
   }
 }

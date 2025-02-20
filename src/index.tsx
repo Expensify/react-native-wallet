@@ -38,10 +38,4 @@ function removeListener(subscription: EmitterSubscription): void {
   subscription.remove();
 }
 
-// function add(a: number, b: number): Promise<number> {
-//   return Wallet.add(a, b);
-// }
-
-// eslint-disable-next-line import/prefer-default-export
-// export {add};
 export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToWallet, addListener, removeListener};

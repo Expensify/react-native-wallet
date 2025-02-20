@@ -4,13 +4,13 @@
 
 RCT_EXPORT_MODULE()
 
-RCT_REMAP_METHOD(add, add:(double)a
-                        b:(double)b
-                 resolve:(RCTPromiseResolveBlock) resolve
-                 reject:(RCTPromiseRejectBlock) reject)
+RCT_REMAP_METHOD(checkWalletAvailability,
+                 checkWalletAvailability:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
 {
-    resolve(@([Wallet addWithA:a b:b]));
+    resolve(@([Wallet checkWalletAvailability]));
 }
+
 
 
 #ifdef RCT_NEW_ARCH_ENABLED
