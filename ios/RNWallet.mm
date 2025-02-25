@@ -17,10 +17,20 @@ RCT_REMAP_METHOD(checkWalletAvailability,
 }
 
 RCT_REMAP_METHOD(addCardToWallet,
-                 addCardToWallet:(RCTPromiseResolveBlock)resolve
+                 addCardToWallet:(JS::NativeWallet::IOSCardData &)cardData
+                 resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  resolve(@([walletManager addCardToWallet]));
+  NSDictionary *cardDataDict = @{
+    @"network": cardData.network(),
+    @"cardHolderTitle":cardData.cardHolderTitle(),
+    @"cardHolderName":cardData.cardHolderName(),
+    @"lastDigits":cardData.lastDigits(),
+    @"cardDescription":cardData.cardDescription(),
+    @"cardDescriptionComment":cardData.cardDescriptionComment(),
+  };
+  
+  resolve(@([walletManager addCardToWalletWithCardData:cardDataDict]));
 }
 
 

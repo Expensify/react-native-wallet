@@ -12,20 +12,30 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func addCardToWallet() -> Bool {
+  public func addCardToWallet(cardData: [String: Any]) -> Bool {
     guard isPassKitAvailable() else {
       showPassKitUnavailable(message: "InApp enrollment not available for this device")
       return false
     }
     
-    let card = cardInformation()
+    guard let card = RequestCardInfo(cardData: cardData) else {
+      showPassKitUnavailable(message: "Invalid card data. Please check your card information and try again...")
+      return false
+    }
     
     guard let configuration = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2) else {
       showPassKitUnavailable(message: "InApp enrollment configuraton fails")
       return false
     }
-    configuration.cardholderName = card.holder
-    configuration.primaryAccountSuffix = card.panTokenSuffix
+    
+    print(card.cardHolderName)
+    
+    configuration.cardholderName = card.cardHolderName
+    configuration.primaryAccountSuffix = card.lastDigits
+    configuration.localizedDescription = NSLocalizedString( card.cardDescription,
+                                                            value: card.cardDescription,
+                                                            comment: card.cardDescriptionComment)
+
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
       showPassKitUnavailable(message: "InApp enrollment controller configuration fails")
