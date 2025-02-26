@@ -12,7 +12,7 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 @objc
 open class WalletManager: UIViewController {
 
-  private var presentAddPassCompletionHandler: ((OperationResult, String?) -> Void)?
+  private var presentAddPassCompletionHandler: (PresentAddPassnHandler)?
   
   @objc public weak var delegate: WalletDelegate? = nil
   
@@ -194,6 +194,9 @@ open class WalletManager: UIViewController {
         print("[react-native-wallet] EnrollViewController is not presented currently.")
       }
     }
+    callback(.error, [
+      "errorMessage": message as NSString
+    ])
   }
 }
 
