@@ -11,6 +11,8 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 
 @objc
 open class WalletManager: UIViewController {
+
+  private var presentAddPassCompletionHandler: ((OperationResult, String?) -> Void)?
   
   @objc public weak var delegate: WalletDelegate? = nil
   
