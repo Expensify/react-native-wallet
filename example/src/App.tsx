@@ -9,6 +9,7 @@ import {
   addListener,
   removeListener,
   AddToWalletButton,
+  addCardToGoogleWallet,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {AndroidWalletData, CardStatus} from '../../src/NativeWallet';
