@@ -1,10 +1,18 @@
 import Foundation
 import PassKit
 import UIKit
+import React
 
+@objc public enum OperationResult: Int {
+    case completed = 0
+    case canceled
+    case error
+}
 
 @objc
 open class WalletManager: UIViewController {
+
+  private var presentAddPassCompletionHandler: ((OperationResult, String?) -> Void)?
   
   @objc
   public func checkWalletAvailability() -> Bool {
@@ -12,45 +20,46 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func addCardToWallet(cardData: [String: Any]) -> Bool {
+  public func addCardToWallet(cardData: [String: Any], completion: @escaping (OperationResult, String?) -> Void) {
     guard isPassKitAvailable() else {
-      showPassKitUnavailable(message: "InApp enrollment not available for this device")
-      return false
+      let errorMessage = "InApp enrollment not available for this device"
+      showAlert(message: errorMessage)
+      completion(.error, errorMessage)
+      return
     }
     
     guard let card = RequestCardInfo(cardData: cardData) else {
-      showPassKitUnavailable(message: "Invalid card data. Please check your card information and try again...")
-      return false
+      let errorMessage = "Invalid card data. Please check your card information and try again..."
+      showAlert(message: errorMessage)
+      completion(.error, errorMessage)
+      return
     }
     
     guard let configuration = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2) else {
-      showPassKitUnavailable(message: "InApp enrollment configuraton fails")
-      return false
+      let errorMessage = "InApp enrollment configuraton fails"
+      showAlert(message: errorMessage)
+      completion(.error, errorMessage)
+      return
     }
-    
-    print(card.cardHolderName)
     
     configuration.cardholderName = card.cardHolderName
     configuration.primaryAccountSuffix = card.lastDigits
-    configuration.localizedDescription = NSLocalizedString( card.cardDescription,
-                                                            value: card.cardDescription,
-                                                            comment: card.cardDescriptionComment)
-
+    configuration.localizedDescription = NSLocalizedString(card.cardDescription,
+                                                           value: card.cardDescription,
+                                                           comment: card.cardDescriptionComment)
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
-      showPassKitUnavailable(message: "InApp enrollment controller configuration fails")
-      return false
+      let errorMessage = "InApp enrollment controller configuration fails"
+      showAlert(message: errorMessage)
+      completion(.error, errorMessage)
+      return
     }
     
-    let vc = findViewControllerPresenter(from: UIApplication.shared.delegate?.window??.rootViewController ?? UIViewController())
-    
+    presentAddPassCompletionHandler = completion
     DispatchQueue.main.async {
-      vc.present(enrollViewController, animated: true, completion: nil)
+      RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
     }
-    
-    return true;
   }
-  
   
   /**
   Define if PassKit will be available for this device
@@ -62,47 +71,17 @@ open class WalletManager: UIViewController {
   /**
   Show an alert that indicates that PassKit isn't available for this device
   */
-  private func showPassKitUnavailable(message: String) {
+  private func showAlert(message: String) {
     let alert = UIAlertController(title: "InApp Error",
                                   message: message,
                                   preferredStyle: .alert)
     let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
     alert.addAction(action)
-    let vc = findViewControllerPresenter(from: UIApplication.shared.delegate?.window??.rootViewController ?? UIViewController())
-    
+
     DispatchQueue.main.async {
-      vc.present(alert, animated: true, completion: nil)
+      RCTPresentedViewController()?.present(alert, animated: true, completion: nil)
     }
   }
-
-  /**
-  Return the card information that Apple will display into enrollment screen
-  */
-  private func cardInformation() -> Card {
-    return Card(panTokenSuffix: "1234", holder: "Carl Jonshon")
-  }
-  
-  func findViewControllerPresenter(from uiViewController: UIViewController) -> UIViewController {
-      // Note: creating a UIViewController inside here results in a nil window
-      // This is a bit of a hack: We traverse the view hierarchy looking for the most reasonable VC to present from.
-      // A VC hosted within a SwiftUI cell, for example, doesn't have a parent, so we need to find the UIWindow.
-      var presentingViewController: UIViewController =
-          uiViewController.view.window?.rootViewController ?? uiViewController
-
-      // Find the most-presented UIViewController
-      while let presented = presentingViewController.presentedViewController {
-          presentingViewController = presented
-      }
-
-      return presentingViewController
-  }
-}
-
-private struct Card {
-  /// Last four digits of the `pan token` numeration for the card (****-****-****-0000)
-  let panTokenSuffix: String
-  /// Holder for the card
-  let holder: String
 }
 
 extension WalletManager: PKAddPaymentPassViewControllerDelegate {
@@ -111,15 +90,33 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         generateRequestWithCertificateChain certificates: [Data],
         nonce: Data, nonceSignature: Data,
         completionHandler handler: @escaping (PKAddPaymentPassRequest) -> Void) {
-        
-        // Perform the bridge from Apple -> Issuer -> Apple
-    }
+          // Perform the bridge from Apple -> Issuer -> Apple
+          
+          let stringNonce = nonce.base64EncodedString()
+          let stringNonceSignature = nonceSignature.base64EncodedString()
+          let stringCertificates = certificates.map {
+            $0.base64EncodedString()
+          }
+          
+          // TODO: return required data
+          
+          if let handler = presentAddPassCompletionHandler {
+            handler(.completed, nil)
+            presentAddPassCompletionHandler = nil
+          }
+  }
     
   public func addPaymentPassViewController(
         _ controller: PKAddPaymentPassViewController,
         didFinishAdding pass: PKPaymentPass?,
         error: Error?) {
-        
-        // This method will be called when enroll process ends (with success / error)
-    }
+          // This method will be called when enroll process ends (with success / error)
+          
+          RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
+          
+          if let handler = presentAddPassCompletionHandler {
+            handler(.canceled, nil)
+            presentAddPassCompletionHandler = nil
+          }
+  }
 }

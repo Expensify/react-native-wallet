@@ -30,10 +30,21 @@ RCT_REMAP_METHOD(addCardToWallet,
     @"cardDescriptionComment":cardData.cardDescriptionComment(),
   };
   
-  resolve(@([walletManager addCardToWalletWithCardData:cardDataDict]));
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [walletManager addCardToWalletWithCardData:cardDataDict completion:^(OperationResult result, NSString *errorMessage) {
+      if (result == 0) { // completed
+        resolve(@(YES));
+      } else if (result == 1) { // canceled
+        resolve(@(NO));
+      } else { // error
+        NSError *error = [NSError errorWithDomain:@"com.yourdomain.walletError"
+                                             code:200
+                                         userInfo:@{NSLocalizedDescriptionKey: errorMessage ?: @""}];
+        reject(@"add_card_failed", @"Failed to add card to wallet", error);
+      }
+    }];
+  });
 }
-
-
 
 #ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
