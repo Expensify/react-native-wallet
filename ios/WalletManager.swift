@@ -83,18 +83,15 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         completionHandler handler: @escaping (PKAddPaymentPassRequest) -> Void) {
           // Perform the bridge from Apple -> Issuer -> Apple
           
-          let stringNonce = nonce.base64EncodedString()
-          let stringNonceSignature = nonceSignature.base64EncodedString()
+          let stringNonce = nonce.base64EncodedString() as NSString
+          let stringNonceSignature = nonceSignature.base64EncodedString() as NSString
           let stringCertificates = certificates.map {
-            $0.base64EncodedString()
+            $0.base64EncodedString() as NSString
           }
           
-          let reqestCardData = RequestCardData(nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
-          
-          // TODO: return required data
-          
           if let handler = presentAddPassCompletionHandler {
-            handler(.completed, nil)
+            let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
+            handler(.completed, reqestCardData.toNSDictionary())
             presentAddPassCompletionHandler = nil
           }
   }
@@ -106,9 +103,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           // This method will be called when enroll process ends (with success / error)
           
           RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
-          
+            
           if let handler = presentAddPassCompletionHandler {
-            handler(.canceled, nil)
+            let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
+            handler(.canceled, response.toNSDictionary())
             presentAddPassCompletionHandler = nil
           }
   }

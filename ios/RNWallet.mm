@@ -32,11 +32,9 @@ RCT_REMAP_METHOD(presentAddPass,
   
   dispatch_async(dispatch_get_main_queue(), ^{
     [walletManager presentAddPassWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
-      if (result == 0) { // completed
-        resolve(@(YES));
-      } else if (result == 1) { // canceled
-        resolve(@(NO));
-      } else { // error
+      if (result < 2) { // completed or canceled
+        resolve(data);
+      } else {
         NSError *error = [NSError errorWithDomain:@"com.yourdomain.walletError"
                                              code:200
                                          userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
