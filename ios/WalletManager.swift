@@ -3,16 +3,12 @@ import PassKit
 import UIKit
 import React
 
-@objc public enum OperationResult: Int {
-    case completed = 0
-    case canceled
-    case error
-}
+public typealias PresentAddPassnHandler = (OperationResult, NSDictionary?) -> Void
 
 @objc
 open class WalletManager: UIViewController {
 
-  private var presentAddPassCompletionHandler: ((OperationResult, String?) -> Void)?
+  private var presentAddPassCompletionHandler: (PresentAddPassnHandler)?
   
   @objc
   public func checkWalletAvailability() -> Bool {
@@ -20,25 +16,19 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func addCardToWallet(cardData: [String: Any], completion: @escaping (OperationResult, String?) -> Void) {
+  public func presentAddPass(cardData: [String: Any], completion: @escaping PresentAddPassnHandler) {
     guard isPassKitAvailable() else {
-      let errorMessage = "InApp enrollment not available for this device"
-      showAlert(message: errorMessage)
-      completion(.error, errorMessage)
+      showErrorAlert(message: "InApp enrollment not available for this device", callback: completion)
       return
     }
     
-    guard let card = RequestCardInfo(cardData: cardData) else {
-      let errorMessage = "Invalid card data. Please check your card information and try again..."
-      showAlert(message: errorMessage)
-      completion(.error, errorMessage)
+    guard let card = CardInfo(cardData: cardData) else {
+      showErrorAlert(message: "Invalid card data. Please check your card information and try again...", callback: completion)
       return
     }
     
     guard let configuration = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2) else {
-      let errorMessage = "InApp enrollment configuraton fails"
-      showAlert(message: errorMessage)
-      completion(.error, errorMessage)
+      showErrorAlert(message: "InApp enrollment configuraton fails", callback: completion)
       return
     }
     
@@ -49,9 +39,7 @@ open class WalletManager: UIViewController {
                                                            comment: card.cardDescriptionComment)
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
-      let errorMessage = "InApp enrollment controller configuration fails"
-      showAlert(message: errorMessage)
-      completion(.error, errorMessage)
+      showErrorAlert(message: "InApp enrollment controller configuration fails", callback: completion)
       return
     }
     
@@ -71,7 +59,7 @@ open class WalletManager: UIViewController {
   /**
   Show an alert that indicates that PassKit isn't available for this device
   */
-  private func showAlert(message: String) {
+  private func showErrorAlert(message: String, callback: (OperationResult, NSDictionary?)-> Void) {
     let alert = UIAlertController(title: "InApp Error",
                                   message: message,
                                   preferredStyle: .alert)
@@ -81,6 +69,9 @@ open class WalletManager: UIViewController {
     DispatchQueue.main.async {
       RCTPresentedViewController()?.present(alert, animated: true, completion: nil)
     }
+    callback(.error, [
+      "errorMessage": message as NSString
+    ])
   }
 }
 
@@ -97,6 +88,8 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           let stringCertificates = certificates.map {
             $0.base64EncodedString()
           }
+          
+          let reqestCardData = RequestCardData(nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
           
           // TODO: return required data
           

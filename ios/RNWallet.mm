@@ -16,8 +16,8 @@ RCT_REMAP_METHOD(checkWalletAvailability,
   resolve(@([walletManager checkWalletAvailability]));
 }
 
-RCT_REMAP_METHOD(addCardToWallet,
-                 addCardToWallet:(JS::NativeWallet::IOSCardData &)cardData
+RCT_REMAP_METHOD(presentAddPass,
+                 presentAddPass:(JS::NativeWallet::IOSCardData &)cardData
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
@@ -31,7 +31,7 @@ RCT_REMAP_METHOD(addCardToWallet,
   };
   
   dispatch_async(dispatch_get_main_queue(), ^{
-    [walletManager addCardToWalletWithCardData:cardDataDict completion:^(OperationResult result, NSString *errorMessage) {
+    [walletManager presentAddPassWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
       if (result == 0) { // completed
         resolve(@(YES));
       } else if (result == 1) { // canceled
@@ -39,8 +39,8 @@ RCT_REMAP_METHOD(addCardToWallet,
       } else { // error
         NSError *error = [NSError errorWithDomain:@"com.yourdomain.walletError"
                                              code:200
-                                         userInfo:@{NSLocalizedDescriptionKey: errorMessage ?: @""}];
-        reject(@"add_card_failed", @"Failed to add card to wallet", error);
+                                         userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
+        reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to add card to wallet", error);
       }
     }];
   });

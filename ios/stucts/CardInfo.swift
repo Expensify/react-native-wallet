@@ -1,6 +1,6 @@
 import PassKit
 
-struct RequestCardInfo {
+struct CardInfo {
     let network: PKPaymentNetwork
     let cardHolderTitle: String
     let cardHolderName: String
