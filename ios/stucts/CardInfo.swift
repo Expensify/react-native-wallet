@@ -15,7 +15,7 @@ struct CardInfo {
               let lastDigits = cardData["lastDigits"] as? String,
               let cardDescription = cardData["cardDescription"] as? String,
               let cardDescriptionComment = cardData["cardDescriptionComment"] as? String,
-              let network = RequestCardInfo.getNetwork(from: networkString) else {
+              let network = CardInfo.getNetwork(from: networkString) else {
             return nil
         }
         
