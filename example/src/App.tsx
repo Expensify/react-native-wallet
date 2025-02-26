@@ -6,14 +6,14 @@ import {
   getSecureWalletInfo,
   getCardStatus,
   getCardTokenStatus,
-  addCardToWallet,
   addListener,
   removeListener,
   AddToWalletButton,
+  addCardToGoogleWallet,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
 import type {
-  CardData,
+  AndroidCardData,
   CardStatus,
   UserAddress,
   WalletData,
@@ -34,7 +34,7 @@ const dummyAddress: UserAddress = {
   phoneNumber: '000-123-4567',
 };
 
-const dummyCardData: CardData = {
+const dummyCardData: AndroidCardData = {
   platform: 'android',
   network: 'VISA',
   opaquePaymentCard: 'encryptedCardInformation123456',
@@ -79,7 +79,7 @@ export default function App() {
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {
-    addCardToWallet(dummyCardData)
+    addCardToGoogleWallet(dummyCardData)
       .then(() => {
         setAddCardStatus('Completed');
       })

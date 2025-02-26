@@ -51,5 +51,5 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
-  public abstract void addCardToWallet(ReadableMap cardData, Promise promise);
+  public abstract void addCardToGoogleWallet(ReadableMap cardData, Promise promise);
 }

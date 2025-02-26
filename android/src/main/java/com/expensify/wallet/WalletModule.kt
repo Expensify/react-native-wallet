@@ -167,7 +167,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun addCardToWallet(
+  override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
     try {
