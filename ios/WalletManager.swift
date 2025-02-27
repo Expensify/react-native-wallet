@@ -9,6 +9,8 @@ public typealias PresentAddPassnHandler = (OperationResult, NSDictionary?) -> Vo
 open class WalletManager: UIViewController {
 
   private var presentAddPassCompletionHandler: (PresentAddPassnHandler)?
+
+  private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
   @objc
   public func checkWalletAvailability() -> Bool {
@@ -16,7 +18,7 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func presentAddPass(cardData: [String: Any], completion: @escaping PresentAddPassnHandler) {
+  public func presentAddPass(cardData: NSDictionary, completion: @escaping PresentAddPassnHandler) {
     guard isPassKitAvailable() else {
       showErrorAlert(message: "InApp enrollment not available for this device", callback: completion)
       return
@@ -49,6 +51,27 @@ open class WalletManager: UIViewController {
     }
   }
   
+  @objc
+  public func handleAppleWalletCreationResponse(responseData: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    guard addPassHandler != nil else {
+      showErrorAlert(message: "Something went wrong. Please try again later", callback: nil)
+      reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 500, userInfo: nil))
+      return
+    }
+    
+    guard let walletData = WalletEncryptedPayload(data: responseData) else {
+      showErrorAlert(message: "InApp enrollment controller configuration fails", callback: nil)
+      reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 1002, userInfo: nil))
+      return
+    }
+    
+    let addPaymentPassRequest = PKAddPaymentPassRequest()
+    addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData
+    addPaymentPassRequest.activationData = walletData.activationData
+    addPaymentPassRequest.ephemeralPublicKey = walletData.ephemeralPublicKey
+    addPassHandler?(addPaymentPassRequest)
+  }
+  
   /**
   Define if PassKit will be available for this device
   */
@@ -59,7 +82,7 @@ open class WalletManager: UIViewController {
   /**
   Show an alert that indicates that PassKit isn't available for this device
   */
-  private func showErrorAlert(message: String, callback: (OperationResult, NSDictionary?)-> Void) {
+  private func showErrorAlert(message: String, callback: ((OperationResult, NSDictionary?)-> Void)?) {
     let alert = UIAlertController(title: "InApp Error",
                                   message: message,
                                   preferredStyle: .alert)
@@ -69,7 +92,7 @@ open class WalletManager: UIViewController {
     DispatchQueue.main.async {
       RCTPresentedViewController()?.present(alert, animated: true, completion: nil)
     }
-    callback(.error, [
+    callback?(.error, [
       "errorMessage": message as NSString
     ])
   }
@@ -88,10 +111,11 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           let stringCertificates = certificates.map {
             $0.base64EncodedString() as NSString
           }
-          
-          if let handler = presentAddPassCompletionHandler {
+    
+          if let presentPasshandler = presentAddPassCompletionHandler {
+            addPassHandler = handler
             let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
-            handler(.completed, reqestCardData.toNSDictionary())
+            presentPasshandler(.completed, reqestCardData.toNSDictionary())
             presentAddPassCompletionHandler = nil
           }
   }

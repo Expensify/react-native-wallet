@@ -35,13 +35,27 @@ RCT_REMAP_METHOD(presentAddPass,
       if (result < 2) { // completed or canceled
         resolve(data);
       } else {
-        NSError *error = [NSError errorWithDomain:@"com.yourdomain.walletError"
-                                             code:200
+        NSError *error = [NSError errorWithDomain:@"com.expensify.wallet"
+                                             code:1001
                                          userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
         reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to add card to wallet", error);
       }
     }];
   });
+}
+
+RCT_REMAP_METHOD(handleAppleWalletCreationResponse,
+                 handleAppleWalletCreationResponse:(JS::NativeWallet::IOSEncryptPayload &)payload
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  NSDictionary *payloadDict = @{
+    @"encryptedPassData": payload.encryptedPassData(),
+    @"activationData": payload.activationData(),
+    @"ephemeralPublicKey": payload.ephemeralPublicKey(),
+  };
+  
+  [walletManager handleAppleWalletCreationResponseWithResponseData:payloadDict resolve:resolve reject:reject];
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED
