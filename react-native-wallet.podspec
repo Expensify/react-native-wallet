@@ -31,6 +31,6 @@ Pod::Spec.new do |s|
   install_modules_dependencies(s);
   
   if ENV['USE_FRAMEWORKS'] || $RNMapboxMapsUseFrameworks
-    $RNWallet._add_compiler_flags(sp, "-DRNWallet_USE_FRAMEWORKS=1")
+    $RNWallet._add_compiler_flags(s, "-DRNWallet_USE_FRAMEWORKS=1")
   end
 end
