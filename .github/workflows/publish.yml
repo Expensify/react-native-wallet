@@ -1,18 +1,18 @@
-name: Publish package to npmjs
+# name: Publish package to npmjs
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
-# Ensure that only one instance of this workflow executes at a time.
-# If multiple PRs are merged in quick succession, there will only ever be one publish workflow running and one pending.
-concurrency: ${{ github.workflow }}
+# # Ensure that only one instance of this workflow executes at a time.
+# # If multiple PRs are merged in quick succession, there will only ever be one publish workflow running and one pending.
+# concurrency: ${{ github.workflow }}
 
-jobs:
-  publish:
-    # os-botify[bot] will update the version on `main`, so this check is important to prevent an infinite loop
-    if: ${{ github.actor != 'os-botify[bot]' }}
-    uses: Expensify/GitHub-Actions/.github/workflows/npmPublish.yml@main
-    secrets: inherit
-    with:
-      should_run_pack: true
+# jobs:
+#   publish:
+#     # os-botify[bot] will update the version on `main`, so this check is important to prevent an infinite loop
+#     if: ${{ github.actor != 'os-botify[bot]' }}
+#     uses: Expensify/GitHub-Actions/.github/workflows/npmPublish.yml@main
+#     secrets: inherit
+#     with:
+#       should_run_pack: true
