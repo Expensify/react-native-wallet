@@ -1,6 +1,11 @@
 #import <PassKit/PassKit.h>
 #import "RNWallet.h"
-#import "react_native_wallet-Swift.h"
+
+#if RNWallet_USE_FRAMEWORKS
+#import <react_native_wallet/react_native_wallet-Swift.h>
+#else
+#import <react_native_wallet-Swift.h>
+#endif
 
 
 static WalletManager *walletManager = [WalletManager new];
