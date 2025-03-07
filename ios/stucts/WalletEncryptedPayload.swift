@@ -4,14 +4,14 @@ struct WalletEncryptedPayload {
   let encryptedPassData: Data?
 
   init?(data: NSDictionary) {
-    guard let activationData = data["activationData"] as? Data?,
-          let ephemeralPublicKey = data["ephemeralPublicKey"] as? Data?,
-          let encryptedPassData = data["encryptedPassData"] as? Data? else {
+    guard let activationData = data["activationData"] as? String,
+          let ephemeralPublicKey = data["ephemeralPublicKey"] as? String,
+          let encryptedPassData = data["encryptedPassData"] as? String else {
       return nil
     }
     
-    self.activationData = activationData
-    self.ephemeralPublicKey = ephemeralPublicKey
-    self.encryptedPassData = encryptedPassData
+    self.activationData = Data(base64Encoded: activationData, options: .ignoreUnknownCharacters)
+    self.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey, options: .ignoreUnknownCharacters)
+    self.encryptedPassData = Data(base64Encoded: encryptedPassData, options: .ignoreUnknownCharacters)
   }
 }
