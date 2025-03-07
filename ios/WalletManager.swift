@@ -52,16 +52,16 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func handleAppleWalletCreationResponse(responseData: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+  public func handleAppleWalletCreationResponse(payload: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     guard addPassHandler != nil else {
       showErrorAlert(message: "Something went wrong. Please try again later", callback: nil)
       reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 500, userInfo: nil))
       return
     }
     
-    guard let walletData = WalletEncryptedPayload(data: responseData) else {
-      showErrorAlert(message: "InApp enrollment controller configuration fails", callback: nil)
-      reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 1002, userInfo: nil))
+    guard let walletData = WalletEncryptedPayload(data: payload) else {
+      showErrorAlert(message: "InApp enrollment controller configuration fails. Please try again later.", callback: nil)
+      reject("add_card_failed", "Invalid payload data", NSError(domain: "", code: 1002, userInfo: nil))
       return
     }
     
@@ -70,6 +70,8 @@ open class WalletManager: UIViewController {
     addPaymentPassRequest.activationData = walletData.activationData
     addPaymentPassRequest.ephemeralPublicKey = walletData.ephemeralPublicKey
     addPassHandler?(addPaymentPassRequest)
+    self.addPassHandler = nil
+    resolve(nil)
   }
   
   /**

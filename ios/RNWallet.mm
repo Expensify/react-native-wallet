@@ -60,7 +60,7 @@ RCT_REMAP_METHOD(handleAppleWalletCreationResponse,
     @"ephemeralPublicKey": payload.ephemeralPublicKey(),
   };
   
-  [walletManager handleAppleWalletCreationResponseWithResponseData:payloadDict resolve:resolve reject:reject];
+  [walletManager handleAppleWalletCreationResponseWithPayload:payloadDict resolve:resolve reject:reject];
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED
