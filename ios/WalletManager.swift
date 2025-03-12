@@ -12,7 +12,7 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 @objc
 open class WalletManager: UIViewController {
 
-  private var presentAddPassCompletionHandler: (PresentAddPassnHandler)?
+  private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
