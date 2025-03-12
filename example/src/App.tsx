@@ -14,9 +14,9 @@ import {
 import PlatformInfo from './PlatformInfo';
 import type {
   AndroidCardData,
+  AndroidWalletData,
   CardStatus,
   UserAddress,
-  WalletData,
 } from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
 
@@ -35,7 +35,6 @@ const dummyAddress: UserAddress = {
 };
 
 const dummyCardData: AndroidCardData = {
-  platform: 'android',
   network: 'VISA',
   opaquePaymentCard: 'encryptedCardInformation123456',
   cardHolderName: 'John Doe',
@@ -43,19 +42,13 @@ const dummyCardData: AndroidCardData = {
   userAddress: dummyAddress,
 };
 
-const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
-  if (walletData?.platform === 'android') {
-    return `{\n\t\tplatform: ${walletData?.platform}\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
-  }
-  if (walletData?.platform === 'ios') {
-    return `{\n\t\tplatform: ${walletData?.platform}\n\t\tnonce: ${walletData?.nonce}\n\t\tnonceSignature: ${walletData?.nonceSignature}\n\t\tcertificates: ${walletData?.certificates}\n}`;
-  }
-  return '-';
+const getWalletInfoTextValue = (walletData: AndroidWalletData | undefined) => {
+  return `{\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
 };
 
 export default function App() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
-  const [walletData, setWalletData] = useState<WalletData | undefined>();
+  const [walletData, setWalletData] = useState<AndroidWalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
   const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
   const [addCardStatus, setAddCardStatus] = useState<string | undefined>();
@@ -145,11 +138,7 @@ export default function App() {
         Add Card status:{' '}
         <Text style={styles.value}>{addCardStatus || '-'}</Text>
       </Text>
-      <AddToWalletButton
-        onPress={handleAddCardToWallet}
-        locale="en"
-        platform={dummyCardData.platform}
-      />
+      <AddToWalletButton onPress={handleAddCardToWallet} locale="en" />
     </View>
   );
 }

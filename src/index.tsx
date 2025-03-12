@@ -2,7 +2,7 @@
 import {NativeEventEmitter} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
 import Wallet from './NativeWallet';
-import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, WalletData, onCardActivatedPayload} from './NativeWallet';
+import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload} from './NativeWallet';
 import {getCardState} from './utils';
 import AddToWalletButton from './AddWalletButton';
 
@@ -10,7 +10,7 @@ function checkWalletAvailability(): Promise<boolean> {
   return Wallet.checkWalletAvailability();
 }
 
-function getSecureWalletInfo(): Promise<WalletData> {
+function getSecureWalletInfo(): Promise<AndroidWalletData> {
   return Wallet.getSecureWalletInfo();
 }
 

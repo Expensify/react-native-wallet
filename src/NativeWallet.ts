@@ -1,19 +1,9 @@
 import type {TurboModule} from 'react-native';
 import {TurboModuleRegistry} from 'react-native';
 
-type WalletData = AndroidWalletData | IOSWalletData;
-
 type AndroidWalletData = {
-  platform: 'android';
   deviceID: string;
   walletAccountID: string;
-};
-
-type IOSWalletData = {
-  platform: 'ios';
-  nonce: string;
-  nonceSignature: string;
-  certificates: string;
 };
 
 type CardStatus = 'not found' | 'requireActivation' | 'pending' | 'active' | 'suspended' | 'deactivated';
@@ -32,7 +22,6 @@ type UserAddress = {
 };
 
 type AndroidCardData = {
-  platform: 'android';
   network: string;
   opaquePaymentCard: string;
   cardHolderName: string;
@@ -69,7 +58,7 @@ type IOSEncryptPayload = {
 
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
-  getSecureWalletInfo(): Promise<WalletData>;
+  getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatus(last4Digits: string): Promise<number>;
   getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<void>;
@@ -79,4 +68,4 @@ export interface Spec extends TurboModule {
 
 export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
 
-export type {WalletData, AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload};
+export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload};
