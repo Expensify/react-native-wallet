@@ -73,8 +73,8 @@ export interface Spec extends TurboModule {
   getCardStatus(last4Digits: string): Promise<number>;
   getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<void>;
-  presentAddPass(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
-  handleAppleWalletCreationResponse(payload: IOSEncryptPayload): Promise<void>;
+  IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
+  IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');

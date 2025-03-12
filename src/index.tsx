@@ -39,12 +39,12 @@ function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
 }
 
 async function addCardToAppleWallet(cardData: IOSCardData, issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload): Promise<void> {
-  const passData = await Wallet.presentAddPass(cardData);
+  const passData = await Wallet.IOSPresentAddPaymentPassView(cardData);
   if (!passData || passData.status !== 'completed') {
     return;
   }
   const responseData = await issuerEncryptPayloadCallback(passData.nonce, passData.nonceSignature, passData.certificates);
-  await Wallet.handleAppleWalletCreationResponse(responseData);
+  await Wallet.IOSHandleAddPaymentPassResponse(responseData);
 }
 
 export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};

@@ -8,7 +8,7 @@ public typealias PresentAddPassnHandler = (OperationResult, NSDictionary?) -> Vo
 @objc
 open class WalletManager: UIViewController {
 
-  private var presentAddPassCompletionHandler: (PresentAddPassnHandler)?
+  private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
@@ -18,7 +18,7 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func presentAddPass(cardData: NSDictionary, completion: @escaping PresentAddPassnHandler) {
+  public func IOSPresentAddPaymentPassView(cardData: NSDictionary, completion: @escaping PresentAddPassnHandler) {
     guard isPassKitAvailable() else {
       showErrorAlert(message: "InApp enrollment not available for this device", callback: completion)
       return
@@ -45,14 +45,14 @@ open class WalletManager: UIViewController {
       return
     }
     
-    presentAddPassCompletionHandler = completion
+    presentAddPaymentPassCompletionHandler = completion
     DispatchQueue.main.async {
       RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
     }
   }
   
   @objc
-  public func handleAppleWalletCreationResponse(payload: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+  public func IOSHandleAddPaymentPassResponse(payload: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     guard addPassHandler != nil else {
       showErrorAlert(message: "Something went wrong. Please try again later", callback: nil)
       reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 500, userInfo: nil))
@@ -114,11 +114,11 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
             $0.base64EncodedString() as NSString
           }
     
-          if let presentPasshandler = presentAddPassCompletionHandler {
+          if let presentPasshandler = presentAddPaymentPassCompletionHandler {
             addPassHandler = handler
             let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
             presentPasshandler(.completed, reqestCardData.toNSDictionary())
-            presentAddPassCompletionHandler = nil
+            presentAddPaymentPassCompletionHandler = nil
           }
   }
     
@@ -130,10 +130,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           
           RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
             
-          if let handler = presentAddPassCompletionHandler {
+          if let handler = presentAddPaymentPassCompletionHandler {
             let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
             handler(.canceled, response.toNSDictionary())
-            presentAddPassCompletionHandler = nil
+            presentAddPaymentPassCompletionHandler = nil
           }
   }
 }

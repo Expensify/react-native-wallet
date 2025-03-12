@@ -21,8 +21,8 @@ RCT_REMAP_METHOD(checkWalletAvailability,
   resolve(@([walletManager checkWalletAvailability]));
 }
 
-RCT_REMAP_METHOD(presentAddPass,
-                 presentAddPass:(JS::NativeWallet::IOSCardData &)cardData
+RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
+                 IOSPresentAddPaymentPassView:(JS::NativeWallet::IOSCardData &)cardData
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
@@ -36,7 +36,7 @@ RCT_REMAP_METHOD(presentAddPass,
   };
   
   dispatch_async(dispatch_get_main_queue(), ^{
-    [walletManager presentAddPassWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
+    [walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
       if (result < 2) { // completed or canceled
         resolve(data);
       } else {
@@ -49,8 +49,8 @@ RCT_REMAP_METHOD(presentAddPass,
   });
 }
 
-RCT_REMAP_METHOD(handleAppleWalletCreationResponse,
-                 handleAppleWalletCreationResponse:(JS::NativeWallet::IOSEncryptPayload &)payload
+RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
+                 IOSHandleAddPaymentPassResponse:(JS::NativeWallet::IOSEncryptPayload &)payload
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
@@ -60,7 +60,7 @@ RCT_REMAP_METHOD(handleAppleWalletCreationResponse,
     @"ephemeralPublicKey": payload.ephemeralPublicKey(),
   };
   
-  [walletManager handleAppleWalletCreationResponseWithPayload:payloadDict resolve:resolve reject:reject];
+  [walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict resolve:resolve reject:reject];
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED
