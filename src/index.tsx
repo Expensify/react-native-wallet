@@ -24,7 +24,7 @@ async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<Card
   return getCardState(tokenState);
 }
 
-const eventEmitter = new NativeEventEmitter();
+const eventEmitter = new NativeEventEmitter(Wallet);
 
 function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
   return eventEmitter.addListener(event, callback);
@@ -40,7 +40,7 @@ function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
 
 async function addCardToAppleWallet(cardData: IOSCardData, issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload): Promise<void> {
   const passData = await Wallet.IOSPresentAddPaymentPassView(cardData);
-  if (!passData || passData.status !== 'completed') {
+  if (!passData || passData.status !== 0) {
     return;
   }
   const responseData = await issuerEncryptPayloadCallback(passData.nonce, passData.nonceSignature, passData.certificates);

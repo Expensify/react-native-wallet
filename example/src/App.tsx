@@ -9,38 +9,14 @@ import {
   addListener,
   removeListener,
   AddToWalletButton,
-  addCardToGoogleWallet,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {
-  AndroidCardData,
-  AndroidWalletData,
-  CardStatus,
-  UserAddress,
-} from '../../src/NativeWallet';
+import type {AndroidWalletData, CardStatus} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
+import {addCardToWallet} from './walletUtils';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';
-
-const dummyAddress: UserAddress = {
-  name: 'John Doe',
-  addressOne: '1234 Fictional Road',
-  addressTwo: 'Unit 5678',
-  administrativeArea: 'Imaginary State',
-  locality: '9090',
-  countryCode: 'XX',
-  postalCode: '99999',
-  phoneNumber: '000-123-4567',
-};
-
-const dummyCardData: AndroidCardData = {
-  network: 'VISA',
-  opaquePaymentCard: 'encryptedCardInformation123456',
-  cardHolderName: 'John Doe',
-  lastDigits: '4321',
-  userAddress: dummyAddress,
-};
 
 const getWalletInfoTextValue = (walletData: AndroidWalletData | undefined) => {
   return `{\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
@@ -72,7 +48,7 @@ export default function App() {
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {
-    addCardToGoogleWallet(dummyCardData)
+    addCardToWallet()
       .then(() => {
         setAddCardStatus('Completed');
       })

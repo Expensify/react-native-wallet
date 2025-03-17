@@ -44,7 +44,7 @@ type onCardActivatedPayload = {
 };
 
 type IOSAddPaymentPassData = {
-  status: 'completed' | 'canceled';
+  status: number;
   nonce: string;
   nonceSignature: string;
   certificates: string[];
