@@ -74,6 +74,25 @@ open class WalletManager: UIViewController {
     resolve(nil)
   }
   
+  @objc
+  public func getCardStatus(last4Digits: NSString) -> NSNumber {
+    let passLibrary = PKPassLibrary()
+    let securePasses = passLibrary.remoteSecureElementPasses
+    
+    if securePasses.isEmpty {
+      print("[react-native-wallet] No passes found in Wallet.")
+      return -1
+    } else {
+      for pass in securePasses {
+        guard let securePassElement = pass.secureElementPass else { continue }
+        if securePassElement.primaryAccountNumberSuffix.hasSuffix(last4Digits as String) {
+          return NSNumber(value: securePassElement.passActivationState.rawValue)
+        }
+      }
+    }
+    return -1;
+  }
+  
   /**
   Define if PassKit will be available for this device
   */

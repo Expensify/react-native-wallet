@@ -63,6 +63,14 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
   [walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict resolve:resolve reject:reject];
 }
 
+RCT_REMAP_METHOD(getCardStatus,
+                 getCardStatus:(NSString *)last4Digits
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve([walletManager getCardStatusWithLast4Digits:last4Digits]);
+}
+
 #ifdef RCT_NEW_ARCH_ENABLED
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
