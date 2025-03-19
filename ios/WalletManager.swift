@@ -205,13 +205,18 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         didFinishAdding pass: PKPaymentPass?,
         error: Error?) {
           // This method will be called when enroll process ends (with success / error)
-          
           RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
             
           if let handler = presentAddPaymentPassCompletionHandler {
             let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
             handler(.canceled, response.toNSDictionary())
             presentAddPaymentPassCompletionHandler = nil
+          }
+          
+          if(error != nil) {
+            delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
+              "state": "canceled"
+            ]);
           }
   }
 }
