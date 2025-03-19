@@ -17,6 +17,59 @@ open class WalletManager: UIViewController {
   private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
+  
+  let passLibrary = PKPassLibrary()
+
+  override init(nibName: String?, bundle: Bundle?) {
+    super.init(nibName: nibName, bundle: bundle)
+    addPassObserver()
+   
+  }
+  
+  required public init?(coder: NSCoder) {
+    super.init(coder: coder)
+    addPassObserver()
+  }
+  
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+  }
+  
+  func addPassObserver() {
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(passLibraryDidChange),
+      name: NSNotification.Name(rawValue: PKPassLibraryNotificationName.PKPassLibraryDidChange.rawValue),
+      object: passLibrary
+    )
+  }
+  
+  @objc func passLibraryDidChange(_ notification: Notification) {
+    guard let userInfo = notification.userInfo else {
+      return
+    }
+    
+    // Check if passes were added or status changed
+    if let addedPasses = userInfo[PKPassLibraryNotificationKey.addedPassesUserInfoKey] as? [PKPass] {
+      checkPassActivationStatus(addedPasses)
+    }
+    
+    // Check for updated passes
+    if let replacedPasses = userInfo[PKPassLibraryNotificationKey.replacementPassesUserInfoKey] as? [PKPass] {
+      checkPassActivationStatus(replacedPasses)
+    }
+  }
+  
+  func checkPassActivationStatus(_ passes: [PKPass]) {
+    for pass in passes {
+      if pass.secureElementPass?.passActivationState == .activated {
+        delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
+          "state": "activated",
+          "serialNumber": pass.serialNumber
+        ]);
+      }
+    }
+  }
 
   @objc
   public func checkWalletAvailability() -> Bool {
