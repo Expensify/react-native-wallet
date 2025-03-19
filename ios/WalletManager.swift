@@ -9,8 +9,14 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
   func sendEvent(name: String, result: NSDictionary)
 }
 
+@objc public protocol WalletDelegate {
+  func sendEvent(name: String, result: NSDictionary)
+}
+
 @objc
 open class WalletManager: UIViewController {
+  
+  @objc public weak var delegate: WalletDelegate? = nil
 
   private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
 
@@ -262,6 +268,17 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       addPaymentPassCompletionHandler = nil
       presentAddPaymentPassCompletionHandler = nil
     }
+}
+
+extension WalletManager {
+  enum Event: String, CaseIterable {
+    case onCardActivated
+  }
+
+  @objc
+  public static var supportedEvents: [String] {
+    return Event.allCases.map(\.rawValue);
+  }
 }
 
 extension WalletManager {
