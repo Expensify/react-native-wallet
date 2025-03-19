@@ -46,6 +46,8 @@ import twAndroid from '../assets/buttons/android/tw.svg';
 import ukAndroid from '../assets/buttons/android/uk.svg';
 import urAndroid from '../assets/buttons/android/ur.svg';
 import uzAndroid from '../assets/buttons/android/uz.svg';
+import enApple from '../assets/buttons/apple/en.svg';
+import esApple from '../assets/buttons/apple/es.svg';
 import type {Platform} from './NativeWallet';
 
 // Here you can find the expansion of language abbreviations used in the map
@@ -104,7 +106,9 @@ const LOCALIZED_BUTTONS: Record<Platform, Record<string, string>> = {
   },
   ios: {
     // soon
-    default: enAndroid,
+    en: enApple,
+    es: esApple,
+    default: enApple,
   },
 };
 
