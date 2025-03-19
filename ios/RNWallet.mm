@@ -8,9 +8,21 @@
 #endif
 
 
-static WalletManager *walletManager = [WalletManager new];
+@interface RNWallet () <WalletDelegate>
+@end
 
-@implementation RNWallet
+@implementation RNWallet {
+  WalletManager *walletManager;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if(self) {
+    walletManager = [WalletManager new];
+    walletManager.delegate = self;
+  }
+  return self;
+}
 
 RCT_EXPORT_MODULE()
 
@@ -69,6 +81,18 @@ RCT_REMAP_METHOD(getCardStatus,
                  reject:(RCTPromiseRejectBlock)reject)
 {
   resolve([walletManager getCardStatusWithLast4Digits:last4Digits]);
+}
+
++ (BOOL)requiresMainQueueSetup {
+    return NO;
+}
+
+- (NSArray<NSString *> *)supportedEvents {
+  return [WalletManager supportedEvents];
+}
+
+- (void)sendEventWithName:(NSString * _Nonnull)name result:(NSDictionary *)result {
+  [self sendEventWithName:name body:result];
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED

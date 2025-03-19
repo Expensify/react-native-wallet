@@ -5,13 +5,19 @@ import React
 
 public typealias PresentAddPassnHandler = (OperationResult, NSDictionary?) -> Void
 
+@objc public protocol WalletDelegate {
+  func sendEvent(name: String, result: NSDictionary)
+}
+
 @objc
 open class WalletManager: UIViewController {
+  
+  @objc public weak var delegate: WalletDelegate? = nil
 
   private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
-  
+
   @objc
   public func checkWalletAvailability() -> Bool {
     return isPassKitAvailable();
@@ -154,5 +160,16 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
             handler(.canceled, response.toNSDictionary())
             presentAddPaymentPassCompletionHandler = nil
           }
+  }
+}
+
+extension WalletManager {
+  enum Event: String, CaseIterable {
+    case onCardActivated
+  }
+
+  @objc
+  public static var supportedEvents: [String] {
+    return Event.allCases.map(\.rawValue);
   }
 }
