@@ -48,7 +48,7 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
   };
   
   dispatch_async(dispatch_get_main_queue(), ^{
-    [walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
+    [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
       if (result < 2) { // completed or canceled
         resolve(data);
       } else {
@@ -82,6 +82,21 @@ RCT_REMAP_METHOD(getCardStatus,
 {
   resolve([walletManager getCardStatusWithLast4Digits:last4Digits]);
 }
+
+- (void)addCardToGoogleWallet:(JS::NativeWallet::AndroidCardData &)cardData resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
+  // no-op
+}
+
+
+- (void)getCardTokenStatus:(NSString *)tsp tokenRefId:(NSString *)tokenRefId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
+  // no-op
+}
+
+
+- (void)getSecureWalletInfo:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+  // no-op
+}
+
 
 + (BOOL)requiresMainQueueSetup {
     return NO;
