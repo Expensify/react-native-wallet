@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text, Alert} from 'react-native';
+import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
@@ -77,7 +77,7 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>react-native-wallet example app</Text>
         <PlatformInfo />
@@ -115,7 +115,7 @@ export default function App() {
         <Text style={styles.value}>{addCardStatus || '-'}</Text>
       </Text>
       <AddToWalletButton onPress={handleAddCardToWallet} locale="en" />
-    </View>
+    </SafeAreaView>
   );
 }
 
