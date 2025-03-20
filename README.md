@@ -104,30 +104,33 @@ The library offers five functions for seamless integration and use of the Apple 
 
 ## Functions
 
-| Function | Description | Parameters | Returns / Type |
-|----------|-------------|------------|----------------|
-| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `AndroidWalletData` or `IOSWalletData` |
-| **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` |
-| **getCardStatus** | Retrieves the current status of a card in the wallet. | `lastDigits`: string (The last few digits of the card number) | `CardStatus` |
-| **addCardToWallet** | Initiates native Push Provisioning flow for adding a card to the wallet. | `data`: `AndroidCardData` or `IOSCardData` | `void` |
-| **getCardTokenStatus** | Returns state of a token based on an id and a service provider. | `tsp: string`<br>`tokenRefId: string` | `CardStatus` | 
+| Function | Description | Parameters | Returns / Type | iOS | Andorid |
+|----------|-------------|------------|----------------|:---:|:-------:|
+| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ✅ | ❌ |
+| **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
+| **getCardStatus** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
+| **getCardTokenStatus** | Returns state of a token based on an token ref ID and a service provider. | `tsp: string`<br>`tokenRefId: string` | `CardStatus` |  ❌ | ✅ |
+| **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. | `data`: `AndroidCardData` | `void` | ❌ | ✅  |
+| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`<br>`issuerEncryptPayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
+
 
 ## Data Types
 
 | Type | Description | Fields |
 |------|-------------|--------|
-| **AndroidWalletData** | Specific information for Android devices required for wallet transactions. | `platform: 'android'`<br>`deviceID: string`<br>`walletAccountID: string` |
-| **IOSWalletData** | Specific information for iOS devices required for wallet transactions. | `platform: 'ios'`<br>`nonce: string`<br>`nonceSignature: string`<br>`certificates: string` |
-| **AndroidCardData** | Data related to a card that is to be added on Android platform wallets. | `platform: 'android'`<br>`network: string`<br>`opaquePaymentCard: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`userAddress: UserAddress` |
-| **IOSCardData** | Data related to a card that is to be added on iOS platform. | `platform: 'ios'`<br>`network: string`<br>`activationData: string`<br>`encryptedPassData: string`<br>`ephemeralPublicKey: string`<br>`cardHolderTitle: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`cardDescription: string`<br>`cardDescriptionComment: string` |
+| **AndroidWalletData** | Specific information for Android devices required for wallet transactions. | `deviceID: string`<br>`walletAccountID: string` |
+| **AndroidCardData** | Data related to a card that is to be added on Android platform wallets. | `network: string`<br>`opaquePaymentCard: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`userAddress: UserAddress` |
 | **UserAddress** | Structured address used for cardholder verification. | `name: string`<br>`addressOne: string`<br>`addressTwo: string`<br>`city: string`<br>`administrativeArea: string`<br>`countryCode: string`<br>`postalCode: string`<br>`phoneNumber: string` |
-| **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes.  | `tokenId:  string`<br> `actionStatus:  'activated' \|  'canceled'`<br> 
+| **IOSCardData** | Data related to a card that is to be added on iOS platform. | `network: string`<br>`activationData: string`<br>`encryptedPassData: string`<br>`ephemeralPublicKey: string`<br>`cardHolderTitle: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`cardDescription: string`<br>`cardDescriptionComment: string` |
+| **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes.  | `tokenId:  string`<br> `actionStatus:  'activated' \|  'canceled'`<br> |
+| **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet.  | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
+| **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`<br>`activationData: string`<br>`ephemeralPublicKey: string` |
 
 ## Card Status
 
 | Type | Possible Values |
 |------|-----------------|
-| **CardStatus** | `not found`, `requireAuthorization`, `pending`, `active`, `suspended`, `deactivated` |
+| **CardStatus** | `not found`, `active`, `requireAuthorization`, `pending`, `suspended`, `deactivated` |
 
 ## Listeners
 
