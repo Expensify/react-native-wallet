@@ -152,16 +152,10 @@ open class WalletManager: UIViewController {
     return -1;
   }
   
-  /**
-  Define if PassKit will be available for this device
-  */
   private func isPassKitAvailable() -> Bool {
     return PKAddPaymentPassViewController.canAddPaymentPass()
   }
 
-  /**
-  Show an alert that indicates that PassKit isn't available for this device
-  */
   private func showErrorAlert(message: String, callback: ((OperationResult, NSDictionary?)-> Void)?) {
     let alert = UIAlertController(title: "InApp Error",
                                   message: message,
