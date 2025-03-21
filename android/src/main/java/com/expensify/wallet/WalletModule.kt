@@ -258,6 +258,22 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       .emit(eventName, params)
   }
 
+  override fun IOSPresentAddPaymentPassView(cardData: ReadableMap?, promise: Promise?) {
+    // no-op
+  }
+
+  override fun IOSHandleAddPaymentPassResponse(payload: ReadableMap?, promise: Promise?) {
+    // no-op
+  }
+
+  override fun addListener(eventType: String?) {
+    // no-op
+  }
+
+  override fun removeListeners(count: Double) {
+    // no-op
+  }
+
   override fun getName(): String {
     return NAME
   }
