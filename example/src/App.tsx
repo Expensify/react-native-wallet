@@ -122,7 +122,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Platform.OS === 'ios' ? 100 : 20,
+    paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
