@@ -124,6 +124,7 @@ open class WalletManager: UIViewController {
   @objc
   public func IOSHandleAddPaymentPassResponse(payload: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
     guard addPassHandler != nil else {
+      hideModal()
       reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 500, userInfo: nil))
       return
     }
@@ -132,6 +133,7 @@ open class WalletManager: UIViewController {
     do {
       walletData = try WalletEncryptedPayload(data: payload)
     } catch {
+      hideModal()
       reject("add_card_failed", "Invalid payload data", NSError(domain: "", code: 1002, userInfo: nil))
       return
     }
@@ -143,7 +145,7 @@ open class WalletManager: UIViewController {
     addPaymentPassRequest.ephemeralPublicKey = walletData.ephemeralPublicKey
     addPassHandler?(addPaymentPassRequest)
     self.addPassHandler = nil
-    resolve(nil)
+        resolve(nil)
   }
   
   @objc
@@ -167,6 +169,12 @@ open class WalletManager: UIViewController {
   
   private func isPassKitAvailable() -> Bool {
     return PKAddPaymentPassViewController.canAddPaymentPass()
+  }
+  
+  private func hideModal() {
+    DispatchQueue.main.async {
+      RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
+    }
   }
 }
 
@@ -196,7 +204,8 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         didFinishAdding pass: PKPaymentPass?,
         error: Error?) {
           // This method will be called when enroll process ends (with success / error)
-          RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
+          
+          hideModal()
             
           if let handler = presentAddPaymentPassCompletionHandler {
             let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
