@@ -84,7 +84,11 @@ open class WalletManager: UIViewController {
       return
     }
     
-    guard let card = CardInfo(cardData: cardData) else {
+    let card: CardInfo
+    do {
+      card = try CardInfo(cardData: cardData)
+    }
+    catch {
       completion(.error, [
         "errorMessage": "Invalid card data. Please check your card information and try again..."
       ])
@@ -124,11 +128,14 @@ open class WalletManager: UIViewController {
       return
     }
     
-    guard let walletData = WalletEncryptedPayload(data: payload) else {
-
+    let walletData: WalletEncryptedPayload
+    do {
+      walletData = try WalletEncryptedPayload(data: payload)
+    } catch {
       reject("add_card_failed", "Invalid payload data", NSError(domain: "", code: 1002, userInfo: nil))
       return
     }
+    
     
     let addPaymentPassRequest = PKAddPaymentPassRequest()
     addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData

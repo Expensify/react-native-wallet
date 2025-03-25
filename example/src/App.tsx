@@ -52,7 +52,8 @@ export default function App() {
       .then(() => {
         setAddCardStatus('Completed');
       })
-      .catch(() => {
+      .catch(e => {
+        console.error(e);
         setAddCardStatus('Failed');
       });
   }, []);

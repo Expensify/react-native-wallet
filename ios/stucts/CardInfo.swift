@@ -8,18 +8,17 @@ struct CardInfo {
   let cardDescription: String
   let cardDescriptionComment: String
 
-  init?(cardData: NSDictionary) {
+  init(cardData: NSDictionary) throws {
     guard let networkString = cardData["network"] as? String,
+          let network = CardInfo.getNetwork(from: networkString),
           let cardHolderTitle = cardData["cardHolderTitle"] as? String,
           let cardHolderName = cardData["cardHolderName"] as? String,
           let lastDigits = cardData["lastDigits"] as? String,
           let cardDescription = cardData["cardDescription"] as? String,
-          let cardDescriptionComment = cardData["cardDescriptionComment"] as? String,
-          let network = CardInfo.getNetwork(from: networkString) else {
-      return nil
+          let cardDescriptionComment = cardData["cardDescriptionComment"] as? String else {
+      throw CardInfoError.invalidData(description: "Required data fields are missing or invalid.")
     }
     
-    // After ensuring all data needed is gathered and valid
     self.network = network
     self.cardHolderTitle = cardHolderTitle
     self.cardHolderName = cardHolderName
@@ -34,4 +33,8 @@ struct CardInfo {
     default: return nil
     }
   }
+}
+
+enum CardInfoError: Error {
+  case invalidData(description: String)
 }
