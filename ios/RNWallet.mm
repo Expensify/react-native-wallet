@@ -97,11 +97,6 @@ RCT_REMAP_METHOD(getCardStatus,
   // no-op
 }
 
-
-+ (BOOL)requiresMainQueueSetup {
-    return NO;
-}
-
 - (NSArray<NSString *> *)supportedEvents {
   return [WalletManager supportedEvents];
 }
