@@ -31,5 +31,6 @@ struct AddPassResponse {
 @objc public enum OperationResult: Int {
   case completed = 0
   case canceled
+  case retry
   case error
 }

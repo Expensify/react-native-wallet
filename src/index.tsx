@@ -2,7 +2,7 @@
 import {NativeEventEmitter, Platform} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
 import Wallet from './NativeWallet';
-import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload} from './NativeWallet';
+import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
 import {getCardState} from './utils';
 import AddToWalletButton from './AddWalletButton';
 
@@ -64,8 +64,15 @@ async function addCardToAppleWallet(cardData: IOSCardData, issuerEncryptPayloadC
   if (!passData || passData.status !== 0) {
     return;
   }
-  const responseData = await issuerEncryptPayloadCallback(passData.nonce, passData.nonceSignature, passData.certificates);
-  await Wallet.IOSHandleAddPaymentPassResponse(responseData);
+
+  async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData) {
+    const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
+    const response = await Wallet.IOSHandleAddPaymentPassResponse(responseData);
+    if (response) {
+      await addPaymentPassToWallet(response);
+    }
+  }
+  await addPaymentPassToWallet(passData);
 }
 
 export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};

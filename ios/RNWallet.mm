@@ -49,13 +49,13 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
   
   dispatch_async(dispatch_get_main_queue(), ^{
     [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
-      if (result < 2) { // completed or canceled
+      if (result < 3) { // completed or canceled
         resolve(data);
       } else {
         NSError *error = [NSError errorWithDomain:@"com.expensify.wallet"
                                              code:1001
                                          userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
-        reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to add card to wallet", error);
+        reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to present Add Payment Pass View", error);
       }
     }];
   });
@@ -72,7 +72,20 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
     @"ephemeralPublicKey": payload.ephemeralPublicKey(),
   };
   
-  [walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict resolve:resolve reject:reject];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self->walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict completion:^(OperationResult result, NSDictionary* data) {
+      if (result < 3) { // completed or canceled or retry
+        resolve(data);
+      } else {
+        NSError *error = [NSError errorWithDomain:@"com.expensify.wallet"
+                                             code:1002
+                                         userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
+        reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to add card to wallet", error);
+      }
+    }];
+  });
+  
+//  [walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict resolve:resolve reject:reject];
 }
 
 RCT_REMAP_METHOD(getCardStatus,

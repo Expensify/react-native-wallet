@@ -3,7 +3,7 @@ import PassKit
 import UIKit
 import React
 
-public typealias PresentAddPassHandler = (OperationResult, NSDictionary?) -> Void
+public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 
 @objc public protocol WalletDelegate {
   func sendEvent(name: String, result: NSDictionary)
@@ -14,7 +14,9 @@ open class WalletManager: UIViewController {
   
   @objc public weak var delegate: WalletDelegate? = nil
 
-  private var presentAddPaymentPassCompletionHandler: (PresentAddPassHandler)?
+  private var presentAddPaymentPassCompletionHandler: (CompletionHandler)?
+  
+  private var addPaymentPassCompletionHandler: (CompletionHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
@@ -76,7 +78,7 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func IOSPresentAddPaymentPassView(cardData: NSDictionary, completion: @escaping PresentAddPassHandler) {
+  public func IOSPresentAddPaymentPassView(cardData: NSDictionary, completion: @escaping CompletionHandler) {
     guard isPassKitAvailable() else {
       completion(.error, [
         "errorMessage": "InApp enrollment not available for this device"
@@ -122,22 +124,27 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func IOSHandleAddPaymentPassResponse(payload: NSDictionary, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+  public func IOSHandleAddPaymentPassResponse(payload: NSDictionary, completion: @escaping CompletionHandler) {
     guard addPassHandler != nil else {
       hideModal()
-      reject("add_card_failed", "addPassHandler unavailable", NSError(domain: "", code: 500, userInfo: nil))
+      completion(.error, [
+        "errorMessage": "addPassHandler unavailable"
+      ])
       return
     }
-    
+
     let walletData: WalletEncryptedPayload
     do {
       walletData = try WalletEncryptedPayload(data: payload)
     } catch {
       hideModal()
-      reject("add_card_failed", "Invalid payload data", NSError(domain: "", code: 1002, userInfo: nil))
+      completion(.error, [
+        "errorMessage": "Invalid payload data"
+      ])
       return
     }
     
+    self.addPaymentPassCompletionHandler = completion
     
     let addPaymentPassRequest = PKAddPaymentPassRequest()
     addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData
@@ -145,7 +152,6 @@ open class WalletManager: UIViewController {
     addPaymentPassRequest.ephemeralPublicKey = walletData.ephemeralPublicKey
     addPassHandler?(addPaymentPassRequest)
     self.addPassHandler = nil
-        resolve(nil)
   }
   
   @objc
@@ -179,47 +185,61 @@ open class WalletManager: UIViewController {
 }
 
 extension WalletManager: PKAddPaymentPassViewControllerDelegate {
+  // Perform the bridge from Apple -> Issuer -> Apple
   public func addPaymentPassViewController(
-        _ controller: PKAddPaymentPassViewController,
-        generateRequestWithCertificateChain certificates: [Data],
-        nonce: Data, nonceSignature: Data,
-        completionHandler handler: @escaping (PKAddPaymentPassRequest) -> Void) {
-          // Perform the bridge from Apple -> Issuer -> Apple
-          let stringNonce = nonce.base64EncodedString() as NSString
-          let stringNonceSignature = nonceSignature.base64EncodedString() as NSString
-          let stringCertificates = certificates.map {
-            $0.base64EncodedString() as NSString
-          }
+    _ controller: PKAddPaymentPassViewController,
+    generateRequestWithCertificateChain certificates: [Data],
+    nonce: Data, nonceSignature: Data,
+    completionHandler handler: @escaping (PKAddPaymentPassRequest) -> Void) {
+      let stringNonce = nonce.base64EncodedString() as NSString
+      let stringNonceSignature = nonceSignature.base64EncodedString() as NSString
+      let stringCertificates = certificates.map {
+        $0.base64EncodedString() as NSString
+      }
+      let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
+      
+      // Retry the JS issuer callback if the user tries again to add a payment pass
+      if let addPaymentPassHandler = addPaymentPassCompletionHandler {
+        addPaymentPassHandler(.retry, reqestCardData.toNSDictionary())
+        addPaymentPassCompletionHandler = nil
+        return
+      }
+      
+      // Finish IOSPresentAddPaymentPassView function
+      if let presentPassHandler = presentAddPaymentPassCompletionHandler {
+        addPassHandler = handler
+        presentPassHandler(.completed, reqestCardData.toNSDictionary())
+        presentAddPaymentPassCompletionHandler = nil
+      }
+    }
     
-          if let presentPasshandler = presentAddPaymentPassCompletionHandler {
-            addPassHandler = handler
-            let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
-            presentPasshandler(.completed, reqestCardData.toNSDictionary())
-            presentAddPaymentPassCompletionHandler = nil
-          }
-  }
-    
+  // This method will be called when enroll process ends (with success/error)
   public func addPaymentPassViewController(
-        _ controller: PKAddPaymentPassViewController,
-        didFinishAdding pass: PKPaymentPass?,
-        error: Error?) {
-          // This method will be called when enroll process ends (with success / error)
-          
-          hideModal()
-            
-          if let handler = presentAddPaymentPassCompletionHandler {
-            let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
-            handler(.canceled, response.toNSDictionary())
-            presentAddPaymentPassCompletionHandler = nil
-          }
-          
-          if let error = error as? NSError {
-            print("[react-native-wallet] \(error)")
-            delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
-              "state": "canceled"
-            ]);
-          }
-  }
+    _ controller: PKAddPaymentPassViewController,
+    didFinishAdding pass: PKPaymentPass?,
+    error: Error?) {
+      if let error = error as? NSError {
+        print("[react-native-wallet] \(error)")
+        delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
+          "state": "canceled"
+        ]);
+      }
+      
+      // Cancel the IOSPresentAddPaymentPassView function when the user cancelled the modal
+      if let handler = presentAddPaymentPassCompletionHandler {
+        let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
+        handler(.canceled, response.toNSDictionary())
+      }
+      
+      // If the pass is returned complete the IOSHandleAddPaymentPassResponse function
+      if pass != nil, let addPaymentPassHandler = addPaymentPassCompletionHandler {
+        addPaymentPassHandler(.completed, nil)
+      }
+      
+      hideModal()
+      addPaymentPassCompletionHandler = nil
+      presentAddPaymentPassCompletionHandler = nil
+    }
 }
 
 extension WalletManager {
