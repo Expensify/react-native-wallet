@@ -16,9 +16,15 @@ struct WalletEncryptedPayload {
       throw WalletPayloadError.invalidData(description: "Data encoding failed or data is corrupted.")
     }
     
-    self.activationData = Data(base64Encoded: activationData, options: .ignoreUnknownCharacters)
-    self.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey, options: .ignoreUnknownCharacters)
-    self.encryptedPassData = Data(base64Encoded: encryptedPassData, options: .ignoreUnknownCharacters)
+    guard let activationData = Data(base64Encoded: activationDataString, options: .ignoreUnknownCharacters),
+          let ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKeyString, options: .ignoreUnknownCharacters),
+          let encryptedPassData = Data(base64Encoded: encryptedPassDataString, options: .ignoreUnknownCharacters) else {
+      throw WalletPayloadError.invalidData(description: "Data encoding failed or data is corrupted.")
+    }
+    
+    self.activationData = activationData
+    self.ephemeralPublicKey = ephemeralPublicKey
+    self.encryptedPassData = encryptedPassData
   }
 }
 

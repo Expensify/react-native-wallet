@@ -161,6 +161,7 @@ open class WalletManager: UIViewController {
     
     self.addPaymentPassCompletionHandler = completion
     
+    
     let addPaymentPassRequest = PKAddPaymentPassRequest()
     addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData
     addPaymentPassRequest.activationData = walletData.activationData
