@@ -18,7 +18,7 @@ open class WalletManager: UIViewController {
   
   @objc public weak var delegate: WalletDelegate? = nil
 
-  private var presentAddPaymentPassCompletionHandler: (PresentAddPassnHandler)?
+  private var presentAddPaymentPassCompletionHandler: (PresentAddPassHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
