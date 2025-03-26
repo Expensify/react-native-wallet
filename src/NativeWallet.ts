@@ -31,11 +31,9 @@ type AndroidCardData = {
 
 type IOSCardData = {
   network: string;
-  cardHolderTitle: string;
   cardHolderName: string;
   lastDigits: string;
   cardDescription: string;
-  cardDescriptionComment: string;
 };
 
 type onCardActivatedPayload = {

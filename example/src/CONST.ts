@@ -26,11 +26,9 @@ const AndroidDummyCardData: AndroidCardData = {
 
 const IOSDummyCardData: IOSCardData = {
   network: 'VISA',
-  cardHolderTitle: 'Mr.',
   cardHolderName: 'John Doe',
   lastDigits: '4321',
   cardDescription: 'Card Description',
-  cardDescriptionComment: 'Card Description Comment',
 };
 
 const IOSDummyEncryptPayload: IOSEncryptPayload = {

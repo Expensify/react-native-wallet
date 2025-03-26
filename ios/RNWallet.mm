@@ -38,15 +38,13 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  @try {
-  NSDictionary *cardDataDict = @{
-    @"network": cardData.network(),
-    @"cardHolderTitle":cardData.cardHolderTitle(),
-    @"cardHolderName":cardData.cardHolderName(),
-    @"lastDigits":cardData.lastDigits(),
-    @"cardDescription":cardData.cardDescription(),
-    @"cardDescriptionComment":cardData.cardDescriptionComment(),
-  };
+  @try {    
+    NSDictionary *cardDataDict = @{
+      @"network": [self safeString:cardData.network()],
+      @"cardHolderName": [self safeString:cardData.cardHolderName()],
+      @"lastDigits": [self safeString:cardData.lastDigits()],
+      @"cardDescription": [self safeString:cardData.cardDescription()],
+    };
     
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
@@ -76,9 +74,9 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
 {
   @try {
     NSDictionary *payloadDict = @{
-      @"encryptedPassData": payload.encryptedPassData(),
-      @"activationData": payload.activationData(),
-      @"ephemeralPublicKey": payload.ephemeralPublicKey(),
+      @"encryptedPassData": [self safeString:payload.encryptedPassData()],
+      @"activationData": [self safeString:payload.activationData()],
+      @"ephemeralPublicKey": [self safeString:payload.ephemeralPublicKey()],
     };
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -144,6 +142,10 @@ RCT_REMAP_METHOD(getCardStatus,
 
   NSString *errorMessage = [NSString stringWithFormat:@"%@ - %@", errorWithDomain, description];
   reject(type, errorMessage, error);
+}
+
+- (NSString *)safeString:(NSString *)value {
+  return value ?: @"";
 }
 
 #ifdef RCT_NEW_ARCH_ENABLED

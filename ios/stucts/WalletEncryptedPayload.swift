@@ -4,9 +4,9 @@ struct WalletEncryptedPayload {
   let encryptedPassData: Data?
   
   init(data: NSDictionary) throws {
-    guard let activationDataString = data["activationData"] as? String,
-          let ephemeralPublicKeyString = data["ephemeralPublicKey"] as? String,
-          let encryptedPassDataString = data["encryptedPassData"] as? String else {
+    guard let activationDataString = data["activationData"] as? String, !activationDataString.isEmpty,
+          let ephemeralPublicKeyString = data["ephemeralPublicKey"] as? String, !ephemeralPublicKeyString.isEmpty,
+          let encryptedPassDataString = data["encryptedPassData"] as? String, !encryptedPassDataString.isEmpty else {
       throw WalletPayloadError.invalidData(description: "Required data fields are missing or invalid.")
     }
     
