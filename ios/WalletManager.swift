@@ -13,6 +13,8 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 open class WalletManager: UIViewController {
   
   @objc public weak var delegate: WalletDelegate? = nil
+  
+  private var addPassViewController: PKAddPaymentPassViewController?
 
   private var presentAddPaymentPassCompletionHandler: (CompletionHandler)?
   
@@ -119,7 +121,12 @@ open class WalletManager: UIViewController {
     
     presentAddPaymentPassCompletionHandler = completion
     DispatchQueue.main.async {
-      RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
+      if self.addPassViewController == nil {
+        self.addPassViewController = enrollViewController
+        RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
+      } else {
+        print("[react-native-wallet] EnrollViewController is already presented.")
+      }
     }
   }
   
@@ -179,7 +186,13 @@ open class WalletManager: UIViewController {
   
   private func hideModal() {
     DispatchQueue.main.async {
-      RCTPresentedViewController()?.dismiss(animated: true, completion: nil)
+      if let enrollVC = self.addPassViewController, enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
+        enrollVC.dismiss(animated: true, completion: {
+          self.addPassViewController = nil
+        })
+      } else {
+        print("[react-native-wallet] EnrollViewController is not presented currently.")
+      }
     }
   }
 }
@@ -218,6 +231,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
     _ controller: PKAddPaymentPassViewController,
     didFinishAdding pass: PKPaymentPass?,
     error: Error?) {
+      if addPassViewController == nil {
+        return
+      }
+      
       if let error = error as? NSError {
         print("[react-native-wallet] \(error)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
