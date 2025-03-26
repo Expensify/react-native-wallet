@@ -84,10 +84,10 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
         if (result < 3) { // completed or canceled or retry
           resolve(data);
         } else {
-          NSError *error = [NSError errorWithDomain:@"com.expensify.wallet"
-                                               code:1002
-                                           userInfo:@{NSLocalizedDescriptionKey: data[@"errorMessage"] ?: @""}];
-          reject(@"add_card_failed", data[@"errorMessage"] ?: @"Failed to add card to wallet", error);
+          [self rejectWithErrorType:@"add_card_failed"
+                               code:1001
+                        description:data[@"errorMessage"] ?: @"Failed to add card to wallet"
+                           rejecter:reject];
         }
       }];
     });
