@@ -17,6 +17,8 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
 open class WalletManager: UIViewController {
   
   @objc public weak var delegate: WalletDelegate? = nil
+  
+  private var addPassViewController: PKAddPaymentPassViewController?
 
   private var presentAddPaymentPassCompletionHandler: (CompletionHandler)?
   
