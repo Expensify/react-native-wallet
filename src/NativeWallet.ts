@@ -66,6 +66,14 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
+// eslint-disable-next-line import/no-mutable-exports
+let Wallet: Spec | undefined;
+try {
+  Wallet = TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.warn('Failed to load Wallet module', error);
+}
+export default Wallet;
 
 export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload};

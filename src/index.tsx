@@ -17,7 +17,7 @@ function removeListener(subscription: EmitterSubscription): void {
 }
 
 function checkWalletAvailability(): Promise<boolean> {
-  return Wallet.checkWalletAvailability();
+  return Wallet?.checkWalletAvailability() ?? Promise.resolve(false);
 }
 
 function getSecureWalletInfo(): Promise<AndroidWalletData> {
@@ -26,15 +26,28 @@ function getSecureWalletInfo(): Promise<AndroidWalletData> {
     console.warn('getSecureWalletInfo is not available on iOS');
     return Promise.resolve({} as unknown as AndroidWalletData);
   }
-  return Wallet.getSecureWalletInfo();
+  return Wallet?.getSecureWalletInfo() ?? Promise.resolve({} as unknown as AndroidWalletData);
 }
 
 async function getCardStatus(last4Digits: string): Promise<CardStatus> {
+  if (!Wallet) {
+    return 'not found';
+  }
+
+  if (Platform.OS === 'ios') {
+    // eslint-disable-next-line no-console
+    console.warn('getCardStatus is not available on iOS');
+    return 'not found';
+  }
   const cardState = await Wallet.getCardStatus(last4Digits);
   return getCardState(cardState);
 }
 
 async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<CardStatus> {
+  if (!Wallet) {
+    return 'not found';
+  }
+
   if (Platform.OS === 'ios') {
     // eslint-disable-next-line no-console
     console.warn('getCardTokenStatus is not available on iOS');
@@ -50,7 +63,7 @@ function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
     console.warn('addCardToGoogleWallet is not available on iOS');
     return Promise.resolve();
   }
-  return Wallet.addCardToGoogleWallet(cardData);
+  return Wallet?.addCardToGoogleWallet(cardData) ?? Promise.resolve();
 }
 
 async function addCardToAppleWallet(
@@ -63,14 +76,14 @@ async function addCardToAppleWallet(
     return Promise.resolve();
   }
 
-  const passData = await Wallet.IOSPresentAddPaymentPassView(cardData);
+  const passData = await Wallet?.IOSPresentAddPaymentPassView(cardData);
   if (!passData || passData.status !== 0) {
     return;
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData) {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
-    const response = await Wallet.IOSHandleAddPaymentPassResponse(responseData);
+    const response = await Wallet?.IOSHandleAddPaymentPassResponse(responseData);
     // Response is null when a pass is successfully added to the wallet or the user cancels the process
     // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
     if (response) {
