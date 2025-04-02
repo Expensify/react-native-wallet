@@ -16,7 +16,6 @@ struct WalletEncryptedPayload {
       throw WalletPayloadError.invalidData(description: "Data encoding failed or data is corrupted.")
     }
     
-    
     self.activationData = activationData
     self.ephemeralPublicKey = ephemeralPublicKey
     self.encryptedPassData = encryptedPassData

@@ -9,7 +9,6 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
   func sendEvent(name: String, result: NSDictionary)
 }
 
-
 @objc
 open class WalletManager: UIViewController {
   
@@ -268,4 +267,3 @@ extension WalletManager {
     return Event.allCases.map(\.rawValue);
   }
 }
-
