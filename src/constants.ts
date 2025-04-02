@@ -5,7 +5,7 @@ import bgAndroid from '../assets/buttons/android/bg.svg';
 import bsAndroid from '../assets/buttons/android/bs.svg';
 import caAndroid from '../assets/buttons/android/ca.svg';
 import csAndroid from '../assets/buttons/android/cs.svg';
-import dkAndroid from '../assets/buttons/android/dk.svg';
+import daAndroid from '../assets/buttons/android/da.svg';
 import deAndroid from '../assets/buttons/android/de.svg';
 import elAndroid from '../assets/buttons/android/el.svg';
 import enAndroid from '../assets/buttons/android/en.svg';
@@ -46,6 +46,47 @@ import twAndroid from '../assets/buttons/android/tw.svg';
 import ukAndroid from '../assets/buttons/android/uk.svg';
 import urAndroid from '../assets/buttons/android/ur.svg';
 import uzAndroid from '../assets/buttons/android/uz.svg';
+import enApple from '../assets/buttons/apple/en.svg';
+import esApple from '../assets/buttons/apple/es.svg';
+import arApple from '../assets/buttons/apple/ar.svg';
+import azApple from '../assets/buttons/apple/az.svg';
+import bgApple from '../assets/buttons/apple/bg.svg';
+import csApple from '../assets/buttons/apple/cs.svg';
+import daApple from '../assets/buttons/apple/da.svg';
+import deApple from '../assets/buttons/apple/de.svg';
+import elApple from '../assets/buttons/apple/el.svg';
+import etApple from '../assets/buttons/apple/et.svg';
+import fiApple from '../assets/buttons/apple/fi.svg';
+import filApple from '../assets/buttons/apple/fil.svg';
+import frApple from '../assets/buttons/apple/fr.svg';
+import heApple from '../assets/buttons/apple/he.svg';
+import hiApple from '../assets/buttons/apple/hi.svg';
+import hkApple from '../assets/buttons/apple/hk.svg';
+import hrApple from '../assets/buttons/apple/hr.svg';
+import huApple from '../assets/buttons/apple/hu.svg';
+import idApple from '../assets/buttons/apple/id.svg';
+import itApple from '../assets/buttons/apple/it.svg';
+import jaApple from '../assets/buttons/apple/ja.svg';
+import koApple from '../assets/buttons/apple/ko.svg';
+import ltApple from '../assets/buttons/apple/lt.svg';
+import lvApple from '../assets/buttons/apple/lv.svg';
+import msApple from '../assets/buttons/apple/ms.svg';
+import mtApple from '../assets/buttons/apple/mt.svg';
+import nlApple from '../assets/buttons/apple/nl.svg';
+import noApple from '../assets/buttons/apple/no.svg';
+import plApple from '../assets/buttons/apple/pl.svg';
+import ptApple from '../assets/buttons/apple/pt.svg';
+import roApple from '../assets/buttons/apple/ro.svg';
+import ruApple from '../assets/buttons/apple/ru.svg';
+import skApple from '../assets/buttons/apple/sk.svg';
+import slApple from '../assets/buttons/apple/sl.svg';
+import svApple from '../assets/buttons/apple/sv.svg';
+import thApple from '../assets/buttons/apple/th.svg';
+import trApple from '../assets/buttons/apple/tr.svg';
+import ukApple from '../assets/buttons/apple/uk.svg';
+import viApple from '../assets/buttons/apple/vi.svg';
+import zhApple from '../assets/buttons/apple/zh.svg';
+
 import type {Platform} from './NativeWallet';
 
 // Here you can find the expansion of language abbreviations used in the map
@@ -59,7 +100,7 @@ const LOCALIZED_BUTTONS: Record<Platform, Record<string, string>> = {
     bs: bsAndroid,
     ca: caAndroid,
     cs: csAndroid,
-    dk: dkAndroid,
+    da: daAndroid,
     de: deAndroid,
     el: elAndroid,
     en: enAndroid,
@@ -103,8 +144,47 @@ const LOCALIZED_BUTTONS: Record<Platform, Record<string, string>> = {
     default: enAndroid,
   },
   ios: {
-    // soon
-    default: enAndroid,
+    ar: arApple,
+    az: azApple,
+    bg: bgApple,
+    cs: csApple,
+    da: daApple,
+    de: deApple,
+    el: elApple,
+    en: enApple,
+    es: esApple,
+    et: etApple,
+    fi: fiApple,
+    fil: filApple,
+    fr: frApple,
+    he: heApple,
+    hi: hiApple,
+    hk: hkApple,
+    hr: hrApple,
+    hu: huApple,
+    id: idApple,
+    it: itApple,
+    ja: jaApple,
+    ko: koApple,
+    lt: ltApple,
+    lv: lvApple,
+    ms: msApple,
+    mt: mtApple,
+    nl: nlApple,
+    no: noApple,
+    pl: plApple,
+    pt: ptApple,
+    ro: roApple,
+    ru: ruApple,
+    sk: skApple,
+    sl: slApple,
+    sv: svApple,
+    th: thApple,
+    tr: trApple,
+    uk: ukApple,
+    vi: viApple,
+    zh: zhApple,
+    default: enApple,
   },
 };
 

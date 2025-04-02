@@ -3,6 +3,6 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["src/App.tsx", "src/testConstants.ts", "./index.ts"],
+  "include": ["src/**/*.tsx", "src/walletUtils.ts"],
   "exclude": ["node_modules"]
 }

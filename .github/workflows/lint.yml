@@ -19,8 +19,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-
 
+      # v4.3.0
       - name: Setup Node
-        # v4.3.0
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
 
       - name: Install node_modules

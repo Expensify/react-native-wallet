@@ -2,17 +2,17 @@ import type {CardStatus} from './NativeWallet';
 
 function getCardState(stateId: number): CardStatus {
   switch (stateId) {
-    case 0:
+    case -1:
       return 'not found';
+    case 0:
+      return 'active';
     case 1:
       return 'requireActivation';
     case 2:
       return 'pending';
     case 3:
-      return 'active';
-    case 4:
       return 'suspended';
-    case 5:
+    case 4:
       return 'deactivated';
     default:
       throw new Error(`Unknown card state: ${stateId}`);

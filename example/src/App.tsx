@@ -1,61 +1,30 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text, Alert} from 'react-native';
+import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
   getCardStatus,
   getCardTokenStatus,
-  addCardToWallet,
   addListener,
   removeListener,
   AddToWalletButton,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {
-  CardData,
-  CardStatus,
-  UserAddress,
-  WalletData,
-} from '../../src/NativeWallet';
+import type {AndroidWalletData, CardStatus} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
+import {addCardToWallet} from './walletUtils';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';
 
-const dummyAddress: UserAddress = {
-  name: 'John Doe',
-  addressOne: '1234 Fictional Road',
-  addressTwo: 'Unit 5678',
-  administrativeArea: 'Imaginary State',
-  locality: '9090',
-  countryCode: 'XX',
-  postalCode: '99999',
-  phoneNumber: '000-123-4567',
-};
-
-const dummyCardData: CardData = {
-  platform: 'android',
-  network: 'VISA',
-  opaquePaymentCard: 'encryptedCardInformation123456',
-  cardHolderName: 'John Doe',
-  lastDigits: '4321',
-  userAddress: dummyAddress,
-};
-
-const getWalletInfoTextValue = (walletData: WalletData | undefined) => {
-  if (walletData?.platform === 'android') {
-    return `{\n\t\tplatform: ${walletData?.platform}\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
-  }
-  if (walletData?.platform === 'ios') {
-    return `{\n\t\tplatform: ${walletData?.platform}\n\t\tnonce: ${walletData?.nonce}\n\t\tnonceSignature: ${walletData?.nonceSignature}\n\t\tcertificates: ${walletData?.certificates}\n}`;
-  }
-  return '-';
+const getWalletInfoTextValue = (walletData: AndroidWalletData | undefined) => {
+  return `{\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
 };
 
 export default function App() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
-  const [walletData, setWalletData] = useState<WalletData | undefined>();
+  const [walletData, setWalletData] = useState<AndroidWalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
   const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
   const [addCardStatus, setAddCardStatus] = useState<string | undefined>();
@@ -79,11 +48,12 @@ export default function App() {
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {
-    addCardToWallet(dummyCardData)
+    addCardToWallet()
       .then(() => {
         setAddCardStatus('Completed');
       })
-      .catch(() => {
+      .catch(e => {
+        console.error(e);
         setAddCardStatus('Failed');
       });
   }, []);
@@ -108,7 +78,7 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>react-native-wallet example app</Text>
         <PlatformInfo />
@@ -145,12 +115,8 @@ export default function App() {
         Add Card status:{' '}
         <Text style={styles.value}>{addCardStatus || '-'}</Text>
       </Text>
-      <AddToWalletButton
-        onPress={handleAddCardToWallet}
-        locale="en"
-        platform={dummyCardData.platform}
-      />
-    </View>
+      <AddToWalletButton onPress={handleAddCardToWallet} locale="en" />
+    </SafeAreaView>
   );
 }
 

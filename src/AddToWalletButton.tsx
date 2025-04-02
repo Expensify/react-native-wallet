@@ -1,22 +1,22 @@
 import React, {useMemo} from 'react';
-import {StyleSheet, Pressable} from 'react-native';
+import {StyleSheet, Pressable, Platform} from 'react-native';
 import type {ViewStyle} from 'react-native';
 import {Image} from 'expo-image';
 import LOCALIZED_BUTTONS from './constants';
-import type {Platform} from './NativeWallet';
 
 type ButtonProps = {
   onPress: () => void;
   locale: string;
-  platform: Platform;
   buttonStyle?: ViewStyle;
 };
 
-function AddToWalletButton({onPress, locale, platform, buttonStyle}: ButtonProps) {
+const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+
+function AddToWalletButton({onPress, locale, buttonStyle}: ButtonProps) {
   const IconComponent = useMemo(() => {
     const platformIcons = LOCALIZED_BUTTONS[platform];
     return platformIcons[locale] ?? platformIcons.default;
-  }, [locale, platform]);
+  }, [locale]);
 
   return (
     <Pressable
