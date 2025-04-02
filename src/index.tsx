@@ -68,6 +68,7 @@ async function addCardToAppleWallet(cardData: IOSCardData, issuerEncryptPayloadC
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData) {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
     const response = await Wallet.IOSHandleAddPaymentPassResponse(responseData);
+    // response is null pass is successfully added to wallet or user canceled the process, which ends loop
     if (response) {
       await addPaymentPassToWallet(response);
     }

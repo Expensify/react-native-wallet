@@ -21,9 +21,9 @@ struct AddPassResponse {
     
     return [
       "status": status.rawValue,
-      "nonce": nonce as NSString,
-      "nonceSignature": nonceSignature as NSString,
-      "certificates": certificates as [NSString]
+      "nonce": nonce,
+      "nonceSignature": nonceSignature,
+      "certificates": certificates
     ]
   }
 }
