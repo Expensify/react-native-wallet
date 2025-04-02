@@ -9,22 +9,9 @@ public typealias CompletionHandler = (OperationResult, NSDictionary?) -> Void
   func sendEvent(name: String, result: NSDictionary)
 }
 
-@objc public protocol WalletDelegate {
-  func sendEvent(name: String, result: NSDictionary)
-}
 
 @objc
 open class WalletManager: UIViewController {
-  
-  @objc public weak var delegate: WalletDelegate? = nil
-  
-  private var addPassViewController: PKAddPaymentPassViewController?
-
-  private var presentAddPaymentPassCompletionHandler: (CompletionHandler)?
-  
-  private var addPaymentPassCompletionHandler: (CompletionHandler)?
-
-  private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
   @objc public weak var delegate: WalletDelegate? = nil
   
@@ -165,7 +152,6 @@ open class WalletManager: UIViewController {
     
     self.addPaymentPassCompletionHandler = completion
     
-    
     let addPaymentPassRequest = PKAddPaymentPassRequest()
     addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData
     addPaymentPassRequest.activationData = walletData.activationData
@@ -207,9 +193,6 @@ open class WalletManager: UIViewController {
         print("[react-native-wallet] EnrollViewController is not presented currently.")
       }
     }
-    callback?(.error, [
-      "errorMessage": message as NSString
-    ])
   }
 }
 
@@ -286,13 +269,3 @@ extension WalletManager {
   }
 }
 
-extension WalletManager {
-  enum Event: String, CaseIterable {
-    case onCardActivated
-  }
-
-  @objc
-  public static var supportedEvents: [String] {
-    return Event.allCases.map(\.rawValue);
-  }
-}
