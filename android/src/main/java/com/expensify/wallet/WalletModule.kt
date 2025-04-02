@@ -167,7 +167,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun addCardToWallet(
+  override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
     try {
@@ -256,6 +256,22 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
+  }
+
+  override fun IOSPresentAddPaymentPassView(cardData: ReadableMap?, promise: Promise?) {
+    // no-op
+  }
+
+  override fun IOSHandleAddPaymentPassResponse(payload: ReadableMap?, promise: Promise?) {
+    // no-op
+  }
+
+  override fun addListener(eventType: String?) {
+    // no-op
+  }
+
+  override fun removeListeners(count: Double) {
+    // no-op
   }
 
   override fun getName(): String {

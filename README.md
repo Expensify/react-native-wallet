@@ -52,13 +52,45 @@ Fingerprint: SHA256: 36:38:63:59:6E:...:00:82:16:4E:FF
 
 With all the required data, submit the form and wait for Google's response. After successfully whitelisting your app you will be able to use Google SDK within our library.
 
-#### Step 3: Test your app
-
-Before publishing your app with implemented In-App Push Provisioning, you will need to send your app for Google review. 
-More information about it can be found in the [Deploying your app](#deploying-your-app) section below.
-
+---
 ### iOS
-soon..
+
+### Step 1: Apply for appropriate entitlements
+
+To enable In-App Provisioning in your app, you must request activation of the appropriate Apple Pay entitlements for your developer Team ID. Enterprise Team IDs are not supported. This entitlement is not available by default in our panel; you will need to request it. Send an email to apple-pay-provisioning@apple.com with your app name, Team ID, and Adam ID.
+
+Once Apple verifies your identity, you should get documentation named `Getting Started with Apple Pay In-App Provisioning, Verification & Security`. In this confidential document you will find all the relevant information about:
+- Prerequisites for your project
+- Best practices to follow
+- How In-App Provisioning works
+- UX requirements
+- Testing process
+- and more...
+
+Make sure to familiarize yourself with that document before deploying your app.
+
+### Step 2: Activate the entitlement
+
+After getting a positive response from Apple, open the developer portal panel and search `Certificates, Identifiers & Profiles` -> `Profiles` -> `Our distribution profile` -> `Edit` and add the `ApplePay In-App Provisioning Distribution` entitlement. 
+It’s available only for the production environment so your QA must work with physical devices and cards.
+
+
+### Step 3: Add the entitlement to your project
+
+Add `com.apple.developer.payment-pass-provisioning` entitlement to your project. Find or create `.entitlements` file in your project and add the entitlement like below (similarly to [WalletExample.entitlements](https://github.com/Expensify/react-native-wallet/blob/main/example/ios/WalletExample/WalletExample.entitlements)): 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	...
+	 <!-- In-App Provisioning special entitlement-->
+	<key>com.apple.developer.payment-pass-provisioning</key>
+	<true/>
+</dict>
+</plist>
+```
 
 ## Installation
 
@@ -72,17 +104,7 @@ or
 yarn add @expensify/react-native-wallet
 ```
 
-## Usage
-soon...
 
-```js
-import {multiply} from '@expensify/react-native-wallet';
-
-*// ...*
-
-
-const result = multiply(3, 7);
-```
 
 ## Required data 
 Here you can find data elements used in the library, essential to work with Google Wallet and Apple Wallet APIs.
@@ -104,30 +126,33 @@ The library offers five functions for seamless integration and use of the Apple 
 
 ## Functions
 
-| Function | Description | Parameters | Returns / Type |
-|----------|-------------|------------|----------------|
-| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `AndroidWalletData` or `IOSWalletData` |
-| **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` |
-| **getCardStatus** | Retrieves the current status of a card in the wallet. | `lastDigits`: string (The last few digits of the card number) | `CardStatus` |
-| **addCardToWallet** | Initiates native Push Provisioning flow for adding a card to the wallet. | `data`: `AndroidCardData` or `IOSCardData` | `void` |
-| **getCardTokenStatus** | Returns state of a token based on an id and a service provider. | `tsp: string`<br>`tokenRefId: string` | `CardStatus` | 
+| Function | Description | Parameters | Returns / Type | iOS | Andorid |
+|----------|-------------|------------|----------------|:---:|:-------:|
+| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ✅ | ❌ |
+| **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
+| **getCardStatus** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
+| **getCardTokenStatus** | Returns state of a token based on an token ref ID and a service provider. | `tsp: string`<br>`tokenRefId: string` | `CardStatus` |  ❌ | ✅ |
+| **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. | `data`: `AndroidCardData` | `void` | ❌ | ✅  |
+| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`<br>`issuerEncryptPayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
+
 
 ## Data Types
 
 | Type | Description | Fields |
 |------|-------------|--------|
-| **AndroidWalletData** | Specific information for Android devices required for wallet transactions. | `platform: 'android'`<br>`deviceID: string`<br>`walletAccountID: string` |
-| **IOSWalletData** | Specific information for iOS devices required for wallet transactions. | `platform: 'ios'`<br>`nonce: string`<br>`nonceSignature: string`<br>`certificates: string` |
-| **AndroidCardData** | Data related to a card that is to be added on Android platform wallets. | `platform: 'android'`<br>`network: string`<br>`opaquePaymentCard: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`userAddress: UserAddress` |
-| **IOSCardData** | Data related to a card that is to be added on iOS platform. | `platform: 'ios'`<br>`network: string`<br>`activationData: string`<br>`encryptedPassData: string`<br>`ephemeralPublicKey: string`<br>`cardHolderTitle: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`cardDescription: string`<br>`cardDescriptionComment: string` |
+| **AndroidWalletData** | Specific information for Android devices required for wallet transactions. | `deviceID: string`<br>`walletAccountID: string` |
+| **AndroidCardData** | Data related to a card that is to be added on Android platform wallets. | `network: string`<br>`opaquePaymentCard: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`userAddress: UserAddress` |
 | **UserAddress** | Structured address used for cardholder verification. | `name: string`<br>`addressOne: string`<br>`addressTwo: string`<br>`city: string`<br>`administrativeArea: string`<br>`countryCode: string`<br>`postalCode: string`<br>`phoneNumber: string` |
-| **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes.  | `tokenId:  string`<br> `actionStatus:  'activated' \|  'canceled'`<br> 
+| **IOSCardData** | Data related to a card that is to be added on iOS platform. | `network: string`<br>`activationData: string`<br>`encryptedPassData: string`<br>`ephemeralPublicKey: string`<br>`cardHolderTitle: string`<br>`cardHolderName: string`<br>`lastDigits: string`<br>`cardDescription: string`<br>`cardDescriptionComment: string` |
+| **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes.  | `tokenId:  string`<br> `actionStatus:  'activated' \|  'canceled'`<br> |
+| **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet.  | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
+| **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`<br>`activationData: string`<br>`ephemeralPublicKey: string` |
 
 ## Card Status
 
 | Type | Possible Values |
 |------|-----------------|
-| **CardStatus** | `not found`, `requireAuthorization`, `pending`, `active`, `suspended`, `deactivated` |
+| **CardStatus** | `not found`, `active`, `requireAuthorization`, `pending`, `suspended`, `deactivated` |
 
 ## Listeners
 
@@ -174,13 +199,33 @@ Before deploying your app to the Google Play Store, make sure you have taken car
 
 The latest information about deploying apps with Google TapAndPay SDK can be found in the [pre-launch process](https://developers.google.com/pay/issuers/apis/push-provisioning/android/launch-process#step_3_issuer_app_product_review) and [beta tests](https://developers.google.com/pay/issuers/apis/push-provisioning/android/beta-testing) sections in Google documentation. Make sure to complete all of the steps specified by Google connected to the __Google's branding__, __API safety__, and __app stability__.
 
-Before publishing your app, it will need to be reviewed by Google. During this process, it will need to pass 4 mandatory test cases that are specified [here](https://developers.google.com/pay/issuers/apis/push-provisioning/android/test-cases). They verify how your app handles card state tracking in different scenarios. 
+The app will need to be reviewed by Google. During this process, it will need to pass 4 mandatory test cases that are specified [here](https://developers.google.com/pay/issuers/apis/push-provisioning/android/test-cases). They verify how your app handles card state tracking in different scenarios. 
 
 > [!NOTE]
 >Please make sure to hide the `Add to Google Wallet` buttons when cards are already added to the wallet.
 
 ### iOS
-soon..
+
+When implementing the In-App Push Provisioning feature in your App make sure that your app follows Apple's [branding guidelines connected to Apple Wallet](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/). Remember that you must not create your own buttons or your app could be rejected at revision. You can use the[ AddWalletButton component](#components) instead! 
+When the pass is already provisioned, make sure to hide this button and replace it with text like `Added to Apple Wallet`. The card is fully provisioned once it added to your main device (user's iPhone) and all linked devices (for example Apple Watch).
+
+Next to branding guidelines, please follow the instructions and best practices from [the In-App provisioning documentation]((#ios)) provided by Apple.
+
+The In-App Provisioning feature must be reviewed and verified by Apple's certification team before submitting your app to the App Store. Below are some key scenarios that may be tested during the review process:
+- Enrolling a card into Apple Wallet
+- Enrolling a card into the Apple Watch
+- Attempting to enroll a card that has already been added via the Wallet app
+- Manually adding a card using its IBAN
+- Adding multiple cards from the same issuer
+- Adding and removing the same card
+- Handling an incoming call during the provisioning process
+- ...
+
+Apple may request a demonstration of certain test scenarios, such as verifying the ability to add up to twenty different cards for a single user. Be prepared to provide validation for such cases.
+
+Additionally, when submitting your app to the App Store, you must include:
+- A demo account for testing.
+- A demo video showcasing the In-App Provisioning experience.
 
 
 # Contributing

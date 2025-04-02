@@ -1,19 +1,9 @@
 import type {TurboModule} from 'react-native';
 import {TurboModuleRegistry} from 'react-native';
 
-type WalletData = AndroidWalletData | IOSWalletData;
-
 type AndroidWalletData = {
-  platform: 'android';
   deviceID: string;
   walletAccountID: string;
-};
-
-type IOSWalletData = {
-  platform: 'ios';
-  nonce: string;
-  nonceSignature: string;
-  certificates: string;
 };
 
 type CardStatus = 'not found' | 'requireActivation' | 'pending' | 'active' | 'suspended' | 'deactivated';
@@ -31,10 +21,7 @@ type UserAddress = {
   phoneNumber: string;
 };
 
-type CardData = AndroidCardData | IOSCardData;
-
 type AndroidCardData = {
-  platform: 'android';
   network: string;
   opaquePaymentCard: string;
   cardHolderName: string;
@@ -43,16 +30,10 @@ type AndroidCardData = {
 };
 
 type IOSCardData = {
-  platform: 'ios';
   network: string;
-  activationData: string;
-  encryptedPassData: string;
-  ephemeralPublicKey: string;
-  cardHolderTitle: string;
   cardHolderName: string;
   lastDigits: string;
   cardDescription: string;
-  cardDescriptionComment: string;
 };
 
 type onCardActivatedPayload = {
@@ -60,15 +41,31 @@ type onCardActivatedPayload = {
   actionStatus: 'active' | 'canceled';
 };
 
+type IOSAddPaymentPassData = {
+  status: number;
+  nonce: string;
+  nonceSignature: string;
+  certificates: string[];
+};
+
+type IOSEncryptPayload = {
+  encryptedPassData: string;
+  activationData: string;
+  ephemeralPublicKey: string;
+};
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
-  getSecureWalletInfo(): Promise<WalletData>;
+  getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatus(last4Digits: string): Promise<number>;
   getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
-  addCardToWallet(cardData: CardData): Promise<void>;
-  // add(a: number, b: number): Promise<number>;
+  addCardToGoogleWallet(cardData: AndroidCardData): Promise<void>;
+  IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
+  IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
+  addListener: (eventType: string) => void;
+  removeListeners: (count: number) => void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
 
-export type {WalletData, AndroidWalletData, CardStatus, CardData, UserAddress, onCardActivatedPayload, Platform};
+export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload};

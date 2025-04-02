@@ -22,7 +22,7 @@ import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 import javax.annotation.Nonnull;
 
 public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implements TurboModule {
-  public static final String NAME = "Wallet";
+  public static final String NAME = "RNWallet";
 
   public NativeWalletSpec(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -51,5 +51,21 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
-  public abstract void addCardToWallet(ReadableMap cardData, Promise promise);
+  public abstract void addCardToGoogleWallet(ReadableMap cardData, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void IOSPresentAddPaymentPassView(ReadableMap cardData, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void IOSHandleAddPaymentPassResponse(ReadableMap payload, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void addListener(String eventType);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void removeListeners(double count);
 }
