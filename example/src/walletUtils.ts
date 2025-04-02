@@ -12,7 +12,7 @@ function issuerEncryptPayloadCallback(
 ) {
   // Here send data to your server or you Issuer Host to encrypt the payload
   // for example: fetch('https://issuer.com/encrypt', {method: 'POST', body: {nonce, nonceSignature, certificate}})
-  return CONST.IOSDummyEncryptPayload;
+  return Promise.resolve(CONST.IOSDummyEncryptPayload);
 }
 
 async function addCardToWallet() {

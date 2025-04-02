@@ -53,7 +53,10 @@ function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
   return Wallet.addCardToGoogleWallet(cardData);
 }
 
-async function addCardToAppleWallet(cardData: IOSCardData, issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload): Promise<void> {
+async function addCardToAppleWallet(
+  cardData: IOSCardData,
+  issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
+): Promise<void> {
   if (Platform.OS === 'android') {
     // eslint-disable-next-line no-console
     console.warn('addCardToAppleWallet is not available on Andorid');
