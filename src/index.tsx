@@ -4,7 +4,7 @@ import type {EmitterSubscription} from 'react-native';
 import Wallet from './NativeWallet';
 import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
 import {getCardState} from './utils';
-import AddToWalletButton from './AddWalletButton';
+import AddToWalletButton from './AddToWalletButton';
 
 const eventEmitter = new NativeEventEmitter(Wallet);
 
