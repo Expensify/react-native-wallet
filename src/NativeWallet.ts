@@ -66,6 +66,8 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 }
 
+// Try catch block to prevent crashing in case the module is not linked.
+// Especialy useful for builds where Google SDK is not available
 // eslint-disable-next-line import/no-mutable-exports
 let Wallet: Spec | undefined;
 try {
