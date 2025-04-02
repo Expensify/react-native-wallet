@@ -1,10 +1,14 @@
 /* eslint-disable @lwc/lwc/no-async-await */
 import {NativeEventEmitter, Platform} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
-import Wallet from './NativeWallet';
+import Wallet, {PACKAGE_NAME} from './NativeWallet';
 import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
 import {getCardState} from './utils';
 import AddToWalletButton from './AddToWalletButton';
+
+function getModuleLinkingRejection() {
+  return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
+}
 
 const eventEmitter = new NativeEventEmitter(Wallet);
 
@@ -17,7 +21,10 @@ function removeListener(subscription: EmitterSubscription): void {
 }
 
 function checkWalletAvailability(): Promise<boolean> {
-  return Wallet?.checkWalletAvailability() ?? Promise.resolve(false);
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+  return Wallet.checkWalletAvailability();
 }
 
 function getSecureWalletInfo(): Promise<AndroidWalletData> {
@@ -26,12 +33,17 @@ function getSecureWalletInfo(): Promise<AndroidWalletData> {
     console.warn('getSecureWalletInfo is not available on iOS');
     return Promise.resolve({} as unknown as AndroidWalletData);
   }
-  return Wallet?.getSecureWalletInfo() ?? Promise.resolve({} as unknown as AndroidWalletData);
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.getSecureWalletInfo();
 }
 
 async function getCardStatus(last4Digits: string): Promise<CardStatus> {
   if (!Wallet) {
-    return 'not found';
+    return getModuleLinkingRejection();
   }
 
   if (Platform.OS === 'ios') {
@@ -45,7 +57,7 @@ async function getCardStatus(last4Digits: string): Promise<CardStatus> {
 
 async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<CardStatus> {
   if (!Wallet) {
-    return 'not found';
+    return getModuleLinkingRejection();
   }
 
   if (Platform.OS === 'ios') {
@@ -63,7 +75,12 @@ function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
     console.warn('addCardToGoogleWallet is not available on iOS');
     return Promise.resolve();
   }
-  return Wallet?.addCardToGoogleWallet(cardData) ?? Promise.resolve();
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.addCardToGoogleWallet(cardData);
 }
 
 async function addCardToAppleWallet(
