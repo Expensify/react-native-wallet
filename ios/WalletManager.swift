@@ -167,14 +167,15 @@ open class WalletManager: UIViewController {
     if securePasses.isEmpty {
       print("[react-native-wallet] No passes found in Wallet.")
       return -1
-    } else {
-      for pass in securePasses {
-        guard let securePassElement = pass.secureElementPass else { continue }
-        if securePassElement.primaryAccountNumberSuffix.hasSuffix(last4Digits as String) {
-          return NSNumber(value: securePassElement.passActivationState.rawValue)
-        }
+    }
+
+    for pass in securePasses {
+      guard let securePassElement = pass.secureElementPass else { continue }
+      if securePassElement.primaryAccountNumberSuffix.hasSuffix(last4Digits as String) {
+        return NSNumber(value: securePassElement.passActivationState.rawValue)
       }
     }
+  
     return -1;
   }
   

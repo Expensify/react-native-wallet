@@ -46,11 +46,6 @@ async function getCardStatus(last4Digits: string): Promise<CardStatus> {
     return getModuleLinkingRejection();
   }
 
-  if (Platform.OS === 'ios') {
-    // eslint-disable-next-line no-console
-    console.warn('getCardStatus is not available on iOS');
-    return 'not found';
-  }
   const cardState = await Wallet.getCardStatus(last4Digits);
   return getCardState(cardState);
 }
