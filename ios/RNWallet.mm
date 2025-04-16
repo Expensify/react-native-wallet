@@ -110,6 +110,7 @@ RCT_REMAP_METHOD(getCardStatusBySuffix,
 
 RCT_REMAP_METHOD(getCardStatusByIdentifier,
                  getCardStatusByIdentifier:(NSString *)identifier
+                 tsp:(NSString *)tsp
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {

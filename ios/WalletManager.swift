@@ -183,7 +183,7 @@ open class WalletManager: UIViewController {
 
   @objc public func getCardStatusByIdentifier(identifier: NSString) -> NSNumber {
     return getPassActivationState { pass in
-      pass.primaryAccountIdentifier == identifier as String
+      return pass.primaryAccountIdentifier == identifier as String
     }
   }
   

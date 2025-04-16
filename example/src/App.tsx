@@ -44,7 +44,7 @@ export default function App() {
   }, []);
 
   const handleGetCardTokenStatus = useCallback(() => {
-    getCardStatusByIdentifier('VISA', TOKEN_REF_ID).then(setTokenStatus);
+    getCardStatusByIdentifier(TOKEN_REF_ID, 'VISA').then(setTokenStatus);
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {

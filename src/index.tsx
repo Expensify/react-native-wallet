@@ -50,18 +50,12 @@ async function getCardStatusBySuffix(last4Digits: string): Promise<CardStatus> {
   return getCardState(cardState);
 }
 
-async function getCardStatusByIdentifier(tsp: string, tokenRefId: string): Promise<CardStatus> {
+async function getCardStatusByIdentifier(identifier: string, tsp: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
-  if (Platform.OS === 'ios') {
-    // eslint-disable-next-line no-console
-    console.warn('getCardStatusByIdentifier is not available on iOS');
-    return Promise.resolve('not found');
-  }
-
-  const tokenState = await Wallet.getCardStatusByIdentifier(tsp, tokenRefId);
+  const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp);
   return getCardState(tokenState);
 }
 function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {

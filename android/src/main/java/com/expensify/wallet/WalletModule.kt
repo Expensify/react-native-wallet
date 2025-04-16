@@ -148,8 +148,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun getCardStatusByIdentifier(tsp: String, tokenRefId: String, promise: Promise) {
-    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
+  override fun getCardStatusByIdentifier(identifier: String, tsp: String, promise: Promise) {
+    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), identifier)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
