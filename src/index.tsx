@@ -41,12 +41,12 @@ function getSecureWalletInfo(): Promise<AndroidWalletData> {
   return Wallet.getSecureWalletInfo();
 }
 
-async function getCardStatus(last4Digits: string): Promise<CardStatus> {
+async function getCardStatusBySuffix(last4Digits: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
-  const cardState = await Wallet.getCardStatus(last4Digits);
+  const cardState = await Wallet.getCardStatusBySuffix(last4Digits);
   return getCardState(cardState);
 }
 
@@ -105,4 +105,4 @@ async function addCardToAppleWallet(
   await addPaymentPassToWallet(passData);
 }
 
-export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};
+export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatusBySuffix, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};

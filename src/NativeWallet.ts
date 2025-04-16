@@ -57,7 +57,7 @@ type IOSEncryptPayload = {
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<AndroidWalletData>;
-  getCardStatus(last4Digits: string): Promise<number>;
+  getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardTokenStatus(tsp: string, tokenRefId: string): Promise<number>;
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<void>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;

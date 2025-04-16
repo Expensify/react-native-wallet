@@ -129,7 +129,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun getCardStatus(last4Digits: String, promise: Promise) {
+  override fun getCardStatusBySuffix(last4Digits: String, promise: Promise) {
     tapAndPayClient.listTokens()
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
@@ -143,7 +143,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
       .addOnFailureListener { e ->
-        promise.reject(E_OPERATION_FAILED, "getCardStatus function failed", e)
+        promise.reject(E_OPERATION_FAILED, "getCardStatusBySuffix function failed", e)
       }
   }
 

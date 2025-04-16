@@ -160,7 +160,7 @@ open class WalletManager: UIViewController {
   }
   
   @objc
-  public func getCardStatus(last4Digits: NSString) -> NSNumber {
+  public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
     let passLibrary = PKPassLibrary()
     let securePasses = passLibrary.remoteSecureElementPasses
     

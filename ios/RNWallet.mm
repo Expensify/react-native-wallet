@@ -100,12 +100,12 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
   }
 }
 
-RCT_REMAP_METHOD(getCardStatus,
-                 getCardStatus:(NSString *)last4Digits
+RCT_REMAP_METHOD(getCardStatusBySuffix,
+                 getCardStatusBySuffix:(NSString *)last4Digits
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  resolve([walletManager getCardStatusWithLast4Digits:last4Digits]);
+  resolve([walletManager getCardStatusBySuffixWithLast4Digits:last4Digits]);
 }
 
 - (void)addCardToGoogleWallet:(JS::NativeWallet::AndroidCardData &)cardData resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 

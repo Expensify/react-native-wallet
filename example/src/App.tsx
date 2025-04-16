@@ -4,7 +4,7 @@ import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
-  getCardStatus,
+  getCardStatusBySuffix,
   getCardTokenStatus,
   addListener,
   removeListener,
@@ -40,7 +40,7 @@ export default function App() {
   }, []);
 
   const handleGetCardStatus = useCallback(() => {
-    getCardStatus(CARD_LAST_4_DIGITS).then(setCardStatus);
+    getCardStatusBySuffix(CARD_LAST_4_DIGITS).then(setCardStatus);
   }, []);
 
   const handleGetCardTokenStatus = useCallback(() => {
