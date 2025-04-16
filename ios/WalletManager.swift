@@ -159,24 +159,32 @@ open class WalletManager: UIViewController {
     self.addPassHandler = nil
   }
   
-  @objc
-  public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
-    let passLibrary = PKPassLibrary()
+  private func getPassActivationState(matching condition: (PKSecureElementPass) -> Bool) -> NSNumber {
     let securePasses = passLibrary.remoteSecureElementPasses
-    
     if securePasses.isEmpty {
       print("[react-native-wallet] No passes found in Wallet.")
       return -1
     }
-
+    
     for pass in securePasses {
       guard let securePassElement = pass.secureElementPass else { continue }
-      if securePassElement.primaryAccountNumberSuffix.hasSuffix(last4Digits as String) {
+      if condition(securePassElement) {
         return NSNumber(value: securePassElement.passActivationState.rawValue)
       }
     }
+    return -1
+  }
   
-    return -1;
+  @objc public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
+    return getPassActivationState { pass in
+      return pass.primaryAccountNumberSuffix.hasSuffix(last4Digits as String)
+    }
+  }
+
+  @objc public func getCardStatusByIdentifier(identifier: NSString) -> NSNumber {
+    return getPassActivationState { pass in
+      pass.primaryAccountIdentifier == identifier as String
+    }
   }
   
   private func isPassKitAvailable() -> Bool {

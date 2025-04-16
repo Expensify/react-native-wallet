@@ -108,15 +108,17 @@ RCT_REMAP_METHOD(getCardStatusBySuffix,
   resolve([walletManager getCardStatusBySuffixWithLast4Digits:last4Digits]);
 }
 
+RCT_REMAP_METHOD(getCardStatusByIdentifier,
+                 getCardStatusByIdentifier:(NSString *)identifier
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
+}
+
 - (void)addCardToGoogleWallet:(JS::NativeWallet::AndroidCardData &)cardData resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
   // no-op
 }
-
-
-- (void)getCardStatusByIdentifier:(NSString *)tsp tokenRefId:(NSString *)tokenRefId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
-  // no-op
-}
-
 
 - (void)getSecureWalletInfo:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   // no-op
