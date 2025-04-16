@@ -66,6 +66,19 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
-
+const PACKAGE_NAME = '@expensify/react-native-wallet';
+// Try catch block to prevent crashing in case the module is not linked.
+// Especialy useful for builds where Google SDK is not available
+// eslint-disable-next-line import/no-mutable-exports
+let Wallet: Spec | undefined;
+try {
+  Wallet = TurboModuleRegistry.getEnforcing<Spec>('RNWallet');
+} catch (error) {
+  if (error instanceof Error) {
+    // eslint-disable-next-line no-console
+    console.warn(`[${PACKAGE_NAME}] Failed to load Wallet module, ${error.message}`);
+  }
+}
+export default Wallet;
+export {PACKAGE_NAME};
 export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload};

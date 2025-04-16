@@ -126,6 +126,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
+    backgroundColor: 'white',
+    flex: 1,
   },
   header: {
     gap: 10,
