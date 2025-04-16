@@ -47,7 +47,7 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
-  public abstract void getCardTokenStatus(String tsp, String tokenRefId, Promise promise);
+  public abstract void getCardStatusByIdentifier(String tsp, String tokenRefId, Promise promise);
 
   @ReactMethod
   @DoNotStrip

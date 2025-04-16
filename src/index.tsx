@@ -50,18 +50,18 @@ async function getCardStatusBySuffix(last4Digits: string): Promise<CardStatus> {
   return getCardState(cardState);
 }
 
-async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<CardStatus> {
+async function getCardStatusByIdentifier(tsp: string, tokenRefId: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
   if (Platform.OS === 'ios') {
     // eslint-disable-next-line no-console
-    console.warn('getCardTokenStatus is not available on iOS');
+    console.warn('getCardStatusByIdentifier is not available on iOS');
     return Promise.resolve('not found');
   }
 
-  const tokenState = await Wallet.getCardTokenStatus(tsp, tokenRefId);
+  const tokenState = await Wallet.getCardStatusByIdentifier(tsp, tokenRefId);
   return getCardState(tokenState);
 }
 function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
@@ -105,4 +105,14 @@ async function addCardToAppleWallet(
   await addPaymentPassToWallet(passData);
 }
 
-export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatusBySuffix, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};
+export {
+  AddToWalletButton,
+  checkWalletAvailability,
+  getSecureWalletInfo,
+  getCardStatusBySuffix,
+  getCardStatusByIdentifier,
+  addCardToGoogleWallet,
+  addCardToAppleWallet,
+  addListener,
+  removeListener,
+};

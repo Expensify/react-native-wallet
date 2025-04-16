@@ -5,7 +5,7 @@ import {
   checkWalletAvailability,
   getSecureWalletInfo,
   getCardStatusBySuffix,
-  getCardTokenStatus,
+  getCardStatusByIdentifier,
   addListener,
   removeListener,
   AddToWalletButton,
@@ -44,7 +44,7 @@ export default function App() {
   }, []);
 
   const handleGetCardTokenStatus = useCallback(() => {
-    getCardTokenStatus('VISA', TOKEN_REF_ID).then(setTokenStatus);
+    getCardStatusByIdentifier('VISA', TOKEN_REF_ID).then(setTokenStatus);
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {

@@ -148,7 +148,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun getCardTokenStatus(tsp: String, tokenRefId: String, promise: Promise) {
+  override fun getCardStatusByIdentifier(tsp: String, tokenRefId: String, promise: Promise) {
     tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
