@@ -160,13 +160,13 @@ open class WalletManager: UIViewController {
   }
   
   private func getPassActivationState(matching condition: (PKSecureElementPass) -> Bool) -> NSNumber {
-    let securePasses = passLibrary.remoteSecureElementPasses
-    if securePasses.isEmpty {
+    let paymentPasses = passLibrary.passes(of: .payment)
+    if paymentPasses.isEmpty {
       print("[react-native-wallet] No passes found in Wallet.")
       return -1
     }
     
-    for pass in securePasses {
+    for pass in paymentPasses {
       guard let securePassElement = pass.secureElementPass else { continue }
       if condition(securePassElement) {
         return NSNumber(value: securePassElement.passActivationState.rawValue)
