@@ -133,7 +133,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     tapAndPayClient.listTokens()
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
-          promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
+          promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
           return@addOnCompleteListener
         }
         task.result.find { it.fpanLastFour == last4Digits }?.let {
@@ -152,7 +152,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), identifier)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
-          promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
+          promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
           return@addOnCompleteListener
         }
         task.result?.let {
