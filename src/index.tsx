@@ -105,6 +105,7 @@ async function addCardToAppleWallet(
   await addPaymentPassToWallet(passData);
 }
 
+export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload};
 export {
   AddToWalletButton,
   checkWalletAvailability,
