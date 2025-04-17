@@ -143,7 +143,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
       .addOnFailureListener { e ->
-        promise.reject(E_OPERATION_FAILED, "getCardStatusBySuffix function failed", e)
+        promise.reject(E_OPERATION_FAILED, "getCardStatusBySuffix: ${e.localizedMessage}")
       }
   }
 
@@ -152,7 +152,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), identifier)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
-          promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
+          promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
           return@addOnCompleteListener
         }
         task.result?.let {
@@ -162,7 +162,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
       .addOnFailureListener { e ->
-        promise.reject(E_OPERATION_FAILED, "getCardStatus: ${e.localizedMessage}")
+        promise.reject(E_OPERATION_FAILED, "getCardStatusByIdentifier: ${e.localizedMessage}")
       }
   }
 
