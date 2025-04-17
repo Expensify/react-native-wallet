@@ -50,6 +50,12 @@ async function getCardStatusBySuffix(last4Digits: string): Promise<CardStatus> {
   return getCardState(cardState);
 }
 
+/**
+ * Returns the state of a card based on a platform-specific identifier.
+ * @param identifier - The card identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`
+ * @param tsp - The Token Service Provider, e.g. `VISA`, `MASTERCARD`
+ * @returns CardStatus - The card status
+ */
 async function getCardStatusByIdentifier(identifier: string, tsp: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();

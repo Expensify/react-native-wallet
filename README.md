@@ -131,7 +131,7 @@ The library offers five functions for seamless integration and use of the Apple 
 | **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ✅ | ❌ |
 | **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
 | **getCardStatusBySuffix** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
-| **getCardStatusByIdentifier** | Returns state of a token based on an token ref ID and a service provider. | `tsp: string`<br>`tokenRefId: string` | `CardStatus` |  ❌ | ✅ |
+| **getCardStatusByIdentifier** | Returns the state of a card based on a platform-specific identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`. | `identifier: string`<br>`tsp: string` | `CardStatus` |  ✅ | ✅ |
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. | `data`: `AndroidCardData` | `void` | ❌ | ✅  |
 | **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`<br>`issuerEncryptPayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
 
