@@ -22,6 +22,8 @@ open class WalletManager: UIViewController {
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
+  @objc public var packageName = "react-native-wallet"
+  
   let passLibrary = PKPassLibrary()
 
   override init(nibName: String?, bundle: Bundle?) {
@@ -123,7 +125,7 @@ open class WalletManager: UIViewController {
         self.addPassViewController = enrollViewController
         RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
       } else {
-        print("[react-native-wallet] EnrollViewController is already presented.")
+        self.logInfo(message: "EnrollViewController is already presented.")
       }
     }
   }
@@ -162,7 +164,7 @@ open class WalletManager: UIViewController {
   private func getPassActivationState(matching condition: (PKSecureElementPass) -> Bool) -> NSNumber {
     let paymentPasses = passLibrary.passes(of: .payment)
     if paymentPasses.isEmpty {
-      print("[react-native-wallet] No passes found in Wallet.")
+      self.logInfo(message: "No passes found in Wallet.")
       return -1
     }
     
@@ -198,9 +200,13 @@ open class WalletManager: UIViewController {
           self.addPassViewController = nil
         })
       } else {
-        print("[react-native-wallet] EnrollViewController is not presented currently.")
+        self.logInfo(message: "EnrollViewController is not presented currently.")
       }
     }
+  }
+  
+  private func logInfo(message: String) {
+    print("[\(packageName)] \(message)")
   }
 }
 
@@ -242,8 +248,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         return
       }
       
+      let errorMessage = error?.localizedDescription ?? ""
+
       if let error = error as? NSError {
-        print("[react-native-wallet] \(error)")
+        self.logInfo(message: "Error: \(errorMessage)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
           "state": "canceled"
         ]);
@@ -261,7 +269,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           addPaymentPassHandler(.completed, nil)
         } else {
           addPaymentPassHandler(.error, [
-            "errorMessage": "Could not add card. \(error?.localizedDescription.description ?? ""))."
+            "errorMessage": "Could not add card. \(errorMessage))."
           ])
         }
       }

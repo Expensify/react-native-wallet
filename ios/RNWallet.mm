@@ -138,7 +138,7 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
                 description:(NSString *)description
                    rejecter:(RCTPromiseRejectBlock)reject {
   NSDictionary *userInfo = @{NSLocalizedDescriptionKey: description};
-  NSString *errorWithDomain = @"com.expensify.wallet";
+  NSString *errorWithDomain = walletManager.packageName;
   NSError *error = [NSError errorWithDomain:errorWithDomain
                                        code:code
                                    userInfo:userInfo];
