@@ -256,8 +256,14 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       }
       
       // If the pass is returned complete the IOSHandleAddPaymentPassResponse function
-      if pass != nil, let addPaymentPassHandler = addPaymentPassCompletionHandler {
-        addPaymentPassHandler(.completed, nil)
+      if let addPaymentPassHandler = addPaymentPassCompletionHandler {
+        if pass != nil {
+          addPaymentPassHandler(.completed, nil)
+        } else {
+          addPaymentPassHandler(.error, [
+            "errorMessage": "Could not add card. \(error?.localizedDescription.description ?? ""))."
+          ])
+        }
       }
       
       hideModal()
