@@ -100,23 +100,26 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
   }
 }
 
-RCT_REMAP_METHOD(getCardStatus,
-                 getCardStatus:(NSString *)last4Digits
+RCT_REMAP_METHOD(getCardStatusBySuffix,
+                 getCardStatusBySuffix:(NSString *)last4Digits
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  resolve([walletManager getCardStatusWithLast4Digits:last4Digits]);
+  resolve([walletManager getCardStatusBySuffixWithLast4Digits:last4Digits]);
+}
+
+RCT_REMAP_METHOD(getCardStatusByIdentifier,
+                 getCardStatusByIdentifier:(NSString *)identifier
+                 tsp:(NSString *)tsp
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
 }
 
 - (void)addCardToGoogleWallet:(JS::NativeWallet::AndroidCardData &)cardData resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
   // no-op
 }
-
-
-- (void)getCardTokenStatus:(NSString *)tsp tokenRefId:(NSString *)tokenRefId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
-  // no-op
-}
-
 
 - (void)getSecureWalletInfo:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   // no-op
@@ -135,7 +138,7 @@ RCT_REMAP_METHOD(getCardStatus,
                 description:(NSString *)description
                    rejecter:(RCTPromiseRejectBlock)reject {
   NSDictionary *userInfo = @{NSLocalizedDescriptionKey: description};
-  NSString *errorWithDomain = @"com.expensify.wallet";
+  NSString *errorWithDomain = walletManager.packageName;
   NSError *error = [NSError errorWithDomain:errorWithDomain
                                        code:code
                                    userInfo:userInfo];

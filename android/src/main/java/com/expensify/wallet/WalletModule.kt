@@ -129,11 +129,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun getCardStatus(last4Digits: String, promise: Promise) {
+  override fun getCardStatusBySuffix(last4Digits: String, promise: Promise) {
     tapAndPayClient.listTokens()
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
-          promise.reject(E_NO_TOKENS_AVAILABLE, "No tokens available")
+          promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
           return@addOnCompleteListener
         }
         task.result.find { it.fpanLastFour == last4Digits }?.let {
@@ -143,13 +143,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
       .addOnFailureListener { e ->
-        promise.reject(E_OPERATION_FAILED, "getCardStatus function failed", e)
+        promise.reject(E_OPERATION_FAILED, "getCardStatusBySuffix: ${e.localizedMessage}")
       }
   }
 
   @ReactMethod
-  override fun getCardTokenStatus(tsp: String, tokenRefId: String, promise: Promise) {
-    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), tokenRefId)
+  override fun getCardStatusByIdentifier(identifier: String, tsp: String, promise: Promise) {
+    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), identifier)
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
@@ -162,7 +162,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         } ?: promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
       }
       .addOnFailureListener { e ->
-        promise.reject(E_OPERATION_FAILED, "getCardStatus: ${e.localizedMessage}")
+        promise.reject(E_OPERATION_FAILED, "getCardStatusByIdentifier: ${e.localizedMessage}")
       }
   }
 

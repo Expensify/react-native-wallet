@@ -4,8 +4,8 @@ import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
-  getCardStatus,
-  getCardTokenStatus,
+  getCardStatusBySuffix,
+  getCardStatusByIdentifier,
   addListener,
   removeListener,
   AddToWalletButton,
@@ -40,11 +40,11 @@ export default function App() {
   }, []);
 
   const handleGetCardStatus = useCallback(() => {
-    getCardStatus(CARD_LAST_4_DIGITS).then(setCardStatus);
+    getCardStatusBySuffix(CARD_LAST_4_DIGITS).then(setCardStatus);
   }, []);
 
   const handleGetCardTokenStatus = useCallback(() => {
-    getCardTokenStatus('VISA', TOKEN_REF_ID).then(setTokenStatus);
+    getCardStatusByIdentifier(TOKEN_REF_ID, 'VISA').then(setTokenStatus);
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {

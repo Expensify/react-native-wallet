@@ -41,27 +41,27 @@ function getSecureWalletInfo(): Promise<AndroidWalletData> {
   return Wallet.getSecureWalletInfo();
 }
 
-async function getCardStatus(last4Digits: string): Promise<CardStatus> {
+async function getCardStatusBySuffix(last4Digits: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
-  const cardState = await Wallet.getCardStatus(last4Digits);
+  const cardState = await Wallet.getCardStatusBySuffix(last4Digits);
   return getCardState(cardState);
 }
 
-async function getCardTokenStatus(tsp: string, tokenRefId: string): Promise<CardStatus> {
+/**
+ * Returns the state of a card based on a platform-specific identifier.
+ * @param identifier - The card identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`
+ * @param tsp - The Token Service Provider, e.g. `VISA`, `MASTERCARD`
+ * @returns CardStatus - The card status
+ */
+async function getCardStatusByIdentifier(identifier: string, tsp: string): Promise<CardStatus> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
-  if (Platform.OS === 'ios') {
-    // eslint-disable-next-line no-console
-    console.warn('getCardTokenStatus is not available on iOS');
-    return Promise.resolve('not found');
-  }
-
-  const tokenState = await Wallet.getCardTokenStatus(tsp, tokenRefId);
+  const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp);
   return getCardState(tokenState);
 }
 function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
@@ -106,4 +106,14 @@ async function addCardToAppleWallet(
 }
 
 export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload};
-export {AddToWalletButton, checkWalletAvailability, getSecureWalletInfo, getCardStatus, getCardTokenStatus, addCardToGoogleWallet, addCardToAppleWallet, addListener, removeListener};
+export {
+  AddToWalletButton,
+  checkWalletAvailability,
+  getSecureWalletInfo,
+  getCardStatusBySuffix,
+  getCardStatusByIdentifier,
+  addCardToGoogleWallet,
+  addCardToAppleWallet,
+  addListener,
+  removeListener,
+};

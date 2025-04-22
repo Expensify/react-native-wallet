@@ -22,6 +22,8 @@ open class WalletManager: UIViewController {
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
   
+  @objc public var packageName = "react-native-wallet"
+  
   let passLibrary = PKPassLibrary()
 
   override init(nibName: String?, bundle: Bundle?) {
@@ -123,7 +125,7 @@ open class WalletManager: UIViewController {
         self.addPassViewController = enrollViewController
         RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
       } else {
-        print("[react-native-wallet] EnrollViewController is already presented.")
+        self.logInfo(message: "EnrollViewController is already presented.")
       }
     }
   }
@@ -159,24 +161,32 @@ open class WalletManager: UIViewController {
     self.addPassHandler = nil
   }
   
-  @objc
-  public func getCardStatus(last4Digits: NSString) -> NSNumber {
-    let passLibrary = PKPassLibrary()
-    let securePasses = passLibrary.remoteSecureElementPasses
-    
-    if securePasses.isEmpty {
-      print("[react-native-wallet] No passes found in Wallet.")
+  private func getPassActivationState(matching condition: (PKSecureElementPass) -> Bool) -> NSNumber {
+    let paymentPasses = passLibrary.passes(of: .payment)
+    if paymentPasses.isEmpty {
+      self.logInfo(message: "No passes found in Wallet.")
       return -1
     }
-
-    for pass in securePasses {
+    
+    for pass in paymentPasses {
       guard let securePassElement = pass.secureElementPass else { continue }
-      if securePassElement.primaryAccountNumberSuffix.hasSuffix(last4Digits as String) {
+      if condition(securePassElement) {
         return NSNumber(value: securePassElement.passActivationState.rawValue)
       }
     }
+    return -1
+  }
   
-    return -1;
+  @objc public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
+    return getPassActivationState { pass in
+      return pass.primaryAccountNumberSuffix.hasSuffix(last4Digits as String)
+    }
+  }
+
+  @objc public func getCardStatusByIdentifier(identifier: NSString) -> NSNumber {
+    return getPassActivationState { pass in
+      return pass.primaryAccountIdentifier == identifier as String
+    }
   }
   
   private func isPassKitAvailable() -> Bool {
@@ -190,9 +200,13 @@ open class WalletManager: UIViewController {
           self.addPassViewController = nil
         })
       } else {
-        print("[react-native-wallet] EnrollViewController is not presented currently.")
+        self.logInfo(message: "EnrollViewController is not presented currently.")
       }
     }
+  }
+  
+  private func logInfo(message: String) {
+    print("[\(packageName)] \(message)")
   }
 }
 
@@ -234,8 +248,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         return
       }
       
+      let errorMessage = error?.localizedDescription ?? ""
+
       if let error = error as? NSError {
-        print("[react-native-wallet] \(error)")
+        self.logInfo(message: "Error: \(errorMessage)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
           "state": "canceled"
         ]);
@@ -248,8 +264,14 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       }
       
       // If the pass is returned complete the IOSHandleAddPaymentPassResponse function
-      if pass != nil, let addPaymentPassHandler = addPaymentPassCompletionHandler {
-        addPaymentPassHandler(.completed, nil)
+      if let addPaymentPassHandler = addPaymentPassCompletionHandler {
+        if pass != nil {
+          addPaymentPassHandler(.completed, nil)
+        } else {
+          addPaymentPassHandler(.error, [
+            "errorMessage": "Could not add card. \(errorMessage))."
+          ])
+        }
       }
       
       hideModal()
