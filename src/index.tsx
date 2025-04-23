@@ -61,7 +61,7 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
     return getModuleLinkingRejection();
   }
 
-  const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp);
+  const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp.toUpperCase());
   return getCardState(tokenState);
 }
 function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
