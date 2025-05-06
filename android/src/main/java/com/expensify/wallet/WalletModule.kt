@@ -26,6 +26,7 @@ import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.error.InvalidNetworkError
 import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
+import com.expensify.wallet.model.TokenizationStatus
 import com.expensify.wallet.model.WalletData
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Deferred
@@ -51,6 +52,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private val activity = currentActivity ?: throw ActivityNotFoundException()
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
+  private var pendingPushTokenizePromise: Promise? = null
 
   override fun initialize() {
     super.initialize()
@@ -78,6 +80,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
               OnCardActivatedEvent.NAME,
               OnCardActivatedEvent("active", tokenId).toMap()
             )
+            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.name)
           }
         } else if (resultCode == RESULT_CANCELED) {
           sendEvent(
@@ -85,6 +88,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
+          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.name)
         }
       }
     }
@@ -172,9 +176,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   ) {
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
-
       val cardNetwork = getCardNetwork(cardData.network)
       val tokenServiceProvider = getTokenServiceProvider(cardData.network)
+      pendingPushTokenizePromise = promise
 
       val pushTokenizeRequest = PushTokenizeRequest.Builder()
         .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
