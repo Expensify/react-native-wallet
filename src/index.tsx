@@ -64,11 +64,11 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
   const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp.toUpperCase());
   return getCardState(tokenState);
 }
-function addCardToGoogleWallet(cardData: AndroidCardData): Promise<void> {
+function addCardToGoogleWallet(cardData: AndroidCardData): Promise<string> {
   if (Platform.OS === 'ios') {
     // eslint-disable-next-line no-console
     console.warn('addCardToGoogleWallet is not available on iOS');
-    return Promise.resolve();
+    return Promise.resolve('');
   }
 
   if (!Wallet) {

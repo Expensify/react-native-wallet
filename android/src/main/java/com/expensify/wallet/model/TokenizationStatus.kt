@@ -5,3 +5,5 @@ enum class TokenizationStatus {
   CANCELED,
   ERROR
 }
+
+fun TokenizationStatus.lowercaseName(): String = this.name.lowercase()

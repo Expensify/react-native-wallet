@@ -28,6 +28,7 @@ import com.expensify.wallet.event.OnCardActivatedEvent
 import com.expensify.wallet.model.CardStatus
 import com.expensify.wallet.model.TokenizationStatus
 import com.expensify.wallet.model.WalletData
+import com.expensify.wallet.model.lowercaseName
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
@@ -80,7 +81,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
               OnCardActivatedEvent.NAME,
               OnCardActivatedEvent("active", tokenId).toMap()
             )
-            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.name)
+            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.lowercaseName())
           }
         } else if (resultCode == RESULT_CANCELED) {
           sendEvent(
@@ -88,7 +89,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
-          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.name)
+          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.lowercaseName())
         }
       }
     }

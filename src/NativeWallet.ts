@@ -59,7 +59,7 @@ export interface Spec extends TurboModule {
   getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardStatusByIdentifier(identifier: string, tsp: string): Promise<number>;
-  addCardToGoogleWallet(cardData: AndroidCardData): Promise<void>;
+  addCardToGoogleWallet(cardData: AndroidCardData): Promise<string>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
   addListener: (eventType: string) => void;
