@@ -2,7 +2,7 @@
 import {NativeEventEmitter, Platform} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
 import Wallet, {PACKAGE_NAME} from './NativeWallet';
-import type {AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
+import type {TokenizationStatus, AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
 import {getCardState} from './utils';
 import AddToWalletButton from './AddToWalletButton';
 
@@ -64,11 +64,11 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
   const tokenState = await Wallet.getCardStatusByIdentifier(identifier, tsp.toUpperCase());
   return getCardState(tokenState);
 }
-function addCardToGoogleWallet(cardData: AndroidCardData): Promise<string> {
+function addCardToGoogleWallet(cardData: AndroidCardData): Promise<TokenizationStatus> {
   if (Platform.OS === 'ios') {
     // eslint-disable-next-line no-console
     console.warn('addCardToGoogleWallet is not available on iOS');
-    return Promise.resolve('');
+    return Promise.resolve('canceled');
   }
 
   if (!Wallet) {
@@ -105,7 +105,7 @@ async function addCardToAppleWallet(
   await addPaymentPassToWallet(passData);
 }
 
-export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload};
+export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus};
 export {
   AddToWalletButton,
   checkWalletAvailability,
