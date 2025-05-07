@@ -54,14 +54,14 @@ type IOSEncryptPayload = {
   ephemeralPublicKey: string;
 };
 
-type TokenizationStatus = 'success' | 'canceled';
+type TokenizationStatus = 'canceled' | 'success' | 'error';
 
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardStatusByIdentifier(identifier: string, tsp: string): Promise<number>;
-  addCardToGoogleWallet(cardData: AndroidCardData): Promise<TokenizationStatus>;
+  addCardToGoogleWallet(cardData: AndroidCardData): Promise<number>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
   addListener: (eventType: string) => void;
