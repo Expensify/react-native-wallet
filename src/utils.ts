@@ -32,5 +32,4 @@ function getTokenizationStatus(stateId: number): TokenizationStatus {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export {getCardState, getTokenizationStatus};
