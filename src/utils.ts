@@ -1,4 +1,4 @@
-import type {CardStatus} from './NativeWallet';
+import type {CardStatus, TokenizationStatus} from './NativeWallet';
 
 function getCardState(stateId: number): CardStatus {
   switch (stateId) {
@@ -19,5 +19,17 @@ function getCardState(stateId: number): CardStatus {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
-export {getCardState};
+function getTokenizationStatus(stateId: number): TokenizationStatus {
+  switch (stateId) {
+    case -1:
+      return 'error';
+    case 0:
+      return 'success';
+    case 1:
+      return 'canceled';
+    default:
+      throw new Error(`Unknown tokenization status: ${stateId}`);
+  }
+}
+
+export {getCardState, getTokenizationStatus};
