@@ -31,10 +31,11 @@ const IOSDummyCardData: IOSCardData = {
   cardDescription: 'Card Description',
 };
 
+// Base 64 encoded values
 const IOSDummyEncryptPayload: IOSEncryptPayload = {
-  encryptedPassData: 'encryptedPassData123',
-  activationData: 'activationData123',
-  ephemeralPublicKey: 'ephemeralPublicKey123',
+  encryptedPassData: 'ZW5jcnlwdGVkUGFzc0RhdGExMjM=',
+  activationData: 'YWN0aXZhdGlvbkRhdGExMjM=',
+  ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
 export {AndroidDummyCardData, IOSDummyCardData, IOSDummyEncryptPayload};
