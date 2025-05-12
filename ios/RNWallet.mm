@@ -38,32 +38,20 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  @try {    
+  @try {
     NSDictionary *cardDataDict = @{
       @"network": [self safeString:cardData.network()],
       @"cardHolderName": [self safeString:cardData.cardHolderName()],
       @"lastDigits": [self safeString:cardData.lastDigits()],
       @"cardDescription": [self safeString:cardData.cardDescription()],
     };
-    
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
-        if (result < 3) { // completed or canceled
-          resolve(data);
-        } else {
-          [self rejectWithErrorType:@"present_payment_pass_view_failed"
-                               code:1001
-                        description:data[@"errorMessage"] ?: @"Failed to present Add Payment Pass View"
-                           rejecter:reject];
-        }
+        [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"present_payment_pass_view_failed" defaultErrorMessage:@"Failed to present the payment pass view" rejecter:reject];
       }];
     });
   } @catch (NSException *exception) {
-    NSString *errorDescription = exception.reason ?: @"An unexpected error occurred.";
-    [self rejectWithErrorType:@"present_payment_pass_view_failed"
-                         code:500
-                  description:errorDescription
-                     rejecter:reject];
+    [self rejectWithErrorType:@"present_payment_pass_view_failed" code:500 description:exception.reason ?: @"An unexpected error occurred." rejecter:reject];
   }
 }
 
@@ -78,25 +66,13 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
       @"activationData": [self safeString:payload.activationData()],
       @"ephemeralPublicKey": [self safeString:payload.ephemeralPublicKey()],
     };
-    
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict completion:^(OperationResult result, NSDictionary* data) {
-        if (result < 3) { // completed or canceled or retry
-          resolve(data);
-        } else {
-          [self rejectWithErrorType:@"add_card_failed"
-                               code:1001
-                        description:data[@"errorMessage"] ?: @"Failed to add card to wallet"
-                           rejecter:reject];
-        }
+        [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"add_card_failed" defaultErrorMessage:@"Failed to add the card to the wallet" rejecter:reject];
       }];
     });
   } @catch (NSException *exception) {
-    NSString *errorDescription = exception.reason ?: @"An unexpected error occurred.";
-    [self rejectWithErrorType:@"add_card_failed"
-                         code:500
-                  description:errorDescription
-                     rejecter:reject];
+    [self rejectWithErrorType:@"add_card_failed" code:500 description:exception.reason ?: @"An unexpected error occurred." rejecter:reject];
   }
 }
 
@@ -145,6 +121,20 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
 
   NSString *errorMessage = [NSString stringWithFormat:@"%@ - %@", errorWithDomain, description];
   reject(type, errorMessage, error);
+}
+
+- (void)handleWalletResponse:(OperationResult)result
+                        data:(NSDictionary *)data
+              completedBlock:(RCTPromiseResolveBlock)resolve
+                 errorPrefix:(NSString *)errorPrefix
+         defaultErrorMessage:(NSString *)defaultErrorMsg
+                    rejecter:(RCTPromiseRejectBlock)reject {
+  if (result < 3) {
+    resolve(data);
+  } else {
+    NSString *errorMessage = data[@"errorMessage"] ?: defaultErrorMsg ?: @"Operation failed";
+    [self rejectWithErrorType:errorPrefix code:1001 description:errorMessage rejecter:reject];
+  }
 }
 
 - (NSString *)safeString:(NSString *)value {
