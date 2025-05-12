@@ -49,12 +49,12 @@ export default function App() {
 
   const handleAddCardToWallet = useCallback(() => {
     addCardToWallet()
-      .then(() => {
-        setAddCardStatus('Completed');
+      .then(status => {
+        setAddCardStatus(status);
       })
       .catch(e => {
         console.error(e);
-        setAddCardStatus('Failed');
+        setAddCardStatus('failed');
       });
   }, []);
 
