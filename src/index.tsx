@@ -27,11 +27,9 @@ function checkWalletAvailability(): Promise<boolean> {
   return Wallet.checkWalletAvailability();
 }
 
-function getSecureWalletInfo(): Promise<AndroidWalletData> {
+async function getSecureWalletInfo(): Promise<AndroidWalletData> {
   if (Platform.OS === 'ios') {
-    // eslint-disable-next-line no-console
-    console.warn('getSecureWalletInfo is not available on iOS');
-    return Promise.resolve({} as unknown as AndroidWalletData);
+    throw new Error('getSecureWalletInfo is not available on iOS');
   }
 
   if (!Wallet) {
@@ -67,9 +65,7 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
 
 async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<TokenizationStatus> {
   if (Platform.OS === 'ios') {
-    // eslint-disable-next-line no-console
-    console.warn('addCardToGoogleWallet is not available on iOS');
-    return Promise.resolve('error');
+    throw new Error('addCardToGoogleWallet is not available on iOS');
   }
 
   if (!Wallet) {
@@ -85,14 +81,12 @@ async function addCardToAppleWallet(
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
 ): Promise<TokenizationStatus> {
   if (Platform.OS === 'android') {
-    // eslint-disable-next-line no-console
-    console.warn('addCardToAppleWallet is not available on Andorid');
-    return Promise.resolve('error');
+    throw new Error('addCardToAppleWallet is not available on Andorid');
   }
 
   const passData = await Wallet?.IOSPresentAddPaymentPassView(cardData);
   if (!passData || passData.status !== 0) {
-    return Promise.resolve(getTokenizationStatus(passData?.status || -1));
+    return getTokenizationStatus(passData?.status || -1);
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
