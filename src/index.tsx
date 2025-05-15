@@ -75,7 +75,10 @@ async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<Tokeniz
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
-
+  const isWalletInitialized = await Wallet.ensureWalletInitialized();
+  if (!isWalletInitialized) {
+    return Promise.resolve('error');
+  }
   const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
   return getTokenizationStatus(tokenizationStatus);
 }

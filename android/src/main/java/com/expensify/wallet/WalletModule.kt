@@ -97,7 +97,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun checkWalletAvailability(promise: Promise) {
+  override fun ensureWalletInitialized(promise: Promise) {
     val localPromise = PromiseImpl({ _ ->
       promise.resolve(true)
     }, { _ ->
@@ -105,6 +105,19 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       tapAndPayClient.createWallet(activity, REQUEST_CREATE_WALLET)
     })
     getWalletId(localPromise)
+  }
+
+  @ReactMethod
+  override fun checkWalletAvailability(promise: Promise) {
+    tapAndPayClient.environment.addOnCompleteListener { task ->
+      if (task.isSuccessful) {
+        promise.resolve(true)
+      }else{
+        promise.resolve(false)
+      }
+    }.addOnFailureListener { e ->
+      promise.reject(E_OPERATION_FAILED, "ensureWalletInitialized failed: ${e.localizedMessage}")
+    }
   }
 
   @ReactMethod
