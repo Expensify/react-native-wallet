@@ -27,7 +27,7 @@ function checkWalletAvailability(): Promise<boolean> {
   return Wallet.checkWalletAvailability();
 }
 
-function getSecureWalletInfo(): Promise<AndroidWalletData> {
+async function getSecureWalletInfo(): Promise<AndroidWalletData> {
   if (Platform.OS === 'ios') {
     // eslint-disable-next-line no-console
     console.warn('getSecureWalletInfo is not available on iOS');
@@ -36,6 +36,10 @@ function getSecureWalletInfo(): Promise<AndroidWalletData> {
 
   if (!Wallet) {
     return getModuleLinkingRejection();
+  }
+    const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  if (!isWalletInitialized) {
+    throw new Error('Wallet could not be initialized');
   }
 
   return Wallet.getSecureWalletInfo();
@@ -77,7 +81,7 @@ async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<Tokeniz
   }
   const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
   if (!isWalletInitialized) {
-    return Promise.resolve('error');
+    throw new Error('Wallet could not be initialized');
   }
   const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
   return getTokenizationStatus(tokenizationStatus);
