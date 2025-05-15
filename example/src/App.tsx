@@ -34,9 +34,15 @@ export default function App() {
   }, []);
 
   const handleGetSecureWalletInfo = useCallback(() => {
-    getSecureWalletInfo().then(data => {
-      setWalletData(data);
-    });
+    getSecureWalletInfo()
+      .then(data => {
+        setWalletData(data);
+      })
+      .catch(e => {
+        if (e instanceof Error) {
+          Alert.alert('Error', e.message);
+        }
+      });
   }, []);
 
   const handleGetCardStatus = useCallback(() => {
@@ -49,12 +55,12 @@ export default function App() {
 
   const handleAddCardToWallet = useCallback(() => {
     addCardToWallet()
-      .then(() => {
-        setAddCardStatus('Completed');
+      .then(status => {
+        setAddCardStatus(status);
       })
       .catch(e => {
         console.error(e);
-        setAddCardStatus('Failed');
+        setAddCardStatus('failed');
       });
   }, []);
 
