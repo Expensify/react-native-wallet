@@ -157,7 +157,7 @@ open class WalletManager: UIViewController {
     addPaymentPassRequest.encryptedPassData = walletData.encryptedPassData
     addPaymentPassRequest.activationData = walletData.activationData
     addPaymentPassRequest.ephemeralPublicKey = walletData.ephemeralPublicKey
-    addPassHandler?(addPaymentPassRequest)
+    self.addPassHandler?(addPaymentPassRequest)
     self.addPassHandler = nil
   }
   
@@ -223,6 +223,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         $0.base64EncodedString() as NSString
       }
       let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
+      self.addPassHandler = handler
       
       // Retry the JS issuer callback if the user tries again to add a payment pass
       if let addPaymentPassHandler = addPaymentPassCompletionHandler {
@@ -233,7 +234,6 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       
       // Finish IOSPresentAddPaymentPassView function
       if let presentPassHandler = presentAddPaymentPassCompletionHandler {
-        addPassHandler = handler
         presentPassHandler(.completed, reqestCardData.toNSDictionary())
         presentAddPaymentPassCompletionHandler = nil
       }
@@ -250,7 +250,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       
       let errorMessage = error?.localizedDescription ?? ""
 
-      if let error = error as? NSError {
+      if error != nil {
         self.logInfo(message: "Error: \(errorMessage)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
           "state": "canceled"
