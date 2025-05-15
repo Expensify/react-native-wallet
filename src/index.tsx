@@ -37,7 +37,7 @@ async function getSecureWalletInfo(): Promise<AndroidWalletData> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
-    const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
   if (!isWalletInitialized) {
     throw new Error('Wallet could not be initialized');
   }
