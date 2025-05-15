@@ -97,7 +97,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   }
 
   @ReactMethod
-  override fun ensureWalletInitialized(promise: Promise) {
+  override fun ensureGoogleWalletInitialized(promise: Promise) {
     val localPromise = PromiseImpl({ _ ->
       promise.resolve(true)
     }, { _ ->
@@ -116,7 +116,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         promise.resolve(false)
       }
     }.addOnFailureListener { e ->
-      promise.reject(E_OPERATION_FAILED, "ensureWalletInitialized failed: ${e.localizedMessage}")
+      promise.reject(E_OPERATION_FAILED, "Checking Wallet availability failed: ${e.localizedMessage}")
     }
   }
 

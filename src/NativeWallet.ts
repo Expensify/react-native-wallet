@@ -58,7 +58,7 @@ type TokenizationStatus = 'canceled' | 'success' | 'error';
 
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
-  ensureWalletInitialized(): Promise<boolean>;
+  ensureGoogleWalletInitialized(): Promise<boolean>;
   getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardStatusByIdentifier(identifier: string, tsp: string): Promise<number>;
