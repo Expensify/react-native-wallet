@@ -112,7 +112,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     tapAndPayClient.environment.addOnCompleteListener { task ->
       if (task.isSuccessful) {
         promise.resolve(true)
-      } else{
+      } else {
         promise.resolve(false)
       }
     }.addOnFailureListener { e ->
