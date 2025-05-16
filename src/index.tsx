@@ -35,6 +35,10 @@ async function getSecureWalletInfo(): Promise<AndroidWalletData> {
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
+  const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  if (!isWalletInitialized) {
+    throw new Error('Wallet could not be initialized');
+  }
 
   return Wallet.getSecureWalletInfo();
 }
@@ -71,7 +75,10 @@ async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<Tokeniz
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
-
+  const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  if (!isWalletInitialized) {
+    throw new Error('Wallet could not be initialized');
+  }
   const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
   return getTokenizationStatus(tokenizationStatus);
 }
