@@ -1,6 +1,13 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
@@ -97,12 +104,14 @@ export default function App() {
         onPress={handleCheckWalletAvailability}
       />
 
-      <LabeledButton
-        text="Wallet Info:"
-        value={walletSecureInfo}
-        buttonTitle="Get Secure Wallet Info"
-        onPress={handleGetSecureWalletInfo}
-      />
+      {Platform.OS === 'android' && (
+        <LabeledButton
+          text="Wallet Info:"
+          value={walletSecureInfo}
+          buttonTitle="Get Secure Wallet Info"
+          onPress={handleGetSecureWalletInfo}
+        />
+      )}
 
       <LabeledButton
         text={`Card status (${CARD_LAST_4_DIGITS}):`}
