@@ -155,8 +155,8 @@
     }
   },
   "dependencies": {
-    "expo": "^53.0.0",
-    "expo-image": "^2.0.4"
+    "expo": "*",
+    "expo-image": "*"
   },
   "expo": {
     "autolinking": {
