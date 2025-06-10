@@ -3,9 +3,9 @@ buildscript {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 24
         compileSdkVersion = 35
-        targetSdkVersion = 34
-        ndkVersion = "26.1.10909125"
-        kotlinVersion = "1.9.24"
+        targetSdkVersion = 35
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
     }
     repositories {
         google()
@@ -24,20 +24,6 @@ apply plugin: "com.facebook.react.rootproject"
 
 allprojects {
     repositories {
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url({
-                def searchDir = rootDir.toPath()
-                do {
-                    def p = searchDir.resolve("node_modules/react-native/android")
-                    if (p.toFile().exists()) {
-                        return p.toRealPath().toString()
-                    }
-                } while (searchDir = searchDir.getParent())
-                throw new GradleException("Could not find `react-native`");
-            }())
-        }
-        mavenCentral()
         google()
         maven { url "file://${rootDir}/libs" }
     }

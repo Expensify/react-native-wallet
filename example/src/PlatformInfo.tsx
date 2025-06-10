@@ -6,8 +6,7 @@ function isBridgeless() {
 }
 
 function getPlatform() {
-  // @ts-ignore it works
-  return Platform.constants.systemName || Platform.constants.Brand;
+  return Platform.OS;
 }
 
 function getPlatformVersion() {

@@ -73,3 +73,5 @@ android/generated
 
 # Android  libs (Google Tap And Pay SDK)
 example/android/libs
+
+.kotlin/
