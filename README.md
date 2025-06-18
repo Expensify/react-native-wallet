@@ -247,6 +247,8 @@ MIT
 
 ----------
 
+This library is co-developed by [**Software Mansion**](https://swmansion.com/), React Native core contributors and experts in buildind high-performing mobile solutions, in collaboration with [**Expensify**](https://www.expensify.com/), a leader in streamlining business expenses, travel, and invoice management for clearer financial oversight.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="./assets/signature-light.png" />
