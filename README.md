@@ -1,4 +1,4 @@
-# react-native-wallet
+<img src="./assets/hero-image.png" alt="@expensify/react-native-wallet" />
 
 ## Features
 - ⚛️ Card In-App Provisioning seamless integration
