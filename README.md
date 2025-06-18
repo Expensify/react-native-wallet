@@ -4,6 +4,7 @@
 - ⚛️ Card Push Provisioning seamless integration
 - ♻️ Universal solution (Apple Wallet and Google Wallet)
 - 💳 Easy and secure addition of payment cards from your app directly
+- 💰 Supports Visa, MasterCard, Amex and Discover payment cards
 
 ## Getting started
 
