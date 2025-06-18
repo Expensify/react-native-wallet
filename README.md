@@ -1,7 +1,7 @@
 # react-native-wallet
 
 ## Features
-- ⚛️ Card Push Provisioning seamless integration
+- ⚛️ Card In-App Provisioning seamless integration
 - ♻️ Universal solution (Apple Wallet and Google Wallet)
 - 💳 Easy and secure addition of payment cards from your app directly
 
@@ -126,7 +126,7 @@ The library offers five functions for seamless integration and use of the Apple 
 
 ## Functions
 
-| Function | Description | Parameters | Returns / Type | iOS | Andorid |
+| Function | Description | Parameters | Returns / Type | iOS | Android |
 |----------|-------------|------------|----------------|:---:|:-------:|
 | **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ✅ | ❌ |
 | **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
@@ -239,15 +239,9 @@ MIT
 ----------
 
 <p align="center">
-
-<picture>
-
-<source media="(prefers-color-scheme: light)" srcset="./assets/signature-light.png" />
-
-<source media="(prefers-color-scheme: dark)" srcset="./assets/signature-dark.png" />
-
-<img alt="Brought to you by Software Mansion + Expensify" src="./assets/signature-light.png" width="600" />
-
-</picture>
-
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="./assets/signature-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/signature-dark.png" />
+    <img alt="Brought to you by Software Mansion + Expensify" src="./assets/signature-light.png" width="600" />
+  </picture>
 </p>
