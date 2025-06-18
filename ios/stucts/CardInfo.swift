@@ -24,6 +24,9 @@ struct CardInfo {
   private static func getNetwork(from identifier: String) -> PKPaymentNetwork? {
     switch identifier.lowercased() {
     case "visa": return .visa
+    case "mastercard": return .masterCard
+    case "amex": return .amex
+    case "discover": return .discover
     default: return nil
     }
   }
