@@ -188,10 +188,13 @@ A ready-to-use component that simplifies the addition of payment cards to Google
 />
 ```
 
+<p align="center">
+
 | Android | iOS |
 |:----:|:---------------:|
 | <img src="./assets/buttons/android/en.svg" height="50" /> | <img src="./assets/buttons/apple/en.svg" height="50" /> |
 
+</p>
 
 
 # Publishing your app
