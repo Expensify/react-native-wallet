@@ -239,7 +239,7 @@ Additionally, when submitting your app to the App Store, you must include:
 
 # Contributing
 
-Right now, contributions to this library are done under [https://github.com/Expensify/App](https://github.com/Expensify/App). Please refer to that repo and all it's guidelines for contributing.
+Contributions to this library are done under [https://github.com/Expensify/App](https://github.com/Expensify/App). Please refer to that repo and all its guidelines for contributing.
 
 ## License
 
@@ -247,7 +247,7 @@ MIT
 
 ----------
 
-This library is co-developed by [**Software Mansion**](https://swmansion.com/), React Native core contributors and experts in buildind high-performing mobile solutions, in collaboration with [**Expensify**](https://www.expensify.com/), a leader in streamlining business expenses, travel, and invoice management for clearer financial oversight.
+This library is co-developed by [**Software Mansion**](https://swmansion.com/), React Native core contributors and experts in building high-performing mobile solutions, in collaboration with [**Expensify**](https://www.expensify.com/), the fastest way to do your expenses, travel, and corporate cards.
 
 <p align="center">
   <picture>
