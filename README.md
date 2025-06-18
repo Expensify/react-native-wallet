@@ -232,6 +232,10 @@ Additionally, when submitting your app to the App Store, you must include:
 - A demo account for testing.
 - A demo video showcasing the In-App Provisioning experience.
 
+# Compatibility
+
+`@expensify/react-native-wallet` supports the three latest minor releases of react-native (0.76.0+)
+
 
 # Contributing
 
