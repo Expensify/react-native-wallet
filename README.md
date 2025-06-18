@@ -165,10 +165,12 @@ The library offers five functions for seamless integration and use of the Apple 
 ### `AddToWalletButton`
 
 A ready-to-use component that simplifies the addition of payment cards to Google Wallet and Apple Wallet. The button automatically adapts its appearance according to the platform and language specified.
+It uses official assets provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) in their Wallet-related branding guidelines. 
 
-> [!NOTE]
-> Please bear in mind the brand rules provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application.
+> [!IMPORTANT]
+> Please bear in mind the brand rules provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application. 
 
+Adhering to these guidelines is crucial not only to comply with legal requirements but also to reassure users of the authenticity and security of your application.
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -188,14 +190,9 @@ A ready-to-use component that simplifies the addition of payment cards to Google
 />
 ```
 
-<p align="center">
-
 | Android | iOS |
 |:----:|:---------------:|
 | <img src="./assets/buttons/android/en.svg" height="50" /> | <img src="./assets/buttons/apple/en.svg" height="50" /> |
-
-</p>
-
 
 # Publishing your app
 
