@@ -55,7 +55,8 @@
   },
   "homepage": "https://github.com/Expensify/react-native-wallet#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.3",
