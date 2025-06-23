@@ -182,7 +182,7 @@ Adhering to these guidelines is crucial not only to comply with legal requiremen
 
 #### Usage Example:
 
-```typescriptreact
+```js
 <AddToWalletButton
   onPress={() => console.log('Button pressed!')}
   locale="en"
