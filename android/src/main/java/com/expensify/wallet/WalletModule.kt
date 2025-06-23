@@ -41,8 +41,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val REQUEST_CODE_PUSH_TOKENIZE: Int = 0xA001
     const val REQUEST_CREATE_WALLET: Int = 0xA002
 
-    const val TSP_VISA: String = "VISA"
-
     const val E_SDK_API = "SDK API Error"
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
     const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
@@ -247,14 +245,20 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   private fun getCardNetwork(network: String): Int {
     return when (network.uppercase(Locale.getDefault())) {
-      TSP_VISA -> TapAndPay.CARD_NETWORK_VISA
+      "VISA" -> TapAndPay.CARD_NETWORK_VISA
+      "MASTERCARD" -> TapAndPay.CARD_NETWORK_MASTERCARD
+      "AMEX" -> TapAndPay.CARD_NETWORK_AMEX
+      "DISCOVER" -> TapAndPay.CARD_NETWORK_DISCOVER
       else -> throw InvalidNetworkError()
     }
   }
 
   private fun getTokenServiceProvider(network: String): Int {
     return when (network.uppercase(Locale.getDefault())) {
-      TSP_VISA -> TapAndPay.TOKEN_PROVIDER_VISA
+      "VISA" -> TapAndPay.TOKEN_PROVIDER_VISA
+      "MASTERCARD" -> TapAndPay.TOKEN_PROVIDER_MASTERCARD
+      "AMEX" -> TapAndPay.TOKEN_PROVIDER_AMEX
+      "DISCOVER" -> TapAndPay.TOKEN_PROVIDER_DISCOVER
       else -> throw InvalidNetworkError()
     }
   }
