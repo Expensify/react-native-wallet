@@ -1,46 +1,58 @@
-import React, {useMemo} from 'react';
-import {StyleSheet, Pressable, Platform} from 'react-native';
-import type {ViewStyle} from 'react-native';
-import {Image} from 'expo-image';
-import LOCALIZED_BUTTONS from './constants';
+import React from 'react';
+import type {ViewStyle, GestureResponderEvent, HostComponent, StyleProp} from 'react-native';
+import {requireNativeComponent, StyleSheet, TouchableOpacity} from 'react-native';
 
-type ButtonProps = {
-  onPress: () => void;
-  locale: string;
-  buttonStyle?: ViewStyle;
+type ButtonStyle = 'black' | 'blackOutline';
+
+interface NativeWalletButtonProps {
+  style?: StyleProp<ViewStyle>;
+  buttonStyle?: ButtonStyle;
+  borderRadius?: number;
+}
+
+const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('AddToWalletButton');
+
+type Props = {
+  style?: ViewStyle;
+  buttonStyle?: ButtonStyle;
+  borderRadius?: number;
+  onPress?: (e: GestureResponderEvent) => void;
 };
 
-const platform = Platform.OS === 'ios' ? 'ios' : 'android';
-
-function AddToWalletButton({onPress, locale, buttonStyle}: ButtonProps) {
-  const IconComponent = useMemo(() => {
-    const platformIcons = LOCALIZED_BUTTONS[platform];
-    return platformIcons[locale] ?? platformIcons.default;
-  }, [locale]);
+function AddToWalletButton({style, buttonStyle = 'black', borderRadius = 4, onPress}: Props) {
+  const flattenedStyle = StyleSheet.flatten(style) || {};
+  const {width = 120, height = 40, ...rest} = flattenedStyle;
 
   return (
-    <Pressable
-      style={[styles.button, buttonStyle]}
+    <TouchableOpacity
       onPress={onPress}
+      activeOpacity={0.8}
+      style={[
+        {
+          width,
+          height,
+          margin: 10,
+        },
+        rest,
+        styles.touchable,
+      ]}
     >
-      <Image
-        source={IconComponent}
-        style={styles.image}
-        contentFit="contain"
+      <NativeWalletButton
+        style={styles.fill}
+        buttonStyle={buttonStyle}
+        borderRadius={borderRadius}
       />
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    width: 200,
-    height: 70,
-    padding: 10,
-    alignItems: 'center',
+  touchable: {
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  image: {
+  fill: {
+    flex: 1,
     width: '100%',
     height: '100%',
   },
