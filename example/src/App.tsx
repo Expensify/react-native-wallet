@@ -121,7 +121,14 @@ export default function App() {
         Add Card status:{' '}
         <Text style={styles.value}>{addCardStatus || '-'}</Text>
       </Text>
-      <AddToWalletButton onPress={handleAddCardToWallet} locale="en" />
+      <View style={styles.buttons}>
+        <AddToWalletButton onPress={handleAddCardToWallet} />
+        <AddToWalletButton
+          onPress={handleAddCardToWallet}
+          style={styles.longButton}
+          borderRadius={50}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -154,5 +161,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginVertical: 20,
+  },
+  buttons: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  longButton: {
+    width: '90%',
+    height: 50,
   },
 });
