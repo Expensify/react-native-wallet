@@ -1,6 +1,6 @@
 import React from 'react';
 import type {ViewStyle, GestureResponderEvent, HostComponent, StyleProp} from 'react-native';
-import {requireNativeComponent, StyleSheet, TouchableOpacity} from 'react-native';
+import {Platform, requireNativeComponent, StyleSheet, TouchableOpacity} from 'react-native';
 
 type ButtonStyle = 'black' | 'blackOutline';
 
@@ -15,13 +15,26 @@ const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNative
 type Props = {
   style?: ViewStyle;
   buttonStyle?: ButtonStyle;
+  buttonType?: 'basic' | 'badge';
   borderRadius?: number;
   onPress?: (e: GestureResponderEvent) => void;
 };
 
-function AddToWalletButton({style, buttonStyle = 'black', borderRadius = 4, onPress}: Props) {
+const buttonDimensions = {
+  basic: {
+    ios: {width: 300, height: 40},
+    android: {width: 300, height: 48},
+  },
+  badge: {
+    ios: {width: 120, height: 40},
+    android: {width: 200, height: 56},
+  },
+};
+
+function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', borderRadius = 4, onPress}: Props) {
   const flattenedStyle = StyleSheet.flatten(style) || {};
-  const {width = 120, height = 40, ...rest} = flattenedStyle;
+  const currentDimensions = buttonDimensions[buttonType][Platform.OS as 'ios' | 'android'];
+  const {width = currentDimensions.width, height = currentDimensions.height, ...rest} = flattenedStyle;
 
   return (
     <TouchableOpacity

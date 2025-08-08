@@ -1,6 +1,13 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
@@ -85,50 +92,56 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>react-native-wallet example app</Text>
-        <PlatformInfo />
-      </View>
+      <ScrollView>
+        <View style={styles.header}>
+          <Text style={styles.title}>react-native-wallet example app</Text>
+          <PlatformInfo />
+        </View>
 
-      <LabeledButton
-        text="Is wallet available:"
-        value={`${isWalletAvailable}`}
-        buttonTitle="Check Wallet Availability"
-        onPress={handleCheckWalletAvailability}
-      />
-
-      <LabeledButton
-        text="Wallet Info:"
-        value={walletSecureInfo}
-        buttonTitle="Get Secure Wallet Info"
-        onPress={handleGetSecureWalletInfo}
-      />
-
-      <LabeledButton
-        text={`Card status (${CARD_LAST_4_DIGITS}):`}
-        value={cardStatus}
-        buttonTitle="Get Card Status"
-        onPress={handleGetCardStatus}
-      />
-
-      <LabeledButton
-        text={`Token status (${TOKEN_REF_ID}):`}
-        value={tokenStatus}
-        buttonTitle="Get Token Status"
-        onPress={handleGetCardTokenStatus}
-      />
-      <Text style={styles.label}>
-        Add Card status:{' '}
-        <Text style={styles.value}>{addCardStatus || '-'}</Text>
-      </Text>
-      <View style={styles.buttons}>
-        <AddToWalletButton onPress={handleAddCardToWallet} />
-        <AddToWalletButton
-          onPress={handleAddCardToWallet}
-          style={styles.longButton}
-          borderRadius={50}
+        <LabeledButton
+          text="Is wallet available:"
+          value={`${isWalletAvailable}`}
+          buttonTitle="Check Wallet Availability"
+          onPress={handleCheckWalletAvailability}
         />
-      </View>
+
+        <LabeledButton
+          text="Wallet Info:"
+          value={walletSecureInfo}
+          buttonTitle="Get Secure Wallet Info"
+          onPress={handleGetSecureWalletInfo}
+        />
+
+        <LabeledButton
+          text={`Card status (${CARD_LAST_4_DIGITS}):`}
+          value={cardStatus}
+          buttonTitle="Get Card Status"
+          onPress={handleGetCardStatus}
+        />
+
+        <LabeledButton
+          text={`Token status (${TOKEN_REF_ID}):`}
+          value={tokenStatus}
+          buttonTitle="Get Token Status"
+          onPress={handleGetCardTokenStatus}
+        />
+
+        <View style={styles.buttons}>
+          <Text style={styles.label}>
+            Add Card status:
+            <Text style={styles.value}>{addCardStatus || '-'}</Text>
+          </Text>
+          <AddToWalletButton
+            buttonType="badge"
+            onPress={handleAddCardToWallet}
+          />
+          <AddToWalletButton
+            onPress={handleAddCardToWallet}
+            style={styles.longButton}
+            borderRadius={50}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -169,6 +182,5 @@ const styles = StyleSheet.create({
   },
   longButton: {
     width: '90%',
-    height: 50,
   },
 });
