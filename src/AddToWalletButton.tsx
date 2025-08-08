@@ -3,10 +3,12 @@ import type {ViewStyle, GestureResponderEvent, HostComponent, StyleProp} from 'r
 import {Platform, requireNativeComponent, StyleSheet, TouchableOpacity} from 'react-native';
 
 type ButtonStyle = 'black' | 'blackOutline';
+type ButtonType = 'basic' | 'badge';
 
 interface NativeWalletButtonProps {
   style?: StyleProp<ViewStyle>;
   buttonStyle?: ButtonStyle;
+  buttonType?: ButtonType;
   borderRadius?: number;
 }
 
@@ -15,7 +17,7 @@ const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNative
 type Props = {
   style?: ViewStyle;
   buttonStyle?: ButtonStyle;
-  buttonType?: 'basic' | 'badge';
+  buttonType?: ButtonType;
   borderRadius?: number;
   onPress?: (e: GestureResponderEvent) => void;
 };
@@ -54,6 +56,7 @@ function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', 
         style={styles.fill}
         buttonStyle={buttonStyle}
         borderRadius={borderRadius}
+        buttonType={buttonType}
       />
     </TouchableOpacity>
   );

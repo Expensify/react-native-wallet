@@ -9,19 +9,33 @@ import android.view.View
 class AddToWalletButtonView(context: Context) : FrameLayout(context) {
 
   private var buttonView: View? = null
+  private var buttonType: String = "basic"
 
   init {
     setupButton()
   }
 
+  fun setButtonType(type: String) {
+    if (buttonType != type) {
+      buttonType = type
+      setupButton()
+    }
+  }
+
   private fun setupButton() {
+    removeAllViews()
+
     val inflater = LayoutInflater.from(context)
-    buttonView = inflater.inflate(R.layout.add_to_googlewallet_badge, this, false)
-    val layoutParams = LayoutParams(
-      LayoutParams.MATCH_PARENT,
-      LayoutParams.MATCH_PARENT
-    )
-    buttonView?.layoutParams = layoutParams
+    val layoutId = when (buttonType.lowercase()) {
+      "badge" -> R.layout.add_to_googlewallet_badge
+      else -> R.layout.add_to_googlewallet_button
+    }
+    buttonView = inflater.inflate(layoutId, this, false).apply {
+      layoutParams = LayoutParams(
+        LayoutParams.MATCH_PARENT,
+        LayoutParams.MATCH_PARENT
+      )
+    }
 
     addView(buttonView)
   }
