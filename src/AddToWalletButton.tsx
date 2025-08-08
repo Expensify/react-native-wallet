@@ -12,8 +12,6 @@ interface NativeWalletButtonProps {
   borderRadius?: number;
 }
 
-const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('AddToWalletButton');
-
 type Props = {
   style?: ViewStyle;
   buttonStyle?: ButtonStyle;
@@ -22,7 +20,10 @@ type Props = {
   onPress?: (e: GestureResponderEvent) => void;
 };
 
-const buttonDimensions = {
+const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('AddToWalletButton');
+
+const BUTTON_TYPE_BREAKPOINT = 236;
+const BUTTON_DIMENSIONS = {
   basic: {
     ios: {width: 300, height: 40},
     android: {width: 300, height: 48},
@@ -35,7 +36,7 @@ const buttonDimensions = {
 
 function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', borderRadius = 4, onPress}: Props) {
   const flattenedStyle = StyleSheet.flatten(style) || {};
-  const currentDimensions = buttonDimensions[buttonType][Platform.OS as 'ios' | 'android'];
+  const currentDimensions = BUTTON_DIMENSIONS[buttonType][Platform.OS as 'ios' | 'android'];
   const {width = currentDimensions.width, height = currentDimensions.height, ...rest} = flattenedStyle;
 
   return (
@@ -43,12 +44,14 @@ function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', 
       onPress={onPress}
       activeOpacity={0.8}
       style={[
+        rest,
+        // Android allows us to define the type of the button, however on iOS type depends on the width.
+        // Adding this limits to ensure consistent behavior across platforms.
+        buttonType === 'badge' ? {maxWidth: BUTTON_TYPE_BREAKPOINT - 1} : {minWidth: BUTTON_TYPE_BREAKPOINT},
         {
           width,
           height,
-          margin: 10,
         },
-        rest,
         styles.touchable,
       ]}
     >
@@ -66,6 +69,7 @@ const styles = StyleSheet.create({
   touchable: {
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 10,
   },
   fill: {
     flex: 1,
