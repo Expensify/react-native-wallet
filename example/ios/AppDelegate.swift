@@ -4,7 +4,7 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 
 @main
-class AppDelegate: ExpoAppDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
   var reactNativeDelegate: ReactNativeDelegate?
