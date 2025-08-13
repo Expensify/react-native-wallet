@@ -2,7 +2,7 @@
 #
 .DS_Store
 
-# XDE
+# Expo
 .expo/
 
 # VSCode
@@ -57,9 +57,6 @@ buck-out/
 \.buckd/
 android/app/libs
 android/keystores/debug.keystore
-
-# Expo
-.expo/
 
 # Turborepo
 .turbo/
