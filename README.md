@@ -173,27 +173,32 @@ It uses official assets provided by [Google](https://developers.google.com/walle
 
 Adhering to these guidelines is crucial not only to comply with legal requirements but also to reassure users of the authenticity and security of your application.
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| **onPress** | `() => void` | Yes | A callback that is triggered when the button is pressed. |
-| **locale** | `string` | Yes | The language code to display the correct button language. |
-| **platform** | `Platform` (`ios \| android`) | Yes | The platform type to ensure the appropriate button image is implemented. |
-| **buttonStyle** | `ViewStyle` | No | Customizes the button style. |
+> [!NOTE]
+> Localization is automatically handled by the system settings, ensuring the button language matches the device's preferred language.
+
+| Property       | Type                                        | Required | Description                                                       | Platform Specific |
+|----------------|---------------------------------------------|----------|-------------------------------------------------------------------|-------------------|
+| **onPress**    | `(e: GestureResponderEvent) => void`        | Yes      | A callback that is triggered when the button is pressed.          | No                |
+| **style**      | `ViewStyle`                                 | No       | Customizes the overall style of the component.                   | No                |
+| **buttonStyle**| `'black' \| 'blackOutline'`                  | No       | Customizes the button style.                                      | iOS Only          |
+| **buttonType** | `'basic' \| 'badge'`                         | No       | Defines the button's type (e.g., primary, secondary).             | No                |
+| **borderRadius**| `number`                                    | No       | The border radius of the button, applicable to iOS buttons only.  | iOS Only          |
 
 #### Usage Example:
 
 ```js
 <AddToWalletButton
-  onPress={() => console.log('Button pressed!')}
-  locale="en"
-  platform="android"
-  buttonStyle={{ height: 50 }}
+	onPress={() => console.log('Button pressed!')}
+	style={styles.longButton}
+	buttonStyle="blackOutline"
+	buttonType="badge"
+	borderRadius={4}
 />
 ```
 
 | Android | iOS |
 |:----:|:---------------:|
-| <img src="./assets/buttons/android/en.svg" height="50" /> | <img src="./assets/buttons/apple/en.svg" height="50" /> |
+| <img src="./assets/buttons/android_button.svg" height="50" /> | <img src="./assets/buttons/ios_button.svg" height="50" /> |
 
 # Publishing your app
 
