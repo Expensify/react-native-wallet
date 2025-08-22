@@ -35,7 +35,7 @@
     "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/example/**/*' --ignore-pattern '/WebExample/**/*'",
     "lint:example": "eslint example --ext .js,.ts,.tsx",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "prepare": "bob build && sed -i.bak 's|\\..\\/assets|\\..\\/\\..\\/assets|g' lib/commonjs/constants.js && rm lib/commonjs/constants.js.bak",
+    "prepare": "bob build",
     "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
     "release": "release-it"
   },

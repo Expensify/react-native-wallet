@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="googlewallet_button_content_description">Google Wallet</string>
+    <string name="add_to_googlewallet_button_content_description">Add To Google Wallet</string>
+    <string name="text_content_description">Text for the Google Wallet button</string>
+    <string name="overlay_content_description">Overlay for the Google Wallet button</string>
+</resources>

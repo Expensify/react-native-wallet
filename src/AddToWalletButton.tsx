@@ -1,46 +1,78 @@
-import React, {useMemo} from 'react';
-import {StyleSheet, Pressable, Platform} from 'react-native';
-import type {ViewStyle} from 'react-native';
-import {Image} from 'expo-image';
-import LOCALIZED_BUTTONS from './constants';
+import React from 'react';
+import type {ViewStyle, GestureResponderEvent, HostComponent, StyleProp} from 'react-native';
+import {Platform, requireNativeComponent, StyleSheet, TouchableOpacity} from 'react-native';
 
-type ButtonProps = {
-  onPress: () => void;
-  locale: string;
-  buttonStyle?: ViewStyle;
+type ButtonStyle = 'black' | 'blackOutline';
+type ButtonType = 'basic' | 'badge';
+
+interface NativeWalletButtonProps {
+  style?: StyleProp<ViewStyle>;
+  buttonStyle?: ButtonStyle;
+  buttonType?: ButtonType;
+  borderRadius?: number;
+}
+
+type Props = {
+  style?: ViewStyle;
+  buttonStyle?: ButtonStyle;
+  buttonType?: ButtonType;
+  borderRadius?: number;
+  onPress?: (e: GestureResponderEvent) => void;
 };
 
-const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('AddToWalletButton');
 
-function AddToWalletButton({onPress, locale, buttonStyle}: ButtonProps) {
-  const IconComponent = useMemo(() => {
-    const platformIcons = LOCALIZED_BUTTONS[platform];
-    return platformIcons[locale] ?? platformIcons.default;
-  }, [locale]);
+const BUTTON_TYPE_BREAKPOINT = 236;
+const BUTTON_DIMENSIONS = {
+  basic: {
+    ios: {width: 300, height: 40},
+    android: {width: 300, height: 48},
+  },
+  badge: {
+    ios: {width: 120, height: 40},
+    android: {width: 200, height: 56},
+  },
+};
+
+function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', borderRadius = 4, onPress}: Props) {
+  const flattenedStyle = StyleSheet.flatten(style) || {};
+  const currentDimensions = BUTTON_DIMENSIONS[buttonType][Platform.OS as 'ios' | 'android'];
+  const {width = currentDimensions.width, height = currentDimensions.height, ...rest} = flattenedStyle;
 
   return (
-    <Pressable
-      style={[styles.button, buttonStyle]}
+    <TouchableOpacity
       onPress={onPress}
+      activeOpacity={0.8}
+      style={[
+        rest,
+        // Android allows us to define the type of the button, however on iOS type depends on the width.
+        // Adding this limits to ensure consistent behavior across platforms.
+        buttonType === 'badge' ? {maxWidth: BUTTON_TYPE_BREAKPOINT - 1} : {minWidth: BUTTON_TYPE_BREAKPOINT},
+        {
+          width,
+          height,
+        },
+        styles.touchable,
+      ]}
     >
-      <Image
-        source={IconComponent}
-        style={styles.image}
-        contentFit="contain"
+      <NativeWalletButton
+        style={styles.fill}
+        buttonStyle={buttonStyle}
+        borderRadius={borderRadius}
+        buttonType={buttonType}
       />
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    width: 200,
-    height: 70,
-    padding: 10,
-    alignItems: 'center',
+  touchable: {
     justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
   },
-  image: {
+  fill: {
+    flex: 1,
     width: '100%',
     height: '100%',
   },

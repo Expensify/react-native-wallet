@@ -1,5 +1,6 @@
 package com.expensify.wallet
 
+import com.expensify.wallet.components.AddToWalletButtonViewManager
 import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.NativeModule
@@ -7,6 +8,7 @@ import com.facebook.react.module.annotations.ReactModuleList
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import com.facebook.react.module.model.ReactModuleInfo
 import java.util.HashMap
+import com.facebook.react.uimanager.ViewManager
 
 // Fool auto linking for older versions that do not support BaseReactPackage.
 // public class WalletPackage implements TurboReactPackage {
@@ -40,4 +42,7 @@ class WalletPackage : BaseReactPackage() {
       moduleInfos
     }
   }
+
+  override fun createViewManagers(reactContext: com.facebook.react.bridge.ReactApplicationContext)
+    : List<ViewManager<*, *>> = listOf(AddToWalletButtonViewManager())
 }
