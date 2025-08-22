@@ -17,8 +17,11 @@ import {
   removeListener,
   AddToWalletButton,
 } from '@expensify/react-native-wallet';
+import type {
+  CardStatus,
+  AndroidWalletData,
+} from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {AndroidWalletData, CardStatus} from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
 import {addCardToWallet} from './walletUtils';
 

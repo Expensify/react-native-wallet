@@ -10,7 +10,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		60C1A02D240FD1561E0CD266 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D0B2A4DCBD4F586B48D724B1 /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		81C141C9C6AA432E6052D462 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9A1EADC2B2527E173D6366 /* ExpoModulesProvider.swift */; };
 		C78560402DE606F0009E7CB8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C785603F2DE606E9009E7CB8 /* AppDelegate.swift */; };
 		D54455F565B35565B04E0632 /* libPods-WalletExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D76D1B9DE3FB85C3FCBD5ECA /* libPods-WalletExample.a */; };
 /* End PBXBuildFile section */
@@ -20,7 +19,6 @@
 		13B07F961A680F5B00A75B9A /* WalletExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = WalletExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WalletExample/Info.plist; sourceTree = "<group>"; };
-		3F9A1EADC2B2527E173D6366 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-WalletExample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = WalletExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C785603F2DE606E9009E7CB8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0B2A4DCBD4F586B48D724B1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = WalletExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -42,14 +40,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0BB409B57AC5BC2A52D092F1 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				85B99789D0015BF45A34A4B9 /* WalletExample */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* WalletExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -87,7 +77,6 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
-				0BB409B57AC5BC2A52D092F1 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -100,14 +89,6 @@
 				13B07F961A680F5B00A75B9A /* WalletExample.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		85B99789D0015BF45A34A4B9 /* WalletExample */ = {
-			isa = PBXGroup;
-			children = (
-				3F9A1EADC2B2527E173D6366 /* ExpoModulesProvider.swift */,
-			);
-			name = WalletExample;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -127,7 +108,6 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "WalletExample" */;
 			buildPhases = (
 				3DE647B710DAF56B186A1661 /* [CP] Check Pods Manifest.lock */,
-				A3CE44D75F9F882F9E6B096E /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -244,25 +224,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WalletExample/Pods-WalletExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A3CE44D75F9F882F9E6B096E /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-WalletExample/expo-configure-project.sh\"\n";
-		};
 		DADBC31759BD6629EA1CEB42 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -288,7 +249,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C78560402DE606F0009E7CB8 /* AppDelegate.swift in Sources */,
-				81C141C9C6AA432E6052D462 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
