@@ -64,7 +64,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   private val cardListener = object : ActivityEventListener {
     override fun onActivityResult(
-      activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?
+      activity: Activity, requestCode: Int, resultCode: Int, intent: Intent?
     ) {
       if (requestCode == REQUEST_CREATE_WALLET) {
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
@@ -91,7 +91,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       }
     }
 
-    override fun onNewIntent(p0: Intent?) {}
+    override fun onNewIntent(intent: Intent) {}
   }
 
   @ReactMethod

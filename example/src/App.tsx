@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {useState, useEffect, useMemo, useCallback} from 'react';
-import {StyleSheet, View, Text, Alert, SafeAreaView} from 'react-native';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { StyleSheet, View, Text, Alert, SafeAreaView } from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
@@ -8,12 +8,10 @@ import {
   getCardStatusByIdentifier,
   addListener,
   removeListener,
-  AddToWalletButton,
 } from '@expensify/react-native-wallet';
 import PlatformInfo from './PlatformInfo';
-import type {AndroidWalletData, CardStatus} from '../../src/NativeWallet';
+import type { AndroidWalletData, CardStatus } from '../../src/NativeWallet';
 import LabeledButton from './LabeledButton';
-import {addCardToWallet} from './walletUtils';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';
@@ -27,7 +25,7 @@ export default function App() {
   const [walletData, setWalletData] = useState<AndroidWalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
   const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
-  const [addCardStatus, setAddCardStatus] = useState<string | undefined>();
+  const [addCardStatus] = useState<string | undefined>();
 
   const handleCheckWalletAvailability = useCallback(() => {
     checkWalletAvailability().then(setIsWalletAvailable);
@@ -51,17 +49,6 @@ export default function App() {
 
   const handleGetCardTokenStatus = useCallback(() => {
     getCardStatusByIdentifier(TOKEN_REF_ID, 'VISA').then(setTokenStatus);
-  }, []);
-
-  const handleAddCardToWallet = useCallback(() => {
-    addCardToWallet()
-      .then(status => {
-        setAddCardStatus(status);
-      })
-      .catch(e => {
-        console.error(e);
-        setAddCardStatus('failed');
-      });
   }, []);
 
   const walletSecureInfo = useMemo(
@@ -121,7 +108,7 @@ export default function App() {
         Add Card status:{' '}
         <Text style={styles.value}>{addCardStatus || '-'}</Text>
       </Text>
-      <AddToWalletButton onPress={handleAddCardToWallet} locale="en" />
+      {/* <AddToWalletButton onPress={handleAddCardToWallet} locale="en" /> */}
     </SafeAreaView>
   );
 }
