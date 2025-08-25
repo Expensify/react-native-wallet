@@ -154,19 +154,5 @@
     "android": {
       "javaPackageName": "com.expensify.wallet"
     }
-  },
-  "dependencies": {
-    "expo": "*",
-    "expo-image": "*"
-  },
-  "expo": {
-    "autolinking": {
-      "exclude": [
-        "expo-application",
-        "expo-constants",
-        "expo-font",
-        "expo-keep-awake"
-      ]
-    }
   }
 }
