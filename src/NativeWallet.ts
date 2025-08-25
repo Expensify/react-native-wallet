@@ -1,5 +1,5 @@
-import type {TurboModule} from 'react-native';
-import {TurboModuleRegistry} from 'react-native';
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
 
 type AndroidWalletData = {
   deviceID: string;
@@ -83,5 +83,5 @@ try {
   }
 }
 export default Wallet;
-export {PACKAGE_NAME};
-export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload, TokenizationStatus};
+export { PACKAGE_NAME };
+export type { AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload, TokenizationStatus };
