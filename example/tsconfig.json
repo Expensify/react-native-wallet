@@ -4,5 +4,5 @@
     "strict": true
   },
   "include": ["src/**/*.tsx", "src/walletUtils.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "Pods"]
 }
