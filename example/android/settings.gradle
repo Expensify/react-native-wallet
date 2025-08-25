@@ -12,3 +12,4 @@ includeBuild('../../node_modules/@react-native/gradle-plugin')
 //         substitute(module("com.facebook.react:hermes-engine")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
 //     }
 // }
+
