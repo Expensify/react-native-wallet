@@ -64,14 +64,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   private val cardListener = object : ActivityEventListener {
     override fun onActivityResult(
-      activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?
+      activity: Activity, requestCode: Int, resultCode: Int, data: Intent?
     ) {
       if (requestCode == REQUEST_CREATE_WALLET) {
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
         if (resultCode == RESULT_OK) {
-          intent?.let {
+          data?.let {
             val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
             sendEvent(
               context,
@@ -91,7 +91,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       }
     }
 
-    override fun onNewIntent(p0: Intent?) {}
+    override fun onNewIntent(intent: Intent) {}
   }
 
   @ReactMethod
