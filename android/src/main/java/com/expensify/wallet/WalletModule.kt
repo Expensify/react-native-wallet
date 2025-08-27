@@ -43,11 +43,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
     const val E_SDK_API = "SDK API Error"
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
-    const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
     const val E_INVALID_DATA = "E_INVALID_DATA"
   }
 
-  private val activity = currentActivity ?: throw ActivityNotFoundException()
+  private val activity = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
