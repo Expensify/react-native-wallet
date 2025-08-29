@@ -3,6 +3,7 @@ import type {
   UserAddress,
   IOSEncryptPayload,
   IOSCardData,
+  AndroidResumeCardData,
 } from '../../src/NativeWallet';
 
 const dummyAddress: UserAddress = {
@@ -24,6 +25,13 @@ const AndroidDummyCardData: AndroidCardData = {
   userAddress: dummyAddress,
 };
 
+const AndroidDummyResumeCardData: AndroidResumeCardData = {
+  network: 'VISA',
+  cardHolderName: 'John Doe',
+  lastDigits: '4321',
+  tokenReferenceId: '',
+};
+
 const IOSDummyCardData: IOSCardData = {
   network: 'VISA',
   cardHolderName: 'John Doe',
@@ -38,4 +46,4 @@ const IOSDummyEncryptPayload: IOSEncryptPayload = {
   ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
-export {AndroidDummyCardData, IOSDummyCardData, IOSDummyEncryptPayload};
+export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload};
