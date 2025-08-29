@@ -2,7 +2,18 @@
 import {NativeEventEmitter, Platform} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
 import Wallet, {PACKAGE_NAME} from './NativeWallet';
-import type {TokenizationStatus, AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
+import type {
+  TokenizationStatus,
+  AndroidCardData,
+  AndroidResumeCardData,
+  CardStatus,
+  IOSCardData,
+  IOSEncryptPayload,
+  AndroidWalletData,
+  onCardActivatedPayload,
+  IOSAddPaymentPassData,
+  TokenInfo,
+} from './NativeWallet';
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
 
@@ -83,6 +94,37 @@ async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<Tokeniz
   return getTokenizationStatus(tokenizationStatus);
 }
 
+async function resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<TokenizationStatus> {
+  if (Platform.OS === 'ios') {
+    throw new Error('resumeAddCardToGoogleWallet is not available on iOS');
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+  const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  if (!isWalletInitialized) {
+    throw new Error('Wallet could not be initialized');
+  }
+  const tokenizationStatus = await Wallet.resumeAddCardToGoogleWallet(cardData);
+  return getTokenizationStatus(tokenizationStatus);
+}
+
+async function listTokens(): Promise<TokenInfo[]> {
+  if (Platform.OS === 'ios') {
+    throw new Error('listTokens is not available on iOS');
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+  const isWalletInitialized = await Wallet.ensureGoogleWalletInitialized();
+  if (!isWalletInitialized) {
+    throw new Error('Wallet could not be initialized');
+  }
+  return Wallet.listTokens();
+}
+
 async function addCardToAppleWallet(
   cardData: IOSCardData,
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
@@ -110,7 +152,7 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
-export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus};
+export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus, TokenInfo};
 export {
   AddToWalletButton,
   checkWalletAvailability,
@@ -118,6 +160,8 @@ export {
   getCardStatusBySuffix,
   getCardStatusByIdentifier,
   addCardToGoogleWallet,
+  resumeAddCardToGoogleWallet,
+  listTokens,
   addCardToAppleWallet,
   addListener,
   removeListener,
