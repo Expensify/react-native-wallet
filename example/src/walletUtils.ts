@@ -24,18 +24,18 @@ async function addCardToWallet(cardStatus?: CardStatus) {
       const tokens = await listTokens();
       const existingToken = tokens.find(
         token =>
-          token.fpanLastFour === CONST.AndroidDummyResumeCardData.lastDigits,
+          token.lastDigits === CONST.AndroidDummyResumeCardData.lastDigits,
       );
 
       if (!existingToken) {
         throw new Error(
-          `No se encontró el token para la tarjeta terminada en ${CONST.AndroidDummyResumeCardData.lastDigits}`,
+          `Token not found for card ending with ${CONST.AndroidDummyResumeCardData.lastDigits}`,
         );
       }
 
       return await resumeAddCardToGoogleWallet({
         ...CONST.AndroidDummyResumeCardData,
-        tokenReferenceId: existingToken.tokenReferenceId,
+        tokenReferenceID: existingToken.identifier,
       });
     }
     return addCardToGoogleWallet(CONST.AndroidDummyCardData);
