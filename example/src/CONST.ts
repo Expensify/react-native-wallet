@@ -29,7 +29,7 @@ const AndroidDummyResumeCardData: AndroidResumeCardData = {
   network: 'VISA',
   cardHolderName: 'John Doe',
   lastDigits: '4321',
-  tokenReferenceId: '',
+  tokenReferenceID: '',
 };
 
 const IOSDummyCardData: IOSCardData = {

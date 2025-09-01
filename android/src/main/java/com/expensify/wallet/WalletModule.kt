@@ -211,8 +211,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   @ReactMethod
   override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
     try {
-      val tokenReferenceId = data.getString("tokenReferenceId")
-        ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceId")
+      val tokenReferenceID = data.getString("tokenReferenceID")
+        ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
 
       val network = data.getString("network")
         ?: return promise.reject(E_INVALID_DATA, "Missing network")
@@ -225,7 +225,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
       tapAndPayClient.tokenize(
         activity,
-        tokenReferenceId,
+        tokenReferenceID,
         tokenServiceProvider,
         displayName,
         cardNetwork,
@@ -248,8 +248,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         val tokensArray = Arguments.createArray()
         task.result.forEach { tokenInfo ->
           val tokenData = Arguments.createMap().apply {
-            putString("tokenReferenceId", tokenInfo.issuerTokenId)
-            putString("fpanLastFour", tokenInfo.fpanLastFour)
+            putString("identifier", tokenInfo.issuerTokenId)
+            putString("lastDigits", tokenInfo.fpanLastFour)
             putInt("tokenState", tokenInfo.tokenState)
           }
           tokensArray.pushMap(tokenData)

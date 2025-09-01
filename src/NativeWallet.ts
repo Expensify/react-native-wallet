@@ -31,7 +31,7 @@ type AndroidCardData = {
 
 type AndroidResumeCardData = {
   network: string;
-  tokenReferenceId: string;
+  tokenReferenceID: string;
   cardHolderName?: string;
   lastDigits?: string;
 };
@@ -64,8 +64,8 @@ type IOSEncryptPayload = {
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
 type TokenInfo = {
-  tokenReferenceId: string;
-  fpanLastFour: string;
+  identifier: string;
+  lastDigits: string;
   tokenState: number;
 };
 
