@@ -112,7 +112,7 @@ async function resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Pro
 
 async function listTokens(): Promise<TokenInfo[]> {
   if (Platform.OS === 'ios') {
-    throw new Error('listTokens is not available on iOS');
+    return Promise.resolve([]);
   }
 
   if (!Wallet) {
