@@ -20,7 +20,7 @@ type Props = {
   onPress?: (e: GestureResponderEvent) => void;
 };
 
-const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('AddToWalletButton');
+const NativeWalletButton: HostComponent<NativeWalletButtonProps> = requireNativeComponent('ExpensifyAddToWalletButton');
 
 const BUTTON_TYPE_BREAKPOINT = 236;
 const BUTTON_DIMENSIONS = {
