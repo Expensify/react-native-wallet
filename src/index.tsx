@@ -1,9 +1,9 @@
 /* eslint-disable @lwc/lwc/no-async-await */
-import { NativeEventEmitter, Platform } from 'react-native';
-import type { EmitterSubscription } from 'react-native';
-import Wallet, { PACKAGE_NAME } from './NativeWallet';
-import type { TokenizationStatus, AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData } from './NativeWallet';
-import { getCardState, getTokenizationStatus } from './utils';
+import {NativeEventEmitter, Platform} from 'react-native';
+import type {EmitterSubscription} from 'react-native';
+import Wallet, {PACKAGE_NAME} from './NativeWallet';
+import type {TokenizationStatus, AndroidCardData, CardStatus, IOSCardData, IOSEncryptPayload, AndroidWalletData, onCardActivatedPayload, IOSAddPaymentPassData} from './NativeWallet';
+import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
 
 function getModuleLinkingRejection() {
@@ -110,7 +110,7 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
-export type { AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus };
+export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus};
 export {
   AddToWalletButton,
   checkWalletAvailability,

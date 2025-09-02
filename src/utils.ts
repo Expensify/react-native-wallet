@@ -1,4 +1,4 @@
-import type { CardStatus, TokenizationStatus } from './NativeWallet';
+import type {CardStatus, TokenizationStatus} from './NativeWallet';
 
 function getCardState(stateId: number): CardStatus {
   switch (stateId) {
@@ -32,4 +32,4 @@ function getTokenizationStatus(stateId: number): TokenizationStatus {
   }
 }
 
-export { getCardState, getTokenizationStatus };
+export {getCardState, getTokenizationStatus};
