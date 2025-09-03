@@ -43,11 +43,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
     const val E_SDK_API = "SDK API Error"
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
-    const val E_NO_TOKENS_AVAILABLE = "E_NO_TOKENS_AVAILABLE"
     const val E_INVALID_DATA = "E_INVALID_DATA"
   }
 
-  private val activity = currentActivity ?: throw ActivityNotFoundException()
+  private val activity = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
@@ -64,14 +63,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   private val cardListener = object : ActivityEventListener {
     override fun onActivityResult(
-      activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?
+      activity: Activity, requestCode: Int, resultCode: Int, data: Intent?
     ) {
       if (requestCode == REQUEST_CREATE_WALLET) {
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
         if (resultCode == RESULT_OK) {
-          intent?.let {
+          data?.let {
             val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
             sendEvent(
               context,
@@ -91,7 +90,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       }
     }
 
-    override fun onNewIntent(p0: Intent?) {}
+    override fun onNewIntent(intent: Intent) {}
   }
 
   @ReactMethod
