@@ -6,7 +6,7 @@ import com.facebook.react.uimanager.annotations.ReactProp
 
 class AddToWalletButtonViewManager : SimpleViewManager<AddToWalletButtonView>() {
 
-  override fun getName(): String = "ExpensifyAddToWalletButton"
+  override fun getName(): String = "RNAddToWalletButton"
 
   override fun createViewInstance(reactContext: ThemedReactContext): AddToWalletButtonView {
     return AddToWalletButtonView(reactContext)

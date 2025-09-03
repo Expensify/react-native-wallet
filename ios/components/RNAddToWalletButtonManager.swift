@@ -1,8 +1,8 @@
 import Foundation
 import React
 
-@objc(ExpensifyAddToWalletButtonManager)
-class ExpensifyAddToWalletButtonManager: RCTViewManager {
+@objc(RNAddToWalletButtonManager)
+class RNAddToWalletButtonManager: RCTViewManager {
   override func view() -> UIView! {
     return AddToWalletButtonView()
   }
