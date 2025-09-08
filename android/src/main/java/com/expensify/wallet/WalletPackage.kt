@@ -1,6 +1,6 @@
 package com.expensify.wallet
 
-import com.expensify.wallet.components.AddToWalletButtonViewManager
+import com.expensify.wallet.components.RNAddToWalletButtonManager
 import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.NativeModule
@@ -44,5 +44,5 @@ class WalletPackage : BaseReactPackage() {
   }
 
   override fun createViewManagers(reactContext: com.facebook.react.bridge.ReactApplicationContext)
-    : List<ViewManager<*, *>> = listOf(AddToWalletButtonViewManager())
+    : List<ViewManager<*, *>> = listOf(RNAddToWalletButtonManager())
 }
