@@ -207,6 +207,60 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     }
   }
 
+  @ReactMethod
+  override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
+    try {
+      val tokenReferenceID = data.getString("tokenReferenceID")
+        ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
+
+      val network = data.getString("network")
+        ?: return promise.reject(E_INVALID_DATA, "Missing network")
+
+      val cardNetwork = getCardNetwork(network)
+      val tokenServiceProvider = getTokenServiceProvider(network)
+      val displayName = getDisplayName(data, network)
+
+      pendingPushTokenizePromise = promise
+
+      tapAndPayClient.tokenize(
+        activity,
+        tokenReferenceID,
+        tokenServiceProvider,
+        displayName,
+        cardNetwork,
+        REQUEST_CODE_PUSH_TOKENIZE
+      )
+    } catch (e: java.lang.Exception) {
+      promise.reject(e)
+    }
+  }
+
+  @ReactMethod
+  override fun listTokens(promise: Promise) {
+    tapAndPayClient.listTokens()
+      .addOnCompleteListener { task ->
+        if (!task.isSuccessful || task.result == null) {
+          promise.resolve(Arguments.createArray())
+          return@addOnCompleteListener
+        }
+        
+        val tokensArray = Arguments.createArray()
+        task.result.forEach { tokenInfo ->
+          val tokenData = Arguments.createMap().apply {
+            putString("identifier", tokenInfo.issuerTokenId)
+            putString("lastDigits", tokenInfo.fpanLastFour)
+            putInt("tokenState", tokenInfo.tokenState)
+          }
+          tokensArray.pushMap(tokenData)
+        }
+        
+        promise.resolve(tokensArray)
+      }
+      .addOnFailureListener { e ->
+        promise.reject(E_OPERATION_FAILED, "listTokens: ${e.localizedMessage}")
+      }
+  }
+
   private fun getWalletId(promise: Promise) {
     tapAndPayClient.activeWalletId.addOnCompleteListener { task ->
       if (task.isSuccessful) {
@@ -271,6 +325,20 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     getAsyncResult(String::class.java) { promise ->
       getHardwareId(promise)
     }
+
+  private fun getDisplayName(data: ReadableMap, network: String): String {
+    data.getString("cardHolderName")?.let { name ->
+      if (name.isNotEmpty()) return name
+    }
+    
+    data.getString("lastDigits")?.let { digits ->
+      if (digits.isNotEmpty()) {
+        return "${network.uppercase(Locale.getDefault())} Card *$digits"
+      }
+    }
+    
+    return "${network.uppercase(Locale.getDefault())} Card"
+  }
 
   private fun sendEvent(reactContext: ReactContext, eventName: String, params: WritableMap?) {
     reactContext
