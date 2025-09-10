@@ -6,7 +6,7 @@ import com.expensify.wallet.R
 import android.view.LayoutInflater
 import android.view.View
 
-class AddToWalletButtonView(context: Context) : FrameLayout(context) {
+class RNAddToWalletButtonView(context: Context) : FrameLayout(context) {
 
   private var buttonView: View? = null
   private var buttonType: String = "basic"
