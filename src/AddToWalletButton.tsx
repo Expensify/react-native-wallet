@@ -12,11 +12,7 @@ interface NativeWalletButtonProps {
   borderRadius?: number;
 }
 
-type Props = {
-  style?: ViewStyle;
-  buttonStyle?: ButtonStyle;
-  buttonType?: ButtonType;
-  borderRadius?: number;
+type Props = NativeWalletButtonProps & {
   onPress?: (e: GestureResponderEvent) => void;
 };
 
