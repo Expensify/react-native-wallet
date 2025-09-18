@@ -189,13 +189,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
       val cardNetwork = getCardNetwork(cardData.network)
       val tokenServiceProvider = getTokenServiceProvider(cardData.network)
+      val displayName = getDisplayName(data, cardData.network)
       pendingPushTokenizePromise = promise
 
       val pushTokenizeRequest = PushTokenizeRequest.Builder()
         .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
         .setNetwork(cardNetwork)
         .setTokenServiceProvider(tokenServiceProvider)
-        .setDisplayName(cardData.cardHolderName)
+        .setDisplayName(displayName)
         .setLastDigits(cardData.lastDigits)
         .setUserAddress(cardData.userAddress)
         .build()
@@ -220,7 +221,6 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       val cardNetwork = getCardNetwork(network)
       val tokenServiceProvider = getTokenServiceProvider(network)
       val displayName = getDisplayName(data, network)
-
       pendingPushTokenizePromise = promise
 
       tapAndPayClient.tokenize(
