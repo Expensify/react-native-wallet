@@ -1,10 +1,10 @@
 import Foundation
 import React
 
-@objc(AddToWalletButtonManager)
-class AddToWalletButtonManager: RCTViewManager {
+@objc(RNAddToWalletButtonManager)
+class RNAddToWalletButtonManager: RCTViewManager {
   override func view() -> UIView! {
-    return AddToWalletButtonView()
+    return RNAddToWalletButtonView()
   }
 
   override static func requiresMainQueueSetup() -> Bool {

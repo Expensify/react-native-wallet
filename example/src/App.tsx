@@ -1,13 +1,6 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-} from 'react-native';
+import {StyleSheet, View, Text, Alert, ScrollView} from 'react-native';
 import {
   checkWalletAvailability,
   getSecureWalletInfo,
@@ -24,6 +17,7 @@ import type {
 import PlatformInfo from './PlatformInfo';
 import LabeledButton from './LabeledButton';
 import {addCardToWallet} from './walletUtils';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';

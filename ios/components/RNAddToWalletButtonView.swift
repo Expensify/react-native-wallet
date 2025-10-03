@@ -2,8 +2,8 @@ import Foundation
 import PassKit
 import UIKit
 
-@objc(AddToWalletButtonView)
-class AddToWalletButtonView: UIView {
+@objc(RNAddToWalletButtonView)
+class RNAddToWalletButtonView: UIView {
   private var addPassButton = PKAddPassButton(addPassButtonStyle: .blackOutline)
   private let defaultWidth: CGFloat = 120
   private let defaultHeight: CGFloat = 40

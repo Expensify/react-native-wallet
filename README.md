@@ -244,7 +244,7 @@ Additionally, when submitting your app to the App Store, you must include:
 
 # Compatibility
 
-`@expensify/react-native-wallet` supports the three latest minor releases of react-native (0.76.0+)
+`@expensify/react-native-wallet` is compatible with the five latest minor releases of React Native (≥0.76.0) and works exclusively with the new architecture.
 
 
 # Contributing
