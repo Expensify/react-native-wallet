@@ -6,6 +6,7 @@
 
 # Output of the build process & scripts
 lib/**/*
+plugin/build/**/*
 scripts/**/*
 
 babel.config.js
@@ -14,3 +15,4 @@ react-native.config.js
 jest.config.js
 webpack.config.js
 .eslintrc.js
+app.plugin.js
