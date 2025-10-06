@@ -1,0 +1,22 @@
+{
+	"expo": {
+		"name": "example-expo",
+		"slug": "example-expo",
+		"version": "1.0.0",
+		"android": {
+			"package": "com.wcastand.exampleexpo"
+		},
+		"ios": {
+			"bundleIdentifier": "com.wcastand.exampleexpo"
+		},
+		"plugins": [
+			[
+				"../app.plugin.js",
+				{
+					"enableApplePayProvisioning": true,
+					"googleTapAndPaySdkPath": "./libs/tapandpay-v18.7.0.zip"
+				}
+			]
+		]
+	}
+}
