@@ -35,5 +35,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Expo CNG
 android
 ios
+
+# to never commit private google pay libs
+libs
