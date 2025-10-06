@@ -69,3 +69,6 @@ android/generated
 example/android/libs
 
 .kotlin/
+
+# expo plugin build
+plugin/build/
