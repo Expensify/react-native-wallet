@@ -1,9 +1,9 @@
 import {execSync} from 'node:child_process';
 import {copyFileSync, existsSync, mkdirSync, readdirSync, statSync} from 'node:fs';
 import {extname, join, resolve} from 'node:path';
+import type {ConfigPlugin} from '@expo/config-plugins';
+import {createRunOncePlugin, withInfoPlist, withProjectBuildGradle} from '@expo/config-plugins';
 import {createGeneratedHeaderComment, removeGeneratedContents} from '@expo/config-plugins/build/utils/generateCode';
-import type {ConfigPlugin} from 'expo/config-plugins';
-import {createRunOncePlugin, withInfoPlist, withProjectBuildGradle} from 'expo/config-plugins';
 
 export type ReactNativeWalletConfig = {
   /**

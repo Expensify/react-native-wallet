@@ -34,11 +34,9 @@
 		"example-expo": "npm run --workspace=@expensify/react-native-wallet-example-expo",
 		"test": "jest",
 		"typecheck": "tsc --noEmit",
-		"lint": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugin/**/*'",
-		"lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugin/**/*' --ignore-pattern '/example/**/*'  --ignore-pattern '/example-expo/**/*'--ignore-pattern '/WebExample/**/*'",
+		"lint": "eslint . --ext .js,.ts,.tsx",
+		"lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugin/**/*' --ignore-pattern '/example/**/*'  --ignore-pattern '/example-expo/**/*' --ignore-pattern '/WebExample/**/*'",
 		"lint:example": "eslint example --ext .js,.ts,.tsx",
-		"lint:example-expo": "eslint example-expo --ext .js,.ts,.tsx",
-		"lint:plugin-expo": "eslint plugin --ext .js,.ts,.tsx --config plugin/.eslintrc.js",
 		"clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example-expo/android/build example-expo/android/app/build example-expo/ios/build lib plugin/build",
 		"prepare": "bob build && tsc --build plugin/tsconfig.json",
 		"build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
@@ -108,7 +106,8 @@
 		"react-native": "*"
 	},
 	"workspaces": [
-		"./example"
+		"./example",
+		"./example-expo"
 	],
 	"jest": {
 		"preset": "react-native",
