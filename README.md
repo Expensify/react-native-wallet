@@ -123,7 +123,7 @@ Here you can find data elements used in the library, essential to work with Goog
 - **Ephemeral Public Key** - a key used by elliptic curve cryptography (ECC) (Base 64 encoded).
 
 # API Reference
-The library offers five functions for seamless integration and use of the Apple Wallet and Google Wallet APIs. Additionally, it includes one listener that informs when the added card has been activated. Below, these functions are described along with the data types involved.
+The library offers seven functions for seamless integration and use of the Apple Wallet and Google Wallet APIs. Additionally, it includes one listener that informs when the added card has been activated. Below, these functions are described along with the data types involved.
 
 ## Functions
 
@@ -134,6 +134,8 @@ The library offers five functions for seamless integration and use of the Apple 
 | **getCardStatusBySuffix** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
 | **getCardStatusByIdentifier** | Returns the state of a card based on a platform-specific identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`. | `identifier: string`,<br>`tsp: string` | `CardStatus` | ✅ | ✅ |
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. | `data`: `AndroidCardData` | `TokenizationStatus` | ❌ | ✅ |
+| **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
+| **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
 | **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
 
 
@@ -143,11 +145,13 @@ The library offers five functions for seamless integration and use of the Apple 
 |------|-------------|--------|
 | **AndroidWalletData** | Specific information for Android devices required for wallet transactions. | `deviceID: string`,<br>`walletAccountID: string` |
 | **AndroidCardData** | Data related to a card that is to be added on Android platform wallets. | `network: string`,<br>`opaquePaymentCard: string`,<br>`cardHolderName: string`,<br>`lastDigits: string`,<br>`userAddress: UserAddress` |
+| **AndroidResumeCardData** | Simplified data structure for resuming card addition to Google Wallet using existing token reference ID. | `network: string`,<br>`tokenReferenceID: string`,<br>`cardHolderName?: string`,<br>`lastDigits?: string` |
 | **UserAddress** | Structured address used for cardholder verification. | `name: string`,<br>`addressOne: string`,<br>`addressTwo: string`,<br>`city: string`,<br>`administrativeArea: string`,<br>`countryCode: string`,<br>`postalCode: string`,<br>`phoneNumber: string` |
 | **IOSCardData** | Data related to a card that is to be added on iOS platform. | `network: string`,<br>`activationData: string`,<br>`encryptedPassData: string`,<br>`ephemeralPublicKey: string`,<br>`cardHolderTitle: string`,<br>`cardHolderName: string`,<br>`lastDigits: string`,<br>`cardDescription: string`,<br>`cardDescriptionComment: string` |
 | **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes. | `tokenId: string`,<br> `actionStatus: 'activated' \| 'canceled'`<br> |
 | **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet. | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
 | **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`,<br>`activationData: string`,<br>`ephemeralPublicKey: string` |
+| **TokenInfo** | Information about a token stored in Google Wallet. | `identifier: string`,<br>`lastDigits: string`,<br>`tokenState: number` |
 
 ## Card Status
 

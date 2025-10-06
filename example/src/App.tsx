@@ -58,7 +58,7 @@ export default function App() {
   }, []);
 
   const handleAddCardToWallet = useCallback(() => {
-    addCardToWallet()
+    addCardToWallet(cardStatus)
       .then(status => {
         setAddCardStatus(status);
       })
@@ -66,7 +66,7 @@ export default function App() {
         console.error(e);
         setAddCardStatus('failed');
       });
-  }, []);
+  }, [cardStatus]);
 
   const walletSecureInfo = useMemo(
     () => getWalletInfoTextValue(walletData),

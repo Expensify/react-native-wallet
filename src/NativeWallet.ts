@@ -29,6 +29,13 @@ type AndroidCardData = {
   userAddress: UserAddress;
 };
 
+type AndroidResumeCardData = {
+  network: string;
+  tokenReferenceID: string;
+  cardHolderName?: string;
+  lastDigits?: string;
+};
+
 type IOSCardData = {
   network: string;
   cardHolderName: string;
@@ -56,6 +63,12 @@ type IOSEncryptPayload = {
 
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
+type TokenInfo = {
+  identifier: string;
+  lastDigits: string;
+  tokenState: number;
+};
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   ensureGoogleWalletInitialized(): Promise<boolean>;
@@ -63,6 +76,8 @@ export interface Spec extends TurboModule {
   getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardStatusByIdentifier(identifier: string, tsp: string): Promise<number>;
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<number>;
+  resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<number>;
+  listTokens(): Promise<TokenInfo[]>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
   addListener: (eventType: string) => void;
@@ -84,4 +99,17 @@ try {
 }
 export default Wallet;
 export {PACKAGE_NAME};
-export type {AndroidCardData, IOSCardData, AndroidWalletData, CardStatus, UserAddress, onCardActivatedPayload, Platform, IOSAddPaymentPassData, IOSEncryptPayload, TokenizationStatus};
+export type {
+  AndroidCardData,
+  AndroidResumeCardData,
+  IOSCardData,
+  AndroidWalletData,
+  CardStatus,
+  UserAddress,
+  onCardActivatedPayload,
+  Platform,
+  IOSAddPaymentPassData,
+  IOSEncryptPayload,
+  TokenizationStatus,
+  TokenInfo,
+};

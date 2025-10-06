@@ -39,6 +39,10 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
+  public abstract void ensureGoogleWalletInitialized(Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void getSecureWalletInfo(Promise promise);
 
   @ReactMethod
@@ -52,6 +56,14 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
   @ReactMethod
   @DoNotStrip
   public abstract void addCardToGoogleWallet(ReadableMap cardData, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void resumeAddCardToGoogleWallet(ReadableMap cardData, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void listTokens(Promise promise);
 
   @ReactMethod
   @DoNotStrip
