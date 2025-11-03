@@ -1,6 +1,6 @@
 {
 	"name": "@expensify/react-native-wallet",
-	"version": "0.1.13",
+	"version": "0.1.14",
 	"description": "A React Native module designed for seamless integration of Card Push Provisioning into Apple Wallet and Google Wallet, enabling easy and secure addition of payment cards directly from your application.",
 	"source": "./src/index.tsx",
 	"main": "lib/commonjs/index",
@@ -16,8 +16,6 @@
 		"cpp",
 		"*.podspec",
 		"react-native.config.js",
-		"plugin/build",
-		"app.plugin.js",
 		"!ios/build",
 		"!android/build",
 		"!android/gradle",
@@ -36,9 +34,9 @@
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint . --ext .js,.ts,.tsx",
 		"lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugin/**/*' --ignore-pattern '/example/**/*' --ignore-pattern '/example-expo/**/*' --ignore-pattern '/WebExample/**/*'",
-		"lint:examples": "eslint example example-expo --ext .js,.ts,.tsx",
+		"lint:example": "eslint example example-expo --ext .js,.ts,.tsx",
 		"clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example-expo/android/build example-expo/ios/build lib plugin/build",
-		"prepare": "bob build && tsc --build plugin/tsconfig.json",
+		"prepare": "bob build",
 		"build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
 		"release": "release-it"
 	},
