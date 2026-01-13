@@ -129,7 +129,7 @@ The library offers seven functions for seamless integration and use of the Apple
 
 | Function | Description | Parameters | Returns / Type | iOS | Android |
 |----------|-------------|------------|----------------|:---:|:-------:|
-| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ✅ | ❌ |
+| **getSecureWalletInfo** | Returns necessary platform-specific wallet information for secure transactions. | None | `WalletData` | ❌ | ✅ |
 | **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
 | **getCardStatusBySuffix** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
 | **getCardStatusByIdentifier** | Returns the state of a card based on a platform-specific identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`. | `identifier: string`,<br>`tsp: string` | `CardStatus` | ✅ | ✅ |
