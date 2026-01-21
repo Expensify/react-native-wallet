@@ -75,7 +75,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             sendEvent(
               context,
               OnCardActivatedEvent.NAME,
-              OnCardActivatedEvent("active", tokenId).toMap()
+              OnCardActivatedEvent("activated", tokenId).toMap()
             )
             pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
           }
