@@ -106,6 +106,36 @@ or
 yarn add @expensify/react-native-wallet
 ```
 
+### Expo plugin
+
+To use `@expensify/react-native-wallet` with expo, you will need to use the expo-plugin.
+
+In your `app.json` file, add the following configuration:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+  			"@expensify/react-native-wallet",
+  			{
+  				enableApplePayProvisioning: true,
+  				googleTapAndPaySdkPath: "./libs/tapandpay-v18.7.0.zip", // path to the Google Tap & Pay SDK zip file
+  			},
+      ],
+    ]
+  }
+}
+```
+
+You will need to rebuild your app after that since the lib has native files.
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios
+npx expo run:android
+```
+
 
 
 ## Required data
@@ -280,36 +310,6 @@ Additionally, when submitting your app to the App Store, you must include:
 # Compatibility
 
 `@expensify/react-native-wallet` is compatible with the five latest minor releases of React Native (≥0.76.0) and works exclusively with the new architecture.
-
-# Expo plugin
-
-To use `@expensify/react-native-wallet` with expo, you will need to use the expo-plugin.
-
-In your `app.json` file, add the following configuration:
-
-```json
-{
-  "expo": {
-    "plugins": [
-      [
-  			"@expensify/react-native-wallet",
-  			{
-  				enableApplePayProvisioning: true,
-  				googleTapAndPaySdkPath: "./libs/tapandpay-v18.7.0.zip", // path to the Google Tap & Pay SDK zip file
-  			},
-      ],
-    ]
-  }
-}
-```
-
-You will need to rebuild your app after that since the lib has native files.
-
-```bash
-npx expo prebuild --clean
-npx expo run:ios
-npx expo run:android
-```
 
 # Contributing
 

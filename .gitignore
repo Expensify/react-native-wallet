@@ -72,3 +72,4 @@ example/android/libs
 
 # expo plugin build
 plugin/build/
+*.tsbuildinfo
