@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "build",
+    "rootDir": "src",
+    "target": "ES2019",
+    "module": "commonjs",
+    "lib": ["ES2019"],
+    "jsx": "react",
+    "declaration": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": ["./src"],
+  "exclude": ["**/__mocks__/*", "**/__tests__/*"]
+}

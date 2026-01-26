@@ -38,7 +38,9 @@
 	"clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example-expo/android/build example-expo/ios/build lib plugin/build",
     "prepare": "bob build",
     "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
-    "release": "release-it"
+    "release": "release-it",
+    "build:plugins": "cd plugins && npx tsc",
+    "postinstall": "npm run build:plugins"
   },
   "keywords": [
     "react-native",
@@ -104,8 +106,7 @@
     "react-native": "*"
   },
   "workspaces": [
-    "./example",
-	"./example-expo"
+    "./example"
   ],
   "jest": {
     "preset": "react-native",
