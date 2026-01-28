@@ -58,7 +58,9 @@ With all the required data, submit the form and wait for Google's response. Afte
 
 ### Step 1: Apply for appropriate entitlements
 
-To enable In-App Provisioning in your app, you must request activation of the appropriate Apple Pay entitlements for your developer Team ID. Enterprise Team IDs are not supported. This entitlement is not available by default in our panel; you will need to request it. Send an email to `iap_entitlements@apple.com` with the following format:
+To enable In-App Provisioning in your app, you must request activation of the appropriate Apple Pay entitlements for your developer Team ID. Enterprise Team IDs are not supported. This entitlement is not available by default in our panel; you will need to request it.
+
+Submit your request through the [In-App Provisioning Submission Form](https://developer.apple.com/contact/request/apple-pay-in-app-provisioning/). Alternatively, you can email `iap_entitlements@apple.com` with the following format:
 
 **Subject:** `Apple Pay Entitlements and Allow List Request - [Issuer Name] - [Country Code]`
 
