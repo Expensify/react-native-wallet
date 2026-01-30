@@ -46,8 +46,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val E_INVALID_DATA = "E_INVALID_DATA"
   }
 
-  private val activity = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
-  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
+  private val activity: Activity
+    get() = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
+
+  private val tapAndPayClient: TapAndPayClient
+    get() = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
 
