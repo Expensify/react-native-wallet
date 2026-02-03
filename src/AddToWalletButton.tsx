@@ -32,7 +32,8 @@ const BUTTON_DIMENSIONS = {
 
 function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', borderRadius = 4, onPress}: Props) {
   const flattenedStyle = StyleSheet.flatten(style) || {};
-  const currentDimensions = BUTTON_DIMENSIONS[buttonType][Platform.OS as 'ios' | 'android'];
+  const safeButtonType: ButtonType = buttonType === 'badge' ? 'badge' : 'basic';
+  const currentDimensions = BUTTON_DIMENSIONS[safeButtonType][Platform.OS as 'ios' | 'android'];
   const {width = currentDimensions.width, height = currentDimensions.height, ...rest} = flattenedStyle;
 
   return (
@@ -55,7 +56,7 @@ function AddToWalletButton({style, buttonStyle = 'black', buttonType = 'basic', 
         style={styles.fill}
         buttonStyle={buttonStyle}
         borderRadius={borderRadius}
-        buttonType={buttonType}
+        buttonType={safeButtonType}
       />
     </TouchableOpacity>
   );
