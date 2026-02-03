@@ -107,14 +107,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   @ReactMethod
   override fun checkWalletAvailability(promise: Promise) {
     tapAndPayClient.environment.addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        promise.resolve(true)
-      } else {
-        promise.resolve(false)
-      }
-    }.addOnFailureListener { e ->
-      promise.reject(E_OPERATION_FAILED, "Checking Wallet availability failed: ${e.localizedMessage}")
-    }
+      promise.resolve(task.isSuccessful)
   }
 
   @ReactMethod
