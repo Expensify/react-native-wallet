@@ -69,23 +69,29 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
+        val localPromise = pendingPushTokenizePromise
+        pendingPushTokenizePromise = null
         if (resultCode == RESULT_OK) {
-          data?.let {
-            val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-            sendEvent(
-              context,
-              OnCardActivatedEvent.NAME,
-              OnCardActivatedEvent("active", tokenId).toMap()
-            )
-            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
+          if (data == null) {
+            localPromise?.reject(E_OPERATION_FAILED, "Tokenization returned RESULT_OK but intent data was null")
+            return
           }
+          val tokenId = data.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
+          sendEvent(
+            context,
+            OnCardActivatedEvent.NAME,
+            OnCardActivatedEvent("active", tokenId).toMap()
+          )
+          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
         } else if (resultCode == RESULT_CANCELED) {
           sendEvent(
             context,
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
-          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.code)
+          localPromise?.resolve(TokenizationStatus.CANCELED.code)
+        } else {
+          localPromise?.reject(E_OPERATION_FAILED, "Tokenization failed with resultCode=$resultCode")
         }
       }
     }
