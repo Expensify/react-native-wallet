@@ -133,14 +133,20 @@ async function addCardToAppleWallet(
     throw new Error('addCardToAppleWallet is not available on Andorid');
   }
 
-  const passData = await Wallet?.IOSPresentAddPaymentPassView(cardData);
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+  const wallet = Wallet;
+
+  const passData = await wallet.IOSPresentAddPaymentPassView(cardData);
+
   if (!passData || passData.status !== 0) {
     return getTokenizationStatus(passData?.status || -1);
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
-    const response = await Wallet?.IOSHandleAddPaymentPassResponse(responseData);
+    const response = await wallet.IOSHandleAddPaymentPassResponse(responseData);
     // Response is null when a pass is successfully added to the wallet or the user cancels the process
     // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
     if (response) {
