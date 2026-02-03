@@ -184,6 +184,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
       val cardNetwork = getCardNetwork(cardData.network)
@@ -210,6 +213,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val tokenReferenceID = data.getString("tokenReferenceID")
         ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
