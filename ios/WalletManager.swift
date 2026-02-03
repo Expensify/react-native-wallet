@@ -126,6 +126,10 @@ open class WalletManager: UIViewController {
         RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
       } else {
         self.logInfo(message: "EnrollViewController is already presented.")
+        self.presentAddPaymentPassCompletionHandler = nil
+        completion(.error, [
+          "errorMessage": "EnrollViewController is already presented."
+        ])
       }
     }
   }
@@ -165,7 +169,7 @@ open class WalletManager: UIViewController {
     let paymentPasses = passLibrary.passes(of: .payment)
     if paymentPasses.isEmpty {
       self.logInfo(message: "No passes found in Wallet.")
-      return -1
+      return NSNumber(value: -1)
     }
     
     for pass in paymentPasses {
@@ -174,7 +178,7 @@ open class WalletManager: UIViewController {
         return NSNumber(value: securePassElement.passActivationState.rawValue)
       }
     }
-    return -1
+    return NSNumber(value: -1)
   }
   
   @objc public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
