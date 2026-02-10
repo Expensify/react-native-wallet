@@ -1,10 +1,4 @@
-import type {
-  AndroidCardData,
-  UserAddress,
-  IOSEncryptPayload,
-  IOSCardData,
-  AndroidResumeCardData,
-} from '../../../src/NativeWallet';
+import type {AndroidCardData, UserAddress, IOSEncryptPayload, IOSCardData, AndroidResumeCardData} from '@expensify/react-native-wallet/src/NativeWallet';
 
 const dummyAddress: UserAddress = {
   name: 'John Doe',
@@ -46,9 +40,4 @@ const IOSDummyEncryptPayload: IOSEncryptPayload = {
   ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
-export {
-  AndroidDummyCardData,
-  AndroidDummyResumeCardData,
-  IOSDummyCardData,
-  IOSDummyEncryptPayload,
-};
+export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload};

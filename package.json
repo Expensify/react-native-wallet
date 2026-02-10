@@ -28,6 +28,7 @@
     "!**/.*"
   ],
   "workspaces": [
+    "apps/common-app",
     "apps/basic-example"
   ],
   "scripts": {

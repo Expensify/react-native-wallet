@@ -4,6 +4,6 @@
     "strict": true,
     "jsx": "react-native"
   },
-  "include": ["../common-app/src/**/*.tsx", "../common-app/src/walletUtils.ts", "../common-app/App.tsx"],
+  "include": ["src/**/*", "App.tsx", "index.ts"],
   "exclude": ["node_modules"]
 }

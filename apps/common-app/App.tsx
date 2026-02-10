@@ -1,23 +1,12 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {StyleSheet, View, Text, Alert, ScrollView} from 'react-native';
-import {
-  checkWalletAvailability,
-  getSecureWalletInfo,
-  getCardStatusBySuffix,
-  getCardStatusByIdentifier,
-  addListener,
-  removeListener,
-  AddToWalletButton,
-} from '@expensify/react-native-wallet';
-import type {
-  CardStatus,
-  AndroidWalletData,
-} from '@expensify/react-native-wallet';
-import PlatformInfo from './PlatformInfo';
-import LabeledButton from './LabeledButton';
-import {addCardToWallet} from './walletUtils';
+import {checkWalletAvailability, getSecureWalletInfo, getCardStatusBySuffix, getCardStatusByIdentifier, addListener, removeListener, AddToWalletButton} from '@expensify/react-native-wallet';
+import type {CardStatus, AndroidWalletData} from '@expensify/react-native-wallet';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import PlatformInfo from './src/PlatformInfo';
+import LabeledButton from './src/LabeledButton';
+import {addCardToWallet} from './src/walletUtils';
 
 const CARD_LAST_4_DIGITS = '4321';
 const TOKEN_REF_ID = 'tokenID123';
@@ -39,13 +28,14 @@ export default function App() {
 
   const handleGetSecureWalletInfo = useCallback(() => {
     getSecureWalletInfo()
-      .then(data => {
+      .then((data) => {
         setWalletData(data);
       })
-      .catch(e => {
-        if (e instanceof Error) {
-          Alert.alert('Error', e.message);
+      .catch((e) => {
+        if (!(e instanceof Error)) {
+          return;
         }
+        Alert.alert('Error', e.message);
       });
   }, []);
 
@@ -59,24 +49,21 @@ export default function App() {
 
   const handleAddCardToWallet = useCallback(() => {
     addCardToWallet(cardStatus)
-      .then(status => {
+      .then((status) => {
         setAddCardStatus(status);
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         setAddCardStatus('failed');
       });
   }, [cardStatus]);
 
-  const walletSecureInfo = useMemo(
-    () => getWalletInfoTextValue(walletData),
-    [walletData],
-  );
+  const walletSecureInfo = useMemo(() => getWalletInfoTextValue(walletData), [walletData]);
 
   useEffect(() => {
     handleCheckWalletAvailability();
 
-    const subscription = addListener('onCardActivated', data => {
+    const subscription = addListener('onCardActivated', (data) => {
       Alert.alert('onCardActivated listener', JSON.stringify(data));
     });
 

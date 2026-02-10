@@ -8,18 +8,16 @@ type LabelProps = {
   onPress?: () => void;
 };
 
-export default function LabeledButton({
-  text,
-  value,
-  buttonTitle,
-  onPress,
-}: LabelProps) {
+export default function LabeledButton({text, value, buttonTitle, onPress}: LabelProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
         {text} <Text style={[styles.text, styles.value]}>{value || '-'}</Text>
       </Text>
-      <Button title={buttonTitle} onPress={onPress} />
+      <Button
+        title={buttonTitle}
+        onPress={onPress}
+      />
     </View>
   );
 }

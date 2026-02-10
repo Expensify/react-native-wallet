@@ -66,5 +66,9 @@ module.exports = {
     '@typescript-eslint/array-type': ['error', {default: 'array-simple'}],
     '@typescript-eslint/consistent-type-definitions': 'off',
     'curly': ['error', 'all'],
+    '@lwc/lwc/no-async-await': 'off',
+    'no-return-await': 'off',
+    'no-else-return': 'off',
+    'import/prefer-default-export': 'off',
   },
 };

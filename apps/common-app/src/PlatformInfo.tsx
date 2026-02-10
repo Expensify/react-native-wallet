@@ -2,6 +2,7 @@ import {Platform, Text, View, StyleSheet} from 'react-native';
 import React from 'react';
 
 function isBridgeless() {
+  // eslint-disable-next-line no-underscore-dangle
   return (global as Record<string, unknown>)._IS_BRIDGELESS;
 }
 
@@ -20,12 +21,13 @@ function getBundle() {
 function getRuntime() {
   if ('HermesInternal' in global) {
     const version =
-      // @ts-ignore this is fine
+      // @ts-expect-error this is fine
       global.HermesInternal?.getRuntimeProperties?.()['OSS Release Version'];
     return `Hermes (${version})`;
   }
   if ('_v8runtime' in global) {
-    // @ts-ignore this is fine
+    // @ts-expect-error this is fine
+    // eslint-disable-next-line no-underscore-dangle
     const version = global._v8runtime().version;
     return `V8 (${version})`;
   }
