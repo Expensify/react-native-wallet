@@ -21,7 +21,7 @@
     },
     "plugins": [
       [
-        "../app.plugin.js",
+        "../../app.plugin.js",
         {
           "enableApplePayProvisioning": true,
           "googleTapAndPaySdkPath": "./libs/tapandpay-v18.7.0.zip"

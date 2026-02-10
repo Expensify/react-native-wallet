@@ -1,7 +1,7 @@
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '../..');
 const projectNodeModules = path.resolve(__dirname, 'node_modules');
 
 const config = getDefaultConfig(__dirname);
