@@ -6,9 +6,18 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
-    "start": "react-native start"
+    "start": "react-native start",
+    "test": "jest",
+    "ts-check": "yarn tsc --noEmit",
+    "lint-js": "eslint --ext '.js,.ts,.tsx' src/ && yarn prettier --check './src/**/*.{js,jsx,ts,tsx}'",
+    "format-js": "prettier --write --list-different './src/**/*.{js,jsx,ts,tsx}'",
+    "clean-android": "rm -rf android/.gradle android/.kotlin android/build",
+    "clean-ios": "rm -rf ios/build ios/Pods ios/Podfile.lock",
+    "clean": "rm -rf node_modules && yarn clean-android && yarn clean-ios",
+    "pods": "cd ios && bundle install && bundle exec pod install"
   },
   "dependencies": {
+    "@expensify/react-native-wallet": "*",
     "react": "^19.1.0",
     "react-native": "0.81.0",
     "react-native-safe-area-context": "^5.5.2"
@@ -16,7 +25,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
-    "@babel/runtime": "^7.25.0",
+    "@babel/runtime": "^7.28.6",
     "@react-native-community/cli": "20.0.0",
     "@react-native-community/cli-platform-android": "20.0.0",
     "@react-native-community/cli-platform-ios": "20.0.0",

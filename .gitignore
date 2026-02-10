@@ -39,10 +39,10 @@ android.iml
 
 # Cocoapods
 #
-example/ios/Pods
+apps/basic-example/ios/Pods
 
 # Ruby
-example/vendor/
+apps/basic-example/vendor/
 
 # node.js
 #
@@ -66,7 +66,7 @@ ios/generated
 android/generated
 
 # Android  libs (Google Tap And Pay SDK)
-example/android/libs
+apps/basic-example/android/libs
 
 .kotlin/
 

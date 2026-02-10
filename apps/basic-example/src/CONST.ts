@@ -4,7 +4,7 @@ import type {
   IOSEncryptPayload,
   IOSCardData,
   AndroidResumeCardData,
-} from '../../src/NativeWallet';
+} from '../../../src/NativeWallet';
 
 const dummyAddress: UserAddress = {
   name: 'John Doe',
@@ -46,4 +46,9 @@ const IOSDummyEncryptPayload: IOSEncryptPayload = {
   ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
-export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload};
+export {
+  AndroidDummyCardData,
+  AndroidDummyResumeCardData,
+  IOSDummyCardData,
+  IOSDummyEncryptPayload,
+};
