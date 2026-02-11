@@ -43,6 +43,17 @@ function getReactNativeVersion() {
   return `${major}.${minor}.${patch}`;
 }
 
+function isExpo() {
+  // Try to detect via Constants.expoConfig which is only present in Expo
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-unresolved
+    const Constants = require('expo-constants').default;
+    return Constants?.expoConfig !== undefined || Constants?.expoVersion !== undefined;
+  } catch {
+    return false;
+  }
+}
+
 export default function PlatformInfo() {
   return (
     <View style={styles.platform}>
@@ -52,6 +63,7 @@ export default function PlatformInfo() {
       <Text>Bundle: {getBundle()}</Text>
       <Text>Architecture: {getArchitecture()}</Text>
       <Text>Bridgeless: {isBridgeless() ? 'yes' : 'no'}</Text>
+      <Text>Expo: {isExpo() ? 'yes' : 'no'}</Text>
       <Text>RN version: {getReactNativeVersion()}</Text>
       <Text>RN runtime: {getRuntime()}</Text>
     </View>

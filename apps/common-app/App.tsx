@@ -76,7 +76,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView style={{flex: 1}}>
         <View style={styles.header}>
           <Text style={styles.title}>react-native-wallet example app</Text>
           <PlatformInfo />
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+    // gap: 10,
     backgroundColor: 'white',
     flex: 1,
   },

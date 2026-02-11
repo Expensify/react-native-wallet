@@ -1,4 +1,4 @@
 import {AppRegistry} from 'react-native';
-import App from '@expensify/react-native-wallet-common-app/App';
+import App from '../common-app/App';
 
 AppRegistry.registerComponent('main', () => App);
