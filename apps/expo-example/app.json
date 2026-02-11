@@ -21,7 +21,7 @@
     },
     "plugins": [
       [
-        "../../app.plugin.js",
+        "@expensify/react-native-wallet",
         {
           "enableApplePayProvisioning": true,
           "googleTapAndPaySdkPath": "./libs/tapandpay-v18.7.0.zip"
