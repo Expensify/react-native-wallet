@@ -1,50 +1,120 @@
-# Welcome to your Expo app 👋
+# Expo Example App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Example Expo application demonstrating the `@expensify/react-native-wallet` library with Apple Pay and Google Pay integration.
 
-## Get started
+## Prerequisites
 
-1. Install dependencies
+- Node.js 18+
+- Expo CLI
+- For Android: Google TapAndPay SDK (see setup below)
+- For iOS: Xcode and CocoaPods
 
-   ```bash
-   npm install
-   ```
+## Setup
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Install dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Configure Google TapAndPay SDK (Android only)
 
-## Learn more
+The Google TapAndPay SDK is required for Android builds. Place the SDK file in the shared libs directory:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# SDK location
+apps/libs/expo-example/tapandpay-v18.7.0.zip
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+The Expo config plugin will automatically extract the SDK during the prebuild process.
 
-## Join the community
+### 3. Generate native projects
 
-Join our community of developers creating universal apps.
+```bash
+npx expo prebuild --clean
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This will:
+- Generate iOS and Android native projects
+- Apply the wallet plugin configuration
+- Extract the Google TapAndPay SDK to `android/libs/`
+
+## Running the App
+
+### iOS
+
+```bash
+npm run ios
+```
+
+### Android
+
+```bash
+npm run android
+```
+
+## Development
+
+### Start Metro bundler
+
+```bash
+npm start
+```
+
+### Rebuild after changes
+
+If you modify the plugin configuration in `app.json`, run:
+
+```bash
+npx expo prebuild --clean
+```
+
+## Project Structure
+
+- `index.ts` - Entry point
+- `app.json` - Expo configuration with wallet plugin setup
+- `metro.config.js` - Metro bundler configuration for monorepo
+- `../common-app/` - Shared app code used by both example apps
+- `../libs/` - Shared SDK files (Google TapAndPay)
+
+## Configuration
+
+The wallet plugin is configured in `app.json`:
+
+```json
+"plugins": [
+  [
+    "@expensify/react-native-wallet",
+    {
+      "googleTapAndPaySdkPath": "../libs/tapandpay-v18.7.0.zip"
+    }
+  ]
+]
+```
+
+## Troubleshooting
+
+### SDK not found
+
+If you get errors about missing TapAndPay SDK:
+1. Verify the SDK is at `apps/libs/tapandpay-v18.7.0.zip`
+2. Run `npx expo prebuild --clean` to regenerate native projects
+3. Check `android/libs/` contains the extracted SDK files
+
+### Metro bundler issues
+
+Clear cache and restart:
+```bash
+npm start -- --clear
+```
+
+### Native module issues
+
+```bash
+# iOS
+cd ios && pod install && cd ..
+
+# Android
+cd android && ./gradlew clean && cd ..
+```
+
