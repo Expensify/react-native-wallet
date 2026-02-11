@@ -1,79 +1,136 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Basic Example App
 
-# Getting Started
+Example React Native application demonstrating the `@expensify/react-native-wallet` library with Apple Pay and Google Pay integration.
 
-> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Prerequisites
 
-## Step 1: Start the Metro Server
+- Node.js 18+
+- React Native development environment ([Setup Guide](https://reactnative.dev/docs/environment-setup))
+- For Android: Google TapAndPay SDK (see setup below)
+- For iOS: Xcode and CocoaPods
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Setup
 
-To start Metro, run the following command from the _root_ of your React Native project:
+### 1. Install dependencies
+
+From the repository root:
 
 ```bash
-# using npm
+npm install
+```
+
+### 2. Configure Google TapAndPay SDK (Android only)
+
+The Google TapAndPay SDK is required for Android builds. Extract and place the SDK files in the Android libs directory:
+
+```bash
+# Create the libs directory if it doesn't exist
+mkdir -p android/libs
+```
+
+Extract the SDK ZIP file contents into `android/libs/`
+The extracted files should be directly in` android/libs/`, not in a subdirectory
+Example structure:
+
+```
+android/libs/com/google/android/gms/play-services-tapandpay/[version]/...
+```
+
+**Important**: Place the **extracted contents** of the ZIP file into `android/libs/`, not the ZIP file itself. The Gradle build expects a Maven repository structure.
+
+### 3. Install iOS dependencies
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+## Running the App
+
+### Start Metro Bundler
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+### iOS
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+Or open in Xcode:
+```bash
+open ios/WalletExample.xcworkspace
+```
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+### Android
 
-## Step 3: Modifying your App
+```bash
+npm run android
+```
 
-Now that you have successfully run the app, let's modify it.
+## Development
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+### Reload the app
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+- **iOS**: Press <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in the simulator
+- **Android**: Press <kbd>R</kbd> twice or <kbd>Ctrl/Cmd</kbd> + <kbd>M</kbd> to open Developer Menu
 
-## Congratulations! :tada:
+### Clean build
 
-You've successfully run and modified your React Native App. :partying_face:
+```bash
+# iOS
+npm run clean-ios
+npm run pods
 
-### Now what?
+# Android
+npm run clean-android
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+## Project Structure
 
-# Troubleshooting
+- `index.ts` - Entry point
+- `app.json` - React Native configuration
+- `android/libs/` - Google TapAndPay SDK location
+- `../common-app/` - Shared app code used by both example apps
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## Troubleshooting
 
-# Learn More
+### SDK not found (Android)
 
-To learn more about React Native, take a look at the following resources:
+If you get errors about missing TapAndPay SDK:
+1. Verify the SDK files are extracted into `android/libs/` directory
+2. The structure should be: `android/libs/com/google/android/gms/play-services-tapandpay/...`
+3. Do NOT place the .zip file directly - extract it first
+4. Clean and rebuild: `cd android && ./gradlew clean && cd ..`
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+### Metro bundler issues
+
+Clear cache and restart:
+```bash
+npm start -- --reset-cache
+```
+
+### iOS build issues
+
+```bash
+cd ios
+pod deintegrate
+pod install
+cd ..
+```
+
+### Android build issues
+
+```bash
+cd android
+./gradlew clean
+cd ..
+```
+
+## Learn More
+
+- [@expensify/react-native-wallet](../../README.md) - Main library documentation
+
