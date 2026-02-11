@@ -29,6 +29,7 @@ module.exports = {
     },
   },
   root: true,
+  ignorePatterns: ['plugins/build/**'],
   rules: {
     'rulesdir/prefer-underscore-method': 'off',
     'rulesdir/prefer-import-module-contents': 'off',
@@ -71,5 +72,6 @@ module.exports = {
     'no-else-return': 'off',
     'import/prefer-default-export': 'off',
     'no-restricted-imports': 'off',
+    'react/destructuring-assignment': 'off',
   },
 };
