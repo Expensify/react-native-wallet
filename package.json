@@ -34,14 +34,11 @@
     "apps/basic-example"
   ],
   "scripts": {
-    "example": "npm run --workspace=@expensify/react-native-wallet-example",
-		"example-expo": "npm run --workspace=@expensify/react-native-wallet-example-expo",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .js,.ts,.tsx",
-	  "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugin/**/*' --ignore-pattern '/example/**/*' --ignore-pattern '/example-expo/**/*' --ignore-pattern '/WebExample/**/*'",
-	  "lint:example": "eslint example example-expo --ext .js,.ts,.tsx",
-	  "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build example-expo/android/build example-expo/ios/build lib plugin/build",
+    "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugins/**/*' --ignore-pattern '/apps/**/*'",
+    "clean": "del-cli android/build apps/basic-example/android/build apps/basic-example/android/app/build apps/basic-example/ios/build apps/expo-example/android/build apps/expo-example/ios/build lib plugins/build",
     "prepare": "bob build",
     "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
     "release": "release-it",
