@@ -3,7 +3,7 @@ import {useState, useEffect, useMemo, useCallback} from 'react';
 import {StyleSheet, View, Text, Alert, ScrollView} from 'react-native';
 import {checkWalletAvailability, getSecureWalletInfo, getCardStatusBySuffix, getCardStatusByIdentifier, addListener, removeListener, AddToWalletButton} from '@expensify/react-native-wallet';
 import type {CardStatus, AndroidWalletData} from '@expensify/react-native-wallet';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 import PlatformInfo from './src/PlatformInfo';
 import LabeledButton from './src/LabeledButton';
 import {addCardToWallet} from './src/walletUtils';
@@ -15,12 +15,13 @@ const getWalletInfoTextValue = (walletData: AndroidWalletData | undefined) => {
   return `{\n\t\twalletId: ${walletData?.walletAccountID}\n\t\thardwareId: ${walletData?.deviceID}\n}`;
 };
 
-export default function App() {
+function AppContent() {
   const [isWalletAvailable, setIsWalletAvailable] = useState(false);
   const [walletData, setWalletData] = useState<AndroidWalletData | undefined>();
   const [cardStatus, setCardStatus] = useState<CardStatus | undefined>();
   const [tokenStatus, setTokenStatus] = useState<CardStatus | undefined>();
   const [addCardStatus, setAddCardStatus] = useState<string | undefined>();
+  const insets = useSafeAreaInsets();
 
   const handleCheckWalletAvailability = useCallback(() => {
     checkWalletAvailability().then(setIsWalletAvailable);
@@ -75,8 +76,8 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
+    <View style={[styles.container, {paddingTop: insets.top, paddingBottom: insets.bottom}]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.title}>react-native-wallet example app</Text>
           <PlatformInfo />
@@ -126,18 +127,27 @@ export default function App() {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  scrollContent: {
     paddingTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    // gap: 10,
-    backgroundColor: 'white',
-    flex: 1,
   },
   header: {
     gap: 10,
