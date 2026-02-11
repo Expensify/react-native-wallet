@@ -76,7 +76,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView>
         <View style={styles.header}>
           <Text style={styles.title}>react-native-wallet example app</Text>
           <PlatformInfo />
