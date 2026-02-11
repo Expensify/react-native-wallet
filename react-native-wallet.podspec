@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/Expensify/react-native-wallet.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
-
+  
   s.dependency "React-Core"
 
   install_modules_dependencies(s);

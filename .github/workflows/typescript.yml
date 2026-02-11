@@ -32,5 +32,5 @@ jobs:
       - name: Typecheck library
         run: npm run typecheck -- --project tsconfig.json
 
-      - name: Typecheck example app
-        run: npm run typecheck -- --project example/tsconfig.json
+      - name: Typecheck common app
+        run: npm run typecheck -- --project apps/common-app/tsconfig.json

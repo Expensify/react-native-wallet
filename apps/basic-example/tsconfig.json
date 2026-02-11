@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-native"
+  },
+  "include": ["../common-app/src/**/*.tsx", "../common-app/src/walletUtils.ts", "../common-app/App.tsx"],
+  "exclude": ["node_modules"]
+}
