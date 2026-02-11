@@ -1,6 +1,6 @@
 {
 	"version": "1.0.0",
-	"name": "@expensify/react-native-wallet-example-expo",
+	"name": "expo-example",
 	"main": "index.ts",
 	"scripts": {
 		"start": "expo start --dev-client",
