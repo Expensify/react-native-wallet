@@ -5,6 +5,9 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.IntentSender
+import android.util.Log
+import androidx.core.content.IntentCompat
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.error.InvalidNetworkError
@@ -26,10 +29,13 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import com.google.android.gms.tapandpay.TapAndPayStatusCodes
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
 import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
+import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
+import com.google.android.gms.tapandpay.issuer.TokenizationOutcome
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -76,23 +82,39 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
-        if (resultCode == RESULT_OK) {
-          data?.let {
-            val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-            sendEvent(
-              context,
-              OnCardActivatedEvent.NAME,
-              OnCardActivatedEvent("active", tokenId).toMap()
-            )
-            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
-          }
-        } else if (resultCode == RESULT_CANCELED) {
+        if (resultCode == RESULT_CANCELED) {
           sendEvent(
             context,
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
           pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.code)
+          return
+        }
+
+        if (data != null) {
+          val result =
+            IntentCompat.getParcelableExtra<PushTokenizeResult?>(
+              data, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java
+            )
+
+          if (result != null) {
+            val isSavedToCloud = result.cardResult
+            val tokenOutcomes = result.tokenizationOutcomes
+
+            if (isSavedToCloud || tokenOutcomes.isNotEmpty()) {
+              val tokenId = tokenOutcomes.firstOrNull()?.issuerTokenId ?: "card_on_file_only"
+
+              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
+              pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
+            } else {
+              val errorMsg = "Card not saved. Status: ${result.cardStatus}"
+              pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, errorMsg)
+            }
+          } else {
+            // Data intent is null (rare but possible failure case). Report to Google if you observe this.
+            pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, "Unexpected error.")
+          }
         }
       }
     }
@@ -208,9 +230,21 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .setPaymentCredentialsGenerator(createPaymentCredentialsGenerator(cardData))
         .build()
 
-      tapAndPayClient.pushTokenize(
-        activity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
-      )
+      tapAndPayClient.pushTokenize(pushTokenizeRequest)
+        .addOnSuccessListener { pendingIntent ->
+          try {
+            activity.startIntentSenderForResult(
+              pendingIntent.intentSender,
+              REQUEST_CODE_PUSH_TOKENIZE,
+              null, 0, 0, 0
+            )
+          } catch (e: IntentSender.SendIntentException) {
+            promise.reject(E_OPERATION_FAILED, "Failed to launch Google Pay: ${e.message}")
+          }
+        }
+        .addOnFailureListener { e ->
+          promise.reject(E_OPERATION_FAILED, "Google Pay API Error: ${e.message}")
+        }
     } catch (e: java.lang.Exception) {
       promise.reject(e)
     }
