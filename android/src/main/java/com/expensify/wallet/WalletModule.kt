@@ -5,6 +5,14 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import com.expensify.wallet.Utils.getAsyncResult
+import com.expensify.wallet.Utils.toCardData
+import com.expensify.wallet.error.InvalidNetworkError
+import com.expensify.wallet.event.OnCardActivatedEvent
+import com.expensify.wallet.model.CardData
+import com.expensify.wallet.model.CardStatus
+import com.expensify.wallet.model.TokenizationStatus
+import com.expensify.wallet.model.WalletData
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -15,23 +23,22 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
+import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
+import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.expensify.wallet.Utils.getAsyncResult
-import com.expensify.wallet.Utils.toCardData
-import com.expensify.wallet.error.InvalidNetworkError
-import com.expensify.wallet.event.OnCardActivatedEvent
-import com.expensify.wallet.model.CardStatus
-import com.expensify.wallet.model.TokenizationStatus
-import com.expensify.wallet.model.WalletData
-import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
 import java.util.Locale
+import java.util.concurrent.Callable
+import java.util.concurrent.Future
+import java.util.concurrent.FutureTask
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) :
@@ -198,6 +205,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .setDisplayName(displayName)
         .setLastDigits(cardData.lastDigits)
         .setUserAddress(cardData.userAddress)
+        .setPaymentCredentialsGenerator(createPaymentCredentialsGenerator(cardData))
         .build()
 
       tapAndPayClient.pushTokenize(
@@ -205,6 +213,38 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       )
     } catch (e: java.lang.Exception) {
       promise.reject(e)
+    }
+  }
+
+  private fun createPaymentCredentialsGenerator(
+    cardData: CardData
+  ): PaymentCredentialsGenerator {
+    return object : PaymentCredentialsGenerator {
+      override fun generate(request: GeneratePaymentCredentialsRequest): Future<GeneratePaymentCredentialsResponse> {
+        val callable = Callable<GeneratePaymentCredentialsResponse> {
+          val tspOpcBytes = cardData.opaquePaymentCard.toByteArray(Charsets.UTF_8)
+          var googleOpcBytes: ByteArray? = null
+
+          if (request.googleOpaquePaymentCardRequested) {
+             googleOpcBytes = cardData.googleOpaquePaymentCard?.toByteArray(Charsets.UTF_8)
+          }
+
+          GeneratePaymentCredentialsResponse.Builder()
+            .setOpaquePaymentCard(tspOpcBytes)
+            .setGoogleOpaquePaymentCard(googleOpcBytes)
+            .build()
+        }
+
+        val futureTask = FutureTask(callable)
+        // Run it immediately (since we have the data already)
+        futureTask.run()
+        return futureTask
+      }
+
+      // This switch enables the UAPP flow
+      override fun getGoogleOpaquePaymentCardSupported(): Boolean {
+        return true
+      }
     }
   }
 
@@ -243,7 +283,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           promise.resolve(Arguments.createArray())
           return@addOnCompleteListener
         }
-        
+
         val tokensArray = Arguments.createArray()
         task.result.forEach { tokenInfo ->
           val tokenData = Arguments.createMap().apply {
@@ -253,7 +293,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           }
           tokensArray.pushMap(tokenData)
         }
-        
+
         promise.resolve(tokensArray)
       }
       .addOnFailureListener { e ->
@@ -330,13 +370,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     data.getString("cardHolderName")?.let { name ->
       if (name.isNotEmpty()) return name
     }
-    
+
     data.getString("lastDigits")?.let { digits ->
       if (digits.isNotEmpty()) {
         return "${network.uppercase(Locale.getDefault())} Card *$digits"
       }
     }
-    
+
     return "${network.uppercase(Locale.getDefault())} Card"
   }
 
