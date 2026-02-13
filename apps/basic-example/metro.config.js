@@ -10,13 +10,7 @@ const root = path.resolve(__dirname, '../..');
  * @type {import('@react-native/metro-config').MetroConfig}
  */
 const config = {
-  watchFolders: [root],
-  resolver: {
-    nodeModulesPaths: [
-      path.resolve(__dirname, 'node_modules'),
-      path.resolve(__dirname, '../../node_modules'),
-    ],
-  },
+  watchFolders: [root, __dirname],
   transformer: {
     getTransformOptions: async () => ({
       transform: {

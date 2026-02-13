@@ -17,7 +17,7 @@
     "pods": "cd ios && bundle install && bundle exec pod install"
   },
   "dependencies": {
-    "@expensify/react-native-wallet": "*",
+    "@expensify/react-native-wallet": "file:../..",
     "react": "^19.1.0",
     "react-native": "0.81.0",
     "react-native-safe-area-context": "^5.5.2"
