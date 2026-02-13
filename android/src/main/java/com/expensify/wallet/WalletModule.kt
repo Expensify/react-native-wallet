@@ -6,7 +6,6 @@ import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.IntentSender
-import android.util.Log
 import androidx.core.content.IntentCompat
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
@@ -41,9 +40,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.nio.charset.Charset
 import java.util.Locale
-import java.util.concurrent.Callable
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Future
-import java.util.concurrent.FutureTask
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) :
@@ -62,6 +62,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
+
+  private val pendingProvisioningFutures = ConcurrentHashMap<String, CompletableFuture<GeneratePaymentCredentialsResponse>>()
 
   override fun initialize() {
     super.initialize()
@@ -260,30 +262,63 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   ): PaymentCredentialsGenerator {
     return object : PaymentCredentialsGenerator {
       override fun generate(request: GeneratePaymentCredentialsRequest): Future<GeneratePaymentCredentialsResponse> {
-        val callable = Callable<GeneratePaymentCredentialsResponse> {
-          val tspOpcBytes = cardData.opaquePaymentCard.toByteArray(Charsets.UTF_8)
-          var googleOpcBytes: ByteArray? = null
-
-          if (request.googleOpaquePaymentCardRequested) {
-            googleOpcBytes = cardData.googleOpaquePaymentCard?.toByteArray(Charsets.UTF_8)
-          }
-
-          GeneratePaymentCredentialsResponse.Builder()
-            .setOpaquePaymentCard(tspOpcBytes)
-            .setGoogleOpaquePaymentCard(googleOpcBytes)
+        if (!request.googleOpaquePaymentCardRequested) {
+          val response = GeneratePaymentCredentialsResponse.Builder()
+            .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charsets.UTF_8))
             .build()
+
+          return CompletableFuture.completedFuture(response)
         }
 
-        val futureTask = FutureTask(callable)
-        // Run it immediately (since we have the data already)
-        futureTask.run()
-        return futureTask
+        val future = CompletableFuture<GeneratePaymentCredentialsResponse>()
+        val requestId = UUID.randomUUID().toString()
+        pendingProvisioningFutures[requestId] = future
+
+        val params = Arguments.createMap().apply {
+          putString("requestId", requestId)
+          putString("serverSessionId", request.serverSessionId)
+          putString("walletId", request.walletId)
+          putString("opaquePaymentCard", cardData.opaquePaymentCard)
+        }
+
+        // send event to the RN so the Google OPC can be generated on the backend
+        sendEvent(reactApplicationContext, "onPaymentCredentialsRequest", params)
+        return future
       }
 
       // This switch enables the UAPP flow
       override fun getGoogleOpaquePaymentCardSupported(): Boolean {
         return true
       }
+    }
+  }
+
+  @ReactMethod
+  override fun AndroidProvidePaymentCredentials(requestId: String, responseData: ReadableMap, promise: Promise) {
+    val future = pendingProvisioningFutures.remove(requestId)
+    if (future == null) {
+      promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
+      return
+    }
+
+    try {
+      val tspOpc = responseData.getString("opaquePaymentCard")
+      val googleOpc = responseData.getString("googleOpaquePaymentCard")
+
+      if (tspOpc == null) {
+        throw Exception("opaquePaymentCard is required")
+      }
+      val response = GeneratePaymentCredentialsResponse.Builder()
+        .setGoogleOpaquePaymentCard(googleOpc?.toByteArray(Charsets.UTF_8))
+        .setOpaquePaymentCard(tspOpc.toByteArray(Charsets.UTF_8))
+        .build()
+
+      future.complete(response)
+      promise.resolve(true)
+
+    } catch (e: Exception) {
+      future.completeExceptionally(e)
+      promise.reject(E_OPERATION_FAILED, e.message)
     }
   }
 
