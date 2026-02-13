@@ -51,7 +51,6 @@ class RNAddToWalletButtonView: UIView {
     let height = bounds.height > 0 ? bounds.height : defaultHeight
     
     addPassButton.frame = CGRect(x: 0, y: 0, width: width, height: height)
-    self.frame = addPassButton.frame
     
     applyBorderRadius()
   }
