@@ -29,13 +29,12 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
-import com.google.android.gms.tapandpay.TapAndPayStatusCodes
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
 import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
+import com.google.android.gms.tapandpay.issuer.PushTokenizeExtraOptions
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
-import com.google.android.gms.tapandpay.issuer.TokenizationOutcome
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -220,6 +219,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       val displayName = getDisplayName(data, cardData.network)
       pendingPushTokenizePromise = promise
 
+      val pushTokenizeExtraOptions = PushTokenizeExtraOptions.newBuilder()
+        .setIsBounceProvisioned(cardData.isBounceProvisioned)
+        .setEnrollForVirtualCards(cardData.isVirtualCard)
+        .build()
+
       val pushTokenizeRequest = PushTokenizeRequest.Builder()
         .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
         .setNetwork(cardNetwork)
@@ -228,6 +232,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .setLastDigits(cardData.lastDigits)
         .setUserAddress(cardData.userAddress)
         .setPaymentCredentialsGenerator(createPaymentCredentialsGenerator(cardData))
+        .setPushTokenizeExtraOptions(pushTokenizeExtraOptions)
         .build()
 
       tapAndPayClient.pushTokenize(pushTokenizeRequest)
@@ -260,7 +265,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           var googleOpcBytes: ByteArray? = null
 
           if (request.googleOpaquePaymentCardRequested) {
-             googleOpcBytes = cardData.googleOpaquePaymentCard?.toByteArray(Charsets.UTF_8)
+            googleOpcBytes = cardData.googleOpaquePaymentCard?.toByteArray(Charsets.UTF_8)
           }
 
           GeneratePaymentCredentialsResponse.Builder()

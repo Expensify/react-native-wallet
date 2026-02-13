@@ -29,12 +29,18 @@ object Utils {
       .setPhoneNumber(addressMap.getString("phoneNumber") ?: "")
       .build()
 
+    val isVirtual = if (hasKey("isVirtualCard")) this.getBoolean("isVirtualCard") else false
+    val isBounce = if (hasKey("isBounceProvisioned")) this.getBoolean("isBounceProvisioned") else false
+
     return CardData(
       network = this.getString("network") ?: "",
       opaquePaymentCard = this.getString("opaquePaymentCard") ?: "",
+      googleOpaquePaymentCard = this.getString("googleOpaquePaymentCard") ?: "",
       cardHolderName = this.getString("cardHolderName") ?: "",
       lastDigits = this.getString("lastDigits") ?: "",
-      userAddress = userAddress
+      userAddress = userAddress,
+      isVirtualCard = isVirtual,
+      isBounceProvisioned = isBounce,
     )
   }
 

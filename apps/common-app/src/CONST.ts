@@ -17,6 +17,8 @@ const AndroidDummyCardData: AndroidCardData = {
   cardHolderName: 'John Doe',
   lastDigits: '4321',
   userAddress: dummyAddress,
+  isVirtualCard: false,
+  isBounceProvisioned: false,
 };
 
 const AndroidDummyResumeCardData: AndroidResumeCardData = {

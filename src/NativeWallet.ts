@@ -27,6 +27,8 @@ type AndroidCardData = {
   cardHolderName: string;
   lastDigits: string;
   userAddress: UserAddress;
+  isVirtualCard?: boolean;
+  isBounceProvisioned?: boolean;
 };
 
 type AndroidResumeCardData = {
