@@ -45,7 +45,7 @@ type IOSCardData = {
 
 type onCardActivatedPayload = {
   tokenId: string;
-  actionStatus: 'active' | 'canceled';
+  status: 'activated' | 'canceled';
 };
 
 type IOSAddPaymentPassData = {

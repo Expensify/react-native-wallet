@@ -69,8 +69,8 @@ open class WalletManager: UIViewController {
     for pass in passes {
       if pass.secureElementPass?.passActivationState == .activated {
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
-          "state": "activated",
-          "serialNumber": pass.serialNumber
+          "status": "activated",
+          "tokenId": pass.serialNumber
         ]);
       }
     }
@@ -253,7 +253,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       if error != nil {
         self.logInfo(message: "Error: \(errorMessage)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
-          "state": "canceled"
+          "status": "canceled"
         ]);
       }
       
