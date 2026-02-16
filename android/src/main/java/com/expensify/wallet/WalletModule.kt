@@ -5,6 +5,16 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.IntentSender
+import androidx.core.content.IntentCompat
+import com.expensify.wallet.Utils.getAsyncResult
+import com.expensify.wallet.Utils.toCardData
+import com.expensify.wallet.error.InvalidNetworkError
+import com.expensify.wallet.event.OnCardActivatedEvent
+import com.expensify.wallet.model.CardData
+import com.expensify.wallet.model.CardStatus
+import com.expensify.wallet.model.TokenizationStatus
+import com.expensify.wallet.model.WalletData
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -15,23 +25,25 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
+import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
+import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
+import com.google.android.gms.tapandpay.issuer.PushTokenizeExtraOptions
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
+import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.expensify.wallet.Utils.getAsyncResult
-import com.expensify.wallet.Utils.toCardData
-import com.expensify.wallet.error.InvalidNetworkError
-import com.expensify.wallet.event.OnCardActivatedEvent
-import com.expensify.wallet.model.CardStatus
-import com.expensify.wallet.model.TokenizationStatus
-import com.expensify.wallet.model.WalletData
-import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.Deferred
 import java.nio.charset.Charset
 import java.util.Locale
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Future
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) :
@@ -51,6 +63,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
 
+  private val pendingProvisioningFutures = ConcurrentHashMap<String, CompletableFuture<GeneratePaymentCredentialsResponse>>()
+
   override fun initialize() {
     super.initialize()
     reactApplicationContext.addActivityEventListener(cardListener)
@@ -69,23 +83,39 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
-        if (resultCode == RESULT_OK) {
-          data?.let {
-            val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-            sendEvent(
-              context,
-              OnCardActivatedEvent.NAME,
-              OnCardActivatedEvent("active", tokenId).toMap()
-            )
-            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
-          }
-        } else if (resultCode == RESULT_CANCELED) {
+        if (resultCode == RESULT_CANCELED) {
           sendEvent(
             context,
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
           pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.code)
+          return
+        }
+
+        if (data != null) {
+          val result =
+            IntentCompat.getParcelableExtra<PushTokenizeResult?>(
+              data, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java
+            )
+
+          if (result != null) {
+            val isSavedToCloud = result.cardResult
+            val tokenOutcomes = result.tokenizationOutcomes
+
+            if (isSavedToCloud || tokenOutcomes.isNotEmpty()) {
+              val tokenId = tokenOutcomes.firstOrNull()?.issuerTokenId ?: "card_on_file_only"
+
+              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
+              pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
+            } else {
+              val errorMsg = "Card not saved. Status: ${result.cardStatus}"
+              pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, errorMsg)
+            }
+          } else {
+            // Data intent is null (rare but possible failure case). Report to Google if you observe this.
+            pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, "Unexpected error.")
+          }
         }
       }
     }
@@ -191,6 +221,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       val displayName = getDisplayName(data, cardData.network)
       pendingPushTokenizePromise = promise
 
+      val pushTokenizeExtraOptions = PushTokenizeExtraOptions.newBuilder()
+        .setIsBounceProvisioned(cardData.isBounceProvisioned)
+        .setEnrollForVirtualCards(cardData.isVirtualCard)
+        .build()
+
       val pushTokenizeRequest = PushTokenizeRequest.Builder()
         .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charset.forName("UTF-8")))
         .setNetwork(cardNetwork)
@@ -198,13 +233,92 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .setDisplayName(displayName)
         .setLastDigits(cardData.lastDigits)
         .setUserAddress(cardData.userAddress)
+        .setPaymentCredentialsGenerator(createPaymentCredentialsGenerator(cardData))
+        .setPushTokenizeExtraOptions(pushTokenizeExtraOptions)
         .build()
 
-      tapAndPayClient.pushTokenize(
-        activity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
-      )
+      tapAndPayClient.pushTokenize(pushTokenizeRequest)
+        .addOnSuccessListener { pendingIntent ->
+          try {
+            activity.startIntentSenderForResult(
+              pendingIntent.intentSender,
+              REQUEST_CODE_PUSH_TOKENIZE,
+              null, 0, 0, 0
+            )
+          } catch (e: IntentSender.SendIntentException) {
+            promise.reject(E_OPERATION_FAILED, "Failed to launch Google Pay: ${e.message}")
+          }
+        }
+        .addOnFailureListener { e ->
+          promise.reject(E_OPERATION_FAILED, "Google Pay API Error: ${e.message}")
+        }
     } catch (e: java.lang.Exception) {
       promise.reject(e)
+    }
+  }
+
+  private fun createPaymentCredentialsGenerator(
+    cardData: CardData
+  ): PaymentCredentialsGenerator {
+    return object : PaymentCredentialsGenerator {
+      override fun generate(request: GeneratePaymentCredentialsRequest): Future<GeneratePaymentCredentialsResponse> {
+        if (!request.googleOpaquePaymentCardRequested) {
+          val response = GeneratePaymentCredentialsResponse.Builder()
+            .setOpaquePaymentCard(cardData.opaquePaymentCard.toByteArray(Charsets.UTF_8))
+            .build()
+
+          return CompletableFuture.completedFuture(response)
+        }
+
+        val future = CompletableFuture<GeneratePaymentCredentialsResponse>()
+        val requestId = UUID.randomUUID().toString()
+        pendingProvisioningFutures[requestId] = future
+
+        val params = Arguments.createMap().apply {
+          putString("requestId", requestId)
+          putString("serverSessionId", request.serverSessionId)
+          putString("walletId", request.walletId)
+          putString("opaquePaymentCard", cardData.opaquePaymentCard)
+        }
+
+        // send event to the RN so the Google OPC can be generated on the backend
+        sendEvent(reactApplicationContext, "onPaymentCredentialsRequest", params)
+        return future
+      }
+
+      // This switch enables the UAPP flow
+      override fun getGoogleOpaquePaymentCardSupported(): Boolean {
+        return true
+      }
+    }
+  }
+
+  @ReactMethod
+  override fun AndroidProvidePaymentCredentials(requestId: String, responseData: ReadableMap, promise: Promise) {
+    val future = pendingProvisioningFutures.remove(requestId)
+    if (future == null) {
+      promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
+      return
+    }
+
+    try {
+      val tspOpc = responseData.getString("opaquePaymentCard")
+      val googleOpc = responseData.getString("googleOpaquePaymentCard")
+
+      if (tspOpc == null) {
+        throw Exception("opaquePaymentCard is required")
+      }
+      val response = GeneratePaymentCredentialsResponse.Builder()
+        .setGoogleOpaquePaymentCard(googleOpc?.toByteArray(Charsets.UTF_8))
+        .setOpaquePaymentCard(tspOpc.toByteArray(Charsets.UTF_8))
+        .build()
+
+      future.complete(response)
+      promise.resolve(true)
+
+    } catch (e: Exception) {
+      future.completeExceptionally(e)
+      promise.reject(E_OPERATION_FAILED, e.message)
     }
   }
 
@@ -243,7 +357,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           promise.resolve(Arguments.createArray())
           return@addOnCompleteListener
         }
-        
+
         val tokensArray = Arguments.createArray()
         task.result.forEach { tokenInfo ->
           val tokenData = Arguments.createMap().apply {
@@ -253,7 +367,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           }
           tokensArray.pushMap(tokenData)
         }
-        
+
         promise.resolve(tokensArray)
       }
       .addOnFailureListener { e ->
@@ -330,13 +444,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     data.getString("cardHolderName")?.let { name ->
       if (name.isNotEmpty()) return name
     }
-    
+
     data.getString("lastDigits")?.let { digits ->
       if (digits.isNotEmpty()) {
         return "${network.uppercase(Locale.getDefault())} Card *$digits"
       }
     }
-    
+
     return "${network.uppercase(Locale.getDefault())} Card"
   }
 

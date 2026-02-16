@@ -17,6 +17,8 @@ const AndroidDummyCardData: AndroidCardData = {
   cardHolderName: 'John Doe',
   lastDigits: '4321',
   userAddress: dummyAddress,
+  isVirtualCard: false,
+  isBounceProvisioned: false,
 };
 
 const AndroidDummyResumeCardData: AndroidResumeCardData = {
@@ -40,4 +42,9 @@ const IOSDummyEncryptPayload: IOSEncryptPayload = {
   ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
-export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload};
+const IOSDummyPaymentCredentialsResponse = {
+  opaquePaymentCard: 'encryptedCardInformation123456',
+  googleOpaquePaymentCard: 'GOPC',
+};
+
+export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload, IOSDummyPaymentCredentialsResponse};
