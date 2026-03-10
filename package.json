@@ -39,11 +39,10 @@
     "lint": "eslint . --ext .js,.ts,.tsx",
     "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugins/**/*' --ignore-pattern '/apps/**/*'",
     "clean": "del-cli android/build apps/basic-example/android/build apps/basic-example/android/app/build apps/basic-example/ios/build apps/expo-example/android/build apps/expo-example/ios/build lib plugins/build",
-    "prepare": "bob build",
+    "prepare": "bob build && npm run build:plugins",
     "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
     "release": "release-it",
-    "build:plugins": "cd plugins && npx tsc",
-    "postinstall": "npm run build:plugins"
+    "build:plugins": "cd plugins && npx tsc"
   },
   "keywords": [
     "react-native",
