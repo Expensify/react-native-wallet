@@ -57,14 +57,14 @@ object Utils {
             }
 
             override fun reject(code: String?, userInfo: WritableMap) {
-              val errorMessage = "Error: $code\nUserInfo: $userInfo"
+              val errorMessage = "Error: ${code ?: "Unknown code"}\nUserInfo: $userInfo"
               continuation.resumeWithException(
                 Exception(errorMessage)
               )
             }
 
             override fun reject(code: String?, message: String?) {
-              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}"
+              val errorMessage = "Error: ${code ?: "Unknown code"}\nMessage: ${message ?: "No message provided"}"
               continuation.resumeWithException(
                 Exception(errorMessage)
               )
@@ -72,28 +72,28 @@ object Utils {
 
             override fun reject(code: String?, message: String?, userInfo: WritableMap) {
               val errorMessage =
-                "Error: $code\nMessage: ${message ?: "No message provided"}\nUserInfo: $userInfo"
+                "Error: ${code ?: "Unknown code"}\nMessage: ${message ?: "No message provided"}\nUserInfo: $userInfo"
               continuation.resumeWithException(
                 Exception(errorMessage)
               )
             }
 
             override fun reject(code: String?, message: String?, throwable: Throwable?) {
-              val errorMessage = "Error: $code\nMessage: ${message ?: "No message provided"}"
+              val errorMessage = "Error: ${code ?: "Unknown code"}\nMessage: ${message ?: "No message provided"}"
               continuation.resumeWithException(
                 throwable ?: Exception(errorMessage)
               )
             }
 
             override fun reject(code: String?, throwable: Throwable?) {
-              val errorMessage = "Error: $code"
+              val errorMessage = "Error: ${code ?: "Unknown code"}"
               continuation.resumeWithException(
                 throwable ?: Exception(errorMessage)
               )
             }
 
             override fun reject(code: String?, throwable: Throwable?, userInfo: WritableMap) {
-              val errorMessage = "Error: $code\nUserInfo: $userInfo"
+              val errorMessage = "Error: ${code ?: "Unknown code"}\nUserInfo: $userInfo"
               continuation.resumeWithException(
                 throwable ?: Exception(errorMessage)
               )
