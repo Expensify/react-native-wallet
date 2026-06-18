@@ -21,6 +21,8 @@ import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.error.InvalidNetworkError
@@ -50,6 +52,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
+  private val moduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   override fun initialize() {
     super.initialize()
@@ -58,6 +61,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   override fun invalidate() {
     super.invalidate()
+    moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
   }
 
@@ -119,7 +123,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun getSecureWalletInfo(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
+    moduleScope.launch {
       try {
         val walletId = getWalletIdAsync()
         val hardwareId = getHardwareIdAsync()
