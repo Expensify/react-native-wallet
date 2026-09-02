@@ -63,6 +63,18 @@
     "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24.19.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11.10.0",
+      "onFail": "error"
+    }
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.25.3",
     "@babel/preset-react": "^7.18.6",
