@@ -22,6 +22,8 @@ jobs:
       # v4.3.0
       - name: Setup Node
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
+        with:
+          node-version-file: .nvmrc
 
       - name: Install node_modules
         run: npm ci
