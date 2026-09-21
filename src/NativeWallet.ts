@@ -41,6 +41,8 @@ type IOSCardData = {
   cardHolderName: string;
   lastDigits: string;
   cardDescription: string;
+  /** Opaque issuer id. PassKit uses it to recognize a reissued card. */
+  primaryAccountIdentifier?: string;
 };
 
 type onCardActivatedPayload = {
