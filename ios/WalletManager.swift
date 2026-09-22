@@ -111,6 +111,9 @@ open class WalletManager: UIViewController {
     configuration.cardholderName = card.cardHolderName
     configuration.primaryAccountSuffix = card.lastDigits
     configuration.localizedDescription = String(card.cardDescription)
+    if let primaryAccountIdentifier = card.primaryAccountIdentifier {
+      configuration.primaryAccountIdentifier = primaryAccountIdentifier
+    }
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
       completion(.error, [
