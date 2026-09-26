@@ -1,7 +1,7 @@
 #import <PassKit/PassKit.h>
 #import "RNWallet.h"
 
-#if RNWallet_USE_FRAMEWORKS
+#if __has_include(<react_native_wallet/react_native_wallet-Swift.h>)
 #import <react_native_wallet/react_native_wallet-Swift.h>
 #else
 #import <react_native_wallet-Swift.h>
