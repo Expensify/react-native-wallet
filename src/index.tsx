@@ -21,10 +21,20 @@ function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
 }
 
-const eventEmitter = new NativeEventEmitter(Wallet);
+let eventEmitter: NativeEventEmitter | null = null;
+
+function getEventEmitter(): NativeEventEmitter {
+  if (!Wallet) {
+    throw new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`);
+  }
+  if (!eventEmitter) {
+    eventEmitter = new NativeEventEmitter(Wallet);
+  }
+  return eventEmitter;
+}
 
 function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
-  return eventEmitter.addListener(event, callback);
+  return getEventEmitter().addListener(event, callback);
 }
 
 function removeListener(subscription: EmitterSubscription): void {
