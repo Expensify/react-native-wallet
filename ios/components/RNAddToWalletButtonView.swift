@@ -57,7 +57,8 @@ class RNAddToWalletButtonView: UIView {
   }
   
   private func updateButtonStyle() {
-    let style: PKAddPassButtonStyle = (buttonStyle.lowercased == "black") ? .black : .blackOutline
+    let styleString = (buttonStyle as String).lowercased()
+    let style: PKAddPassButtonStyle = (styleString == "black") ? .black : .blackOutline
     addPassButton.removeFromSuperview()
     addPassButton = PKAddPassButton(addPassButtonStyle: style)
 
