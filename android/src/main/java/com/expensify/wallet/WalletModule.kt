@@ -106,7 +106,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             if (isSavedToCloud || tokenOutcomes.isNotEmpty()) {
               val tokenId = tokenOutcomes.firstOrNull()?.issuerTokenId ?: "card_on_file_only"
 
-              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("active", tokenId).toMap())
+              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
               pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
             } else {
               val errorMsg = "Card not saved. Status: ${result.cardStatus}"

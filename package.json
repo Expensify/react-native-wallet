@@ -1,6 +1,6 @@
 {
   "name": "@expensify/react-native-wallet",
-  "version": "0.1.19",
+  "version": "0.1.25",
   "description": "A React Native module designed for seamless integration of Card Push Provisioning into Apple Wallet and Google Wallet, enabling easy and secure addition of payment cards directly from your application.",
   "source": "./src/index.tsx",
   "main": "lib/commonjs/index",
@@ -39,11 +39,10 @@
     "lint": "eslint . --ext .js,.ts,.tsx",
     "lint:root": "eslint . --ext .js,.ts,.tsx --ignore-pattern '/plugins/**/*' --ignore-pattern '/apps/**/*'",
     "clean": "del-cli android/build apps/basic-example/android/build apps/basic-example/android/app/build apps/basic-example/ios/build apps/expo-example/android/build apps/expo-example/ios/build lib plugins/build",
-    "prepare": "bob build",
+    "prepare": "bob build && npm run build:plugins",
     "build:watch": "nodemon --watch src --ext .ts,.tsx,.css --exec \"rm -f .build_complete && npm run prepare && npm pack && touch .build_complete\"",
     "release": "release-it",
-    "build:plugins": "cd plugins && npx tsc",
-    "postinstall": "npm run build:plugins"
+    "build:plugins": "cd plugins && npx tsc"
   },
   "keywords": [
     "react-native",
@@ -63,6 +62,18 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24.19.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11.10.0",
+      "onFail": "error"
+    }
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.3",
