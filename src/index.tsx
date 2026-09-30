@@ -21,9 +21,15 @@ function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
 }
 
-const eventEmitter = new NativeEventEmitter(Wallet);
+let eventEmitter: NativeEventEmitter | undefined;
 
 function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
+  if (!Wallet) {
+    // eslint-disable-next-line no-console
+    console.warn(`[${PACKAGE_NAME}] Wallet module is not linked, addListener has no effect`);
+    return {remove: () => undefined} as EmitterSubscription;
+  }
+  eventEmitter ??= new NativeEventEmitter(Wallet);
   return eventEmitter.addListener(event, callback);
 }
 
