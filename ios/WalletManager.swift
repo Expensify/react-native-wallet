@@ -119,14 +119,13 @@ open class WalletManager: UIViewController {
       return
     }
     
-    presentAddPaymentPassCompletionHandler = completion
     DispatchQueue.main.async {
       if self.addPassViewController == nil {
+        self.presentAddPaymentPassCompletionHandler = completion
         self.addPassViewController = enrollViewController
         RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
       } else {
         self.logInfo(message: "EnrollViewController is already presented.")
-        self.presentAddPaymentPassCompletionHandler = nil
         completion(.error, [
           "errorMessage": "EnrollViewController is already presented."
         ])
