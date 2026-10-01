@@ -39,12 +39,16 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
                  reject:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    NSDictionary *cardDataDict = @{
+    NSMutableDictionary *cardDataDict = [@{
       @"network": [self safeString:cardData.network()],
       @"cardHolderName": [self safeString:cardData.cardHolderName()],
       @"lastDigits": [self safeString:cardData.lastDigits()],
       @"cardDescription": [self safeString:cardData.cardDescription()],
-    };
+    } mutableCopy];
+    NSString *primaryAccountIdentifier = [self safeString:cardData.primaryAccountIdentifier()];
+    if (primaryAccountIdentifier.length > 0) {
+      cardDataDict[@"primaryAccountIdentifier"] = primaryAccountIdentifier;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
         [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"present_payment_pass_view_failed" defaultErrorMessage:@"Failed to present the payment pass view" rejecter:reject];
