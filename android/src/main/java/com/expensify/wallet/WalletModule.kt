@@ -76,6 +76,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
+        val localPromise = pendingPushTokenizePromise
+        pendingPushTokenizePromise = null
         if (resultCode == RESULT_OK) {
           data?.let {
             val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
@@ -84,7 +86,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
               OnCardActivatedEvent.NAME,
               OnCardActivatedEvent("activated", tokenId).toMap()
             )
-            pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
+            localPromise?.resolve(TokenizationStatus.SUCCESS.code)
           }
         } else if (resultCode == RESULT_CANCELED) {
           sendEvent(
@@ -92,7 +94,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
-          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.code)
+          localPromise?.resolve(TokenizationStatus.CANCELED.code)
         }
       }
     }
@@ -185,6 +187,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
       val cardNetwork = getCardNetwork(cardData.network)
@@ -205,12 +210,16 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         activity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
 
   @ReactMethod
   override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val tokenReferenceID = data.getString("tokenReferenceID")
         ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
@@ -232,6 +241,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
