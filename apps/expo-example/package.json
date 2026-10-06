@@ -1,0 +1,27 @@
+{
+	"version": "1.0.0",
+	"name": "expo-example",
+	"main": "index.ts",
+	"scripts": {
+		"start": "expo start --dev-client",
+		"android": "expo run:android",
+		"ios": "expo run:ios",
+		"web": "expo start --web",
+		"prebuild": "expo prebuild --clean"
+	},
+	"dependencies": {
+		"@expo/metro-config": "~0.19.11",
+		"@expensify/react-native-wallet": "file:../..",
+		"expo": "~54.0.12",
+		"expo-linking": "~7.0.5",
+		"expo-status-bar": "~3.0.8",
+		"react": "19.1.0",
+		"react-native": "0.81.4",
+		"react-native-safe-area-context": "~5.4.0"
+	},
+	"devDependencies": {
+		"eslint": "^8.19.0",
+		"eslint-config-expo": "^10.0.0"
+	},
+	"private": true
+}

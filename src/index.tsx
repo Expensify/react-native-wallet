@@ -21,9 +21,15 @@ function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
 }
 
-const eventEmitter = new NativeEventEmitter(Wallet);
+let eventEmitter: NativeEventEmitter | undefined;
 
 function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
+  if (!Wallet) {
+    // eslint-disable-next-line no-console
+    console.warn(`[${PACKAGE_NAME}] Wallet module is not linked, addListener has no effect`);
+    return {remove: () => undefined} as EmitterSubscription;
+  }
+  eventEmitter ??= new NativeEventEmitter(Wallet);
   return eventEmitter.addListener(event, callback);
 }
 
@@ -130,17 +136,23 @@ async function addCardToAppleWallet(
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
 ): Promise<TokenizationStatus> {
   if (Platform.OS === 'android') {
-    throw new Error('addCardToAppleWallet is not available on Andorid');
+    throw new Error('addCardToAppleWallet is not available on Android');
   }
 
-  const passData = await Wallet?.IOSPresentAddPaymentPassView(cardData);
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+  const wallet = Wallet;
+
+  const passData = await wallet.IOSPresentAddPaymentPassView(cardData);
+
   if (!passData || passData.status !== 0) {
     return getTokenizationStatus(passData?.status || -1);
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
-    const response = await Wallet?.IOSHandleAddPaymentPassResponse(responseData);
+    const response = await wallet.IOSHandleAddPaymentPassResponse(responseData);
     // Response is null when a pass is successfully added to the wallet or the user cancels the process
     // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
     if (response) {

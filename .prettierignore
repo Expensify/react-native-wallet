@@ -6,6 +6,7 @@ CODE_OF_CONDUCT.md
 .well-known
 desktop/dist/**/*.js
 dist/**/*.js
+plugin/build/**/*.js
 assets/animations
 android
 ios

@@ -5,10 +5,11 @@
 - ♻️ Universal solution (Apple Wallet and Google Wallet)
 - 💳 Easy and secure addition of payment cards from your app directly
 - 💰 Supports Visa, MasterCard, Amex and Discover payment cards
+- 🎉 Expo support (expo-plugin)
 
 ## Getting started
 
-Using the `react-native-wallet` Push Provisioning features requires proper configuration and access from both Google and Apple. 
+Using the `react-native-wallet` Push Provisioning features requires proper configuration and access from both Google and Apple.
 Please follow the instructions below before installing the library:
 
 ### Android
@@ -20,10 +21,10 @@ To be able to interact with the Google Wallet on the Android please make sure to
 1. Visit [the Google Pay Android Push Provisioning API documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/) and request access to it.
 
 2. Once getting an approval from the Google team
-	1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases). 
-	2. Unzip it and extract the SDK into the `/android/libs` folder in your React Native project (if there is no `libs` folder, create one). 
+	1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases).
+	2. Unzip it and extract the SDK into the `/android/libs` folder in your React Native project (if there is no `libs` folder, create one).
 	3. Add `/android/libs` to `.gitignore`.
-	
+
 3. Then connect the SDK to your project in `build.gradle`, for example like in [example/android/build.gradle](https://github.com/Expensify/react-native-wallet/blob/main/example/android/build.gradle):
 
 ```groovy
@@ -37,7 +38,7 @@ allprojects {
 
 #### Step 2: Whitelist your app for SDK use.
 
-To use the Google SDK in your app, you will need to whitelist your app details. Without it, calling some functions will result in a `Not verified` error. 
+To use the Google SDK in your app, you will need to whitelist your app details. Without it, calling some functions will result in a `Not verified` error.
 To resolve it, please follow the instructions from [the official Google documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/allowlist).
 
 For your builds, you will need to prepare your app's `package name` and `fingerprint` following [these steps](https://developers.google.com/pay/issuers/apis/push-provisioning/android/allowlist#how_to_get_your_apps_fingerprint). The values should, for example, look like this:
@@ -58,7 +59,21 @@ With all the required data, submit the form and wait for Google's response. Afte
 
 ### Step 1: Apply for appropriate entitlements
 
-To enable In-App Provisioning in your app, you must request activation of the appropriate Apple Pay entitlements for your developer Team ID. Enterprise Team IDs are not supported. This entitlement is not available by default in our panel; you will need to request it. Send an email to apple-pay-provisioning@apple.com with your app name, Team ID, and Adam ID.
+To enable In-App Provisioning in your app, you must request activation of the appropriate Apple Pay entitlements for your developer Team ID. Enterprise Team IDs are not supported. This entitlement is not available by default in our panel; you will need to request it.
+
+Submit your request through the [In-App Provisioning Submission Form](https://developer.apple.com/contact/request/apple-pay-in-app-provisioning/). Only Account Holders can access this form — if you are unable to access it, coordinate with the Account Holder of your team. Alternatively, you can email `iap_entitlements@apple.com` with the following format:
+
+**Subject:** `Apple Pay Entitlements and Allow List Request - [Issuer Name] - [Country Code]`
+
+**Body:**
+- Issuer Name
+- Country [Country Code]
+- Team ID
+- Adam ID
+- App Name
+
+> [!NOTE]
+> Only a production Team ID and Adam ID can receive the entitlement. Test Team IDs don't qualify.
 
 Once Apple verifies your identity, you should get documentation named `Getting Started with Apple Pay In-App Provisioning, Verification & Security`. In this confidential document you will find all the relevant information about:
 - Prerequisites for your project
@@ -72,13 +87,13 @@ Make sure to familiarize yourself with that document before deploying your app.
 
 ### Step 2: Activate the entitlement
 
-After getting a positive response from Apple, open the developer portal panel and search `Certificates, Identifiers & Profiles` -> `Profiles` -> `Our distribution profile` -> `Edit` and add the `ApplePay In-App Provisioning Distribution` entitlement. 
+After getting a positive response from Apple, open the developer portal panel and search `Certificates, Identifiers & Profiles` -> `Profiles` -> `Our distribution profile` -> `Edit` and add the `ApplePay In-App Provisioning Distribution` entitlement.
 It’s available only for the production environment so your QA must work with physical devices and cards.
 
 
 ### Step 3: Add the entitlement to your project
 
-Add `com.apple.developer.payment-pass-provisioning` entitlement to your project. Find or create `.entitlements` file in your project and add the entitlement like below (similarly to [WalletExample.entitlements](https://github.com/Expensify/react-native-wallet/blob/main/example/ios/WalletExample/WalletExample.entitlements)): 
+Add `com.apple.developer.payment-pass-provisioning` entitlement to your project. Find or create `.entitlements` file in your project and add the entitlement like below (similarly to [WalletExample.entitlements](https://github.com/Expensify/react-native-wallet/blob/main/example/ios/WalletExample/WalletExample.entitlements)):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -105,14 +120,44 @@ or
 yarn add @expensify/react-native-wallet
 ```
 
+### Expo plugin
+
+To use `@expensify/react-native-wallet` with expo, you will need to use the expo-plugin.
+
+In your `app.json` file, add the following configuration:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+  			"@expensify/react-native-wallet",
+  			{
+  				enableApplePayProvisioning: true,
+  				googleTapAndPaySdkPath: "./libs/tapandpay-v18.7.0.zip", // path to the Google Tap & Pay SDK zip file
+  			},
+      ],
+    ]
+  }
+}
+```
+
+You will need to rebuild your app after that since the lib has native files.
+
+```bash
+npx expo prebuild --clean
+npx expo run:ios
+npx expo run:android
+```
 
 
-## Required data 
+
+## Required data
 Here you can find data elements used in the library, essential to work with Google Wallet and Apple Wallet APIs.
 
 ### Android
 - **Opaque Payment Card** (OPC) - a binary blob of information Google Pay receives from the issuer app that could be presented to TSP to receive a token.
-- **Token Service Provider** (TSP) - a service that enhances payment security by replacing a credit card number during transactions with a unique digital identifier - token. The TSP specifies the tokenization service used to create a given token e.g. Visa, MasterCard, American Express. 
+- **Token Service Provider** (TSP) - a service that enhances payment security by replacing a credit card number during transactions with a unique digital identifier - token. The TSP specifies the tokenization service used to create a given token e.g. Visa, MasterCard, American Express.
 - **Token Reference ID** - a unique identifying number to refer to a DPAN (Dynamic Personal Account Number). Token Providers will assign each DPAN an issuer token ID at the time of tokenization.
 
 ### iOS
@@ -148,7 +193,7 @@ The library offers seven functions for seamless integration and use of the Apple
 | **AndroidResumeCardData** | Simplified data structure for resuming card addition to Google Wallet using existing token reference ID. | `network: string`,<br>`tokenReferenceID: string`,<br>`cardHolderName?: string`,<br>`lastDigits?: string` |
 | **UserAddress** | Structured address used for cardholder verification. | `name: string`,<br>`addressOne: string`,<br>`addressTwo: string`,<br>`city: string`,<br>`administrativeArea: string`,<br>`countryCode: string`,<br>`postalCode: string`,<br>`phoneNumber: string` |
 | **IOSCardData** | Data related to a card that is to be added on iOS platform. | `network: string`,<br>`activationData: string`,<br>`encryptedPassData: string`,<br>`ephemeralPublicKey: string`,<br>`cardHolderTitle: string`,<br>`cardHolderName: string`,<br>`lastDigits: string`,<br>`cardDescription: string`,<br>`cardDescriptionComment: string` |
-| **onCardActivatedPayload** | Data used by listener to notice when a card’s status changes. | `tokenId: string`,<br> `actionStatus: 'activated' \| 'canceled'`<br> |
+| **onCardActivatedPayload** | Data used by listener to notice when a card's status changes. | `tokenId: string`,<br> `status: 'activated' \| 'canceled'`<br> |
 | **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet. | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
 | **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`,<br>`activationData: string`,<br>`ephemeralPublicKey: string` |
 | **TokenInfo** | Information about a token stored in Google Wallet. | `identifier: string`,<br>`lastDigits: string`,<br>`tokenState: number` |
@@ -170,10 +215,10 @@ The library offers seven functions for seamless integration and use of the Apple
 ### `AddToWalletButton`
 
 A ready-to-use component that simplifies the addition of payment cards to Google Wallet and Apple Wallet. The button automatically adapts its appearance according to the platform and language specified.
-It uses official assets provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) in their Wallet-related branding guidelines. 
+It uses official assets provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) in their Wallet-related branding guidelines.
 
 > [!IMPORTANT]
-> Please bear in mind the brand rules provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application. 
+> Please bear in mind the brand rules provided by [Google](https://developers.google.com/wallet/generic/resources/brand-guidelines) and [Apple](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/) when adding this component to your application.
 
 Adhering to these guidelines is crucial not only to comply with legal requirements but also to reassure users of the authenticity and security of your application.
 
@@ -204,6 +249,40 @@ Adhering to these guidelines is crucial not only to comply with legal requiremen
 |:----:|:---------------:|
 | <img src="./assets/buttons/android_button.svg" height="50" /> | <img src="./assets/buttons/ios_button.svg" height="50" /> |
 
+# Hex Encoding
+
+This library use base64 encoding to encode the data. Yours might use hex encoding.
+
+If that is the case, you will need to convert the data in the proper format.
+
+This is an example of how to convert data to hex format:
+
+```ts
+import { Buffer } from "buffer"
+const base64ToHex = (base64: string): string => Buffer.from(base64, "base64").toString("hex")
+
+[...]
+
+	const issuerEncryptPayloadCallback = async (
+		nonce: string,
+		nonceSignature: string,
+		certificate: string[],
+	): Promise<IOSEncryptPayload> => {
+		try {
+			const payload = {
+				encryptionDetails: {
+					nonce: base64ToHex(nonce),
+					nonceSignature: base64ToHex(nonceSignature),
+					wspCertificates: certificate,
+				},
+				serialNumber,
+				wspId: "APPLE" as const,
+			}
+[...]
+```
+
+This will depend on the implementation of your backend/issuer so make sure to check with them otherwise IOS might fail to provision the card.
+
 # Publishing your app
 
 To successfully publish your app, you will need to navigate through a series of mandatory test cases on both platforms.
@@ -214,14 +293,14 @@ Before deploying your app to the Google Play Store, make sure you have taken car
 
 The latest information about deploying apps with Google TapAndPay SDK can be found in the [pre-launch process](https://developers.google.com/pay/issuers/apis/push-provisioning/android/launch-process#step_3_issuer_app_product_review) and [beta tests](https://developers.google.com/pay/issuers/apis/push-provisioning/android/beta-testing) sections in Google documentation. Make sure to complete all of the steps specified by Google connected to the __Google's branding__, __API safety__, and __app stability__.
 
-The app will need to be reviewed by Google. During this process, it will need to pass 4 mandatory test cases that are specified [here](https://developers.google.com/pay/issuers/apis/push-provisioning/android/test-cases). They verify how your app handles card state tracking in different scenarios. 
+The app will need to be reviewed by Google. During this process, it will need to pass 4 mandatory test cases that are specified [here](https://developers.google.com/pay/issuers/apis/push-provisioning/android/test-cases). They verify how your app handles card state tracking in different scenarios.
 
 > [!NOTE]
 >Please make sure to hide the `Add to Google Wallet` buttons when cards are already added to the wallet.
 
 ### iOS
 
-When implementing the In-App Push Provisioning feature in your App make sure that your app follows Apple's [branding guidelines connected to Apple Wallet](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/). Remember that you must not create your own buttons or your app could be rejected at revision. You can use the[ AddWalletButton component](#components) instead! 
+When implementing the In-App Push Provisioning feature in your App make sure that your app follows Apple's [branding guidelines connected to Apple Wallet](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/). Remember that you must not create your own buttons or your app could be rejected at revision. You can use the[ AddWalletButton component](#components) instead!
 When the pass is already provisioned, make sure to hide this button and replace it with text like `Added to Apple Wallet`. The card is fully provisioned once it added to your main device (user's iPhone) and all linked devices (for example Apple Watch).
 
 Next to branding guidelines, please follow the instructions and best practices from [the In-App provisioning documentation]((#ios)) provided by Apple.
@@ -245,7 +324,6 @@ Additionally, when submitting your app to the App Store, you must include:
 # Compatibility
 
 `@expensify/react-native-wallet` is compatible with the five latest minor releases of React Native (≥0.76.0) and works exclusively with the new architecture.
-
 
 # Contributing
 

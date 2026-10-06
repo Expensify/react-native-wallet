@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-native"
+  },
+  "include": ["src/**/*", "App.tsx", "index.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,8 +1,0 @@
-{
-  "extends": ["../tsconfig.json"],
-  "compilerOptions": {
-    "strict": true
-  },
-  "include": ["src/**/*.tsx", "src/walletUtils.ts"],
-  "exclude": ["node_modules"]
-}

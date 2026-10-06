@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "WalletExampleExpo",
+    "slug": "wallet-example-expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.expensify.walletexampleexpo"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.expensify.walletexampleexpo"
+    },
+    "plugins": [
+      [
+        "@expensify/react-native-wallet",
+        {
+          "googleTapAndPaySdkPath": "./libs/tapandpay-v18.7.0.zip"
+        }
+      ]
+    ]
+  }
+}

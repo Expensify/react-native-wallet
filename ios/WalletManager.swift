@@ -69,8 +69,8 @@ open class WalletManager: UIViewController {
     for pass in passes {
       if pass.secureElementPass?.passActivationState == .activated {
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
-          "state": "activated",
-          "serialNumber": pass.serialNumber
+          "status": "activated",
+          "tokenId": pass.serialNumber
         ]);
       }
     }
@@ -119,13 +119,16 @@ open class WalletManager: UIViewController {
       return
     }
     
-    presentAddPaymentPassCompletionHandler = completion
     DispatchQueue.main.async {
       if self.addPassViewController == nil {
+        self.presentAddPaymentPassCompletionHandler = completion
         self.addPassViewController = enrollViewController
         RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
       } else {
         self.logInfo(message: "EnrollViewController is already presented.")
+        completion(.error, [
+          "errorMessage": "EnrollViewController is already presented."
+        ])
       }
     }
   }
@@ -165,7 +168,7 @@ open class WalletManager: UIViewController {
     let paymentPasses = passLibrary.passes(of: .payment)
     if paymentPasses.isEmpty {
       self.logInfo(message: "No passes found in Wallet.")
-      return -1
+      return NSNumber(value: -1)
     }
     
     for pass in paymentPasses {
@@ -174,7 +177,7 @@ open class WalletManager: UIViewController {
         return NSNumber(value: securePassElement.passActivationState.rawValue)
       }
     }
-    return -1
+    return NSNumber(value: -1)
   }
   
   @objc public func getCardStatusBySuffix(last4Digits: NSString) -> NSNumber {
@@ -253,7 +256,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       if error != nil {
         self.logInfo(message: "Error: \(errorMessage)")
         delegate?.sendEvent(name: Event.onCardActivated.rawValue, result:  [
-          "state": "canceled"
+          "status": "canceled"
         ]);
       }
       
@@ -269,11 +272,12 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           addPaymentPassHandler(.completed, nil)
         } else {
           addPaymentPassHandler(.error, [
-            "errorMessage": "Could not add card. \(errorMessage))."
+            "errorMessage": "Could not add card. \(errorMessage)."
           ])
         }
       }
       
+      addPassHandler = nil
       hideModal()
       addPaymentPassCompletionHandler = nil
       presentAddPaymentPassCompletionHandler = nil

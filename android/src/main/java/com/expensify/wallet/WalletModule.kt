@@ -21,6 +21,8 @@ import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
 import com.expensify.wallet.error.InvalidNetworkError
@@ -46,10 +48,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val E_INVALID_DATA = "E_INVALID_DATA"
   }
 
-  private val activity = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
-  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
+  private val activity: Activity
+    get() = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
+
+  private val tapAndPayClient: TapAndPayClient
+    get() = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
+  private val moduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   override fun initialize() {
     super.initialize()
@@ -58,6 +64,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   override fun invalidate() {
     super.invalidate()
+    moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
   }
 
@@ -80,7 +87,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           sendEvent(
             context,
             OnCardActivatedEvent.NAME,
-            OnCardActivatedEvent("active", tokenId).toMap()
+            OnCardActivatedEvent("activated", tokenId).toMap()
           )
           localPromise?.resolve(TokenizationStatus.SUCCESS.code)
         } else if (resultCode == RESULT_CANCELED) {
@@ -113,19 +120,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   @ReactMethod
   override fun checkWalletAvailability(promise: Promise) {
     tapAndPayClient.environment.addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        promise.resolve(true)
-      } else {
-        promise.resolve(false)
-      }
-    }.addOnFailureListener { e ->
-      promise.reject(E_OPERATION_FAILED, "Checking Wallet availability failed: ${e.localizedMessage}")
+      promise.resolve(task.isSuccessful)
     }
   }
 
   @ReactMethod
   override fun getSecureWalletInfo(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
+    moduleScope.launch {
       try {
         val walletId = getWalletIdAsync()
         val hardwareId = getHardwareIdAsync()
@@ -190,6 +191,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
       val cardNetwork = getCardNetwork(cardData.network)
@@ -210,12 +214,16 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         activity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
 
   @ReactMethod
   override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val tokenReferenceID = data.getString("tokenReferenceID")
         ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
@@ -237,6 +245,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
