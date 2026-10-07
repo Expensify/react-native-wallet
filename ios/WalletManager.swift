@@ -120,16 +120,26 @@ open class WalletManager: UIViewController {
     }
     
     DispatchQueue.main.async {
-      if self.addPassViewController == nil {
-        self.presentAddPaymentPassCompletionHandler = completion
-        self.addPassViewController = enrollViewController
-        RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
-      } else {
+      if let enrollVC = self.addPassViewController, enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
         self.logInfo(message: "EnrollViewController is already presented.")
         completion(.error, [
           "errorMessage": "EnrollViewController is already presented."
         ])
+        return
       }
+
+      self.addPassViewController = nil
+
+      guard let presentingViewController = RCTPresentedViewController() else {
+        completion(.error, [
+          "errorMessage": "Presenting view controller is unavailable."
+        ])
+        return
+      }
+
+      self.presentAddPaymentPassCompletionHandler = completion
+      self.addPassViewController = enrollViewController
+      presentingViewController.present(enrollViewController, animated: true, completion: nil)
     }
   }
   
@@ -200,9 +210,12 @@ open class WalletManager: UIViewController {
     DispatchQueue.main.async {
       if let enrollVC = self.addPassViewController, enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
         enrollVC.dismiss(animated: true, completion: {
-          self.addPassViewController = nil
+          if self.addPassViewController === enrollVC {
+            self.addPassViewController = nil
+          }
         })
       } else {
+        self.addPassViewController = nil
         self.logInfo(message: "EnrollViewController is not presented currently.")
       }
     }
