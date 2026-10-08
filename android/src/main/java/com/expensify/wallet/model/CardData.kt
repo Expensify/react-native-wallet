@@ -6,7 +6,6 @@ data class CardData(
   val platform: String = "android",
   val network: String,
   val opaquePaymentCard: String, // TSP OPC
-  val googleOpaquePaymentCard: String? = null,
   val cardHolderName: String,
   val lastDigits: String,
   val userAddress: UserAddress,

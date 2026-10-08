@@ -35,7 +35,6 @@ object Utils {
     return CardData(
       network = this.getString("network") ?: "",
       opaquePaymentCard = this.getString("opaquePaymentCard") ?: "",
-      googleOpaquePaymentCard = this.getString("googleOpaquePaymentCard") ?: "",
       cardHolderName = this.getString("cardHolderName") ?: "",
       lastDigits = this.getString("lastDigits") ?: "",
       userAddress = userAddress,

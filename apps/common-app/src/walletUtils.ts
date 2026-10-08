@@ -12,7 +12,7 @@ function issuerEncryptPayloadCallback(_nonce: string, _nonceSignature: string, _
 function handlePaymentCredentialsGeneration(_data: onPaymentCredentialsRequestPayload): Promise<AndroidPaymentCredentialsResponse> {
   // Here send data to your server or you TSP to generate the payment credentials
   // for example: fetch('https://tsp.com/generatePaymentCredentials', {method: 'POST', body: data})
-  return Promise.resolve(CONST.IOSDummyPaymentCredentialsResponse);
+  return Promise.resolve(CONST.AndroidDummyPaymentCredentialsResponse);
 }
 
 async function addCardToWallet(cardStatus?: CardStatus) {

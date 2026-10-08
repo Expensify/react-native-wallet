@@ -42,9 +42,9 @@ const IOSDummyEncryptPayload: IOSEncryptPayload = {
   ephemeralPublicKey: 'ZXBoZW1lcmFsUHVibGljS2V5MTIz',
 };
 
-const IOSDummyPaymentCredentialsResponse = {
+const AndroidDummyPaymentCredentialsResponse = {
   opaquePaymentCard: 'encryptedCardInformation123456',
   googleOpaquePaymentCard: 'GOPC',
 };
 
-export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload, IOSDummyPaymentCredentialsResponse};
+export {AndroidDummyCardData, AndroidDummyResumeCardData, IOSDummyCardData, IOSDummyEncryptPayload, AndroidDummyPaymentCredentialsResponse};
