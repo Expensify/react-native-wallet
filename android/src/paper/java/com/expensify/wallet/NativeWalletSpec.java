@@ -63,6 +63,10 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
+  public abstract void AndroidRejectPaymentCredentials(String requestId, String errorMessage, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void resumeAddCardToGoogleWallet(ReadableMap cardData, Promise promise);
 
   @ReactMethod

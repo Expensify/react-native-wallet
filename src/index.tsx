@@ -30,15 +30,17 @@ let paymentCredentialsHandler: ((data: onPaymentCredentialsRequestPayload) => Pr
 if (Platform.OS === 'android' && Wallet) {
   eventEmitter ??= new NativeEventEmitter(Wallet);
   eventEmitter.addListener('onPaymentCredentialsRequest', async (data: onPaymentCredentialsRequestPayload) => {
-    if (paymentCredentialsHandler) {
-      try {
-        const responseData = await paymentCredentialsHandler(data);
-        await Wallet?.AndroidProvidePaymentCredentials(data.requestId, responseData);
-      } catch (error) {
-        console.error('[react-native-wallet] Error handling payment credentials request:', error);
-      }
-    } else {
-      console.warn('[react-native-wallet] Received payment credentials request but no handler is set. Call setPaymentCredentialsHandler() to handle this event.');
+    if (!paymentCredentialsHandler) {
+      console.warn(`[${PACKAGE_NAME}] Received payment credentials request but no handler is set`);
+      await Wallet?.AndroidRejectPaymentCredentials(data.requestId, 'No payment credentials handler is set').catch(() => undefined);
+      return;
+    }
+    try {
+      const responseData = await paymentCredentialsHandler(data);
+      await Wallet?.AndroidProvidePaymentCredentials(data.requestId, responseData);
+    } catch (error) {
+      console.error(`[${PACKAGE_NAME}] Error handling payment credentials request:`, error);
+      await Wallet?.AndroidRejectPaymentCredentials(data.requestId, error instanceof Error ? error.message : String(error)).catch(() => undefined);
     }
   });
 }
@@ -121,9 +123,12 @@ async function addCardToGoogleWallet(
   }
 
   paymentCredentialsHandler = handlePaymentCredentialsGeneration;
-  const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
-  paymentCredentialsHandler = null;
-  return getTokenizationStatus(tokenizationStatus);
+  try {
+    const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
+    return getTokenizationStatus(tokenizationStatus);
+  } finally {
+    paymentCredentialsHandler = null;
+  }
 }
 
 async function resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<TokenizationStatus> {

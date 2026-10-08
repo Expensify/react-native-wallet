@@ -5,6 +5,8 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.IntentCompat
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
@@ -45,6 +47,7 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Future
+import java.util.concurrent.TimeoutException
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) :
@@ -57,6 +60,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val E_SDK_API = "SDK API Error"
     const val E_OPERATION_FAILED = "E_OPERATION_FAILED"
     const val E_INVALID_DATA = "E_INVALID_DATA"
+
+    const val PAYMENT_CREDENTIALS_TIMEOUT_MS = 60_000L
   }
 
   private val activity: Activity
@@ -69,6 +74,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private val moduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   private val pendingProvisioningFutures = ConcurrentHashMap<String, CompletableFuture<GeneratePaymentCredentialsResponse>>()
+  private val mainHandler = Handler(Looper.getMainLooper())
 
   override fun initialize() {
     super.initialize()
@@ -79,6 +85,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     super.invalidate()
     moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
+    mainHandler.removeCallbacksAndMessages(null)
+    pendingProvisioningFutures.values.forEach { it.completeExceptionally(IllegalStateException("Wallet module invalidated")) }
+    pendingProvisioningFutures.clear()
   }
 
   private val cardListener = object : ActivityEventListener {
@@ -281,6 +290,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         val future = CompletableFuture<GeneratePaymentCredentialsResponse>()
         val requestId = UUID.randomUUID().toString()
         pendingProvisioningFutures[requestId] = future
+        mainHandler.postDelayed({
+          pendingProvisioningFutures.remove(requestId)
+            ?.completeExceptionally(TimeoutException("Payment credentials were not provided in time"))
+        }, PAYMENT_CREDENTIALS_TIMEOUT_MS)
 
         val params = Arguments.createMap().apply {
           putString("requestId", requestId)
@@ -328,6 +341,17 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       future.completeExceptionally(e)
       promise.reject(E_OPERATION_FAILED, e.message)
     }
+  }
+
+  @ReactMethod
+  override fun AndroidRejectPaymentCredentials(requestId: String, errorMessage: String, promise: Promise) {
+    val future = pendingProvisioningFutures.remove(requestId)
+    if (future == null) {
+      promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
+      return
+    }
+    future.completeExceptionally(Exception(errorMessage))
+    promise.resolve(true)
   }
 
   @ReactMethod

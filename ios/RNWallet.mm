@@ -135,6 +135,27 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
   // no-op
 }
 
+- (void)AndroidProvidePaymentCredentials:(NSString *)requestId
+  responseData:
+#ifdef RCT_NEW_ARCH_ENABLED
+  (JS::NativeWallet::AndroidPaymentCredentialsResponse &)responseData
+#else
+  (NSDictionary *)responseData
+#endif
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+{
+  // no-op
+}
+
+- (void)AndroidRejectPaymentCredentials:(NSString *)requestId
+  errorMessage:(NSString *)errorMessage
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+{
+  // no-op
+}
+
 - (void)getSecureWalletInfo:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   // no-op
 }
