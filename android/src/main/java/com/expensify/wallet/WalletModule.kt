@@ -5,7 +5,6 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.IntentSender
 import androidx.core.content.IntentCompat
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
@@ -251,11 +250,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
               REQUEST_CODE_PUSH_TOKENIZE,
               null, 0, 0, 0
             )
-          } catch (e: IntentSender.SendIntentException) {
+          } catch (e: Exception) {
+            pendingPushTokenizePromise = null
             promise.reject(E_OPERATION_FAILED, "Failed to launch Google Pay: ${e.message}")
           }
         }
         .addOnFailureListener { e ->
+          pendingPushTokenizePromise = null
           promise.reject(E_OPERATION_FAILED, "Google Pay API Error: ${e.message}")
         }
     } catch (e: java.lang.Exception) {
