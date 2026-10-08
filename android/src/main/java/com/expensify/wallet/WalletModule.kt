@@ -55,6 +55,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   companion object {
     const val NAME = "RNWallet"
     const val REQUEST_CODE_PUSH_TOKENIZE: Int = 0xA001
+    const val REQUEST_CODE_RESUME_TOKENIZE: Int = 0xA003
     const val REQUEST_CREATE_WALLET: Int = 0xA002
 
     const val E_SDK_API = "SDK API Error"
@@ -97,6 +98,27 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       if (requestCode == REQUEST_CREATE_WALLET) {
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
+      } else if (requestCode == REQUEST_CODE_RESUME_TOKENIZE) {
+        val localPromise = pendingPushTokenizePromise
+        pendingPushTokenizePromise = null
+        if (resultCode == RESULT_OK) {
+          val tokenId = data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID)
+          sendEvent(
+            context,
+            OnCardActivatedEvent.NAME,
+            OnCardActivatedEvent("activated", tokenId).toMap()
+          )
+          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
+        } else if (resultCode == RESULT_CANCELED) {
+          sendEvent(
+            context,
+            OnCardActivatedEvent.NAME,
+            OnCardActivatedEvent("canceled", null).toMap()
+          )
+          localPromise?.resolve(TokenizationStatus.CANCELED.code)
+        } else {
+          localPromise?.resolve(TokenizationStatus.ERROR.code)
+        }
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
         val localPromise = pendingPushTokenizePromise
         pendingPushTokenizePromise = null
@@ -377,7 +399,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         tokenServiceProvider,
         displayName,
         cardNetwork,
-        REQUEST_CODE_PUSH_TOKENIZE
+        REQUEST_CODE_RESUME_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
       pendingPushTokenizePromise = null
