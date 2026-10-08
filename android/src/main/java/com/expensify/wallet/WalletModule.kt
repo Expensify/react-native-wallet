@@ -118,10 +118,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
           if (result != null) {
             val isSavedToCloud = result.cardResult
-            val tokenOutcomes = result.tokenizationOutcomes
+            val successfulOutcome = result.tokenizationOutcomes.firstOrNull { it.tokenResult }
 
-            if (isSavedToCloud || tokenOutcomes.isNotEmpty()) {
-              val tokenId = tokenOutcomes.firstOrNull()?.issuerTokenId ?: "card_on_file_only"
+            if (isSavedToCloud || successfulOutcome != null) {
+              val tokenId = successfulOutcome?.issuerTokenId
 
               sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
               localPromise?.resolve(TokenizationStatus.SUCCESS.code)
