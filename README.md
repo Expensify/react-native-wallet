@@ -22,7 +22,7 @@ To be able to interact with the Google Wallet on the Android please make sure to
 1. Visit [the Google Pay Android Push Provisioning API documentation](https://developers.google.com/pay/issuers/apis/push-provisioning/android/) and request access to it.
 
 2. Once getting an approval from the Google team
-	1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases).
+	1. Download the [TapAndPay SDK](https://developers.google.com/pay/issuers/apis/push-provisioning/android/releases). The library uses the UAPP APIs (`PaymentCredentialsGenerator`, `PushTokenizeResult`), so older SDK versions without them will not compile. Tested with 18.10.1.
 	2. Unzip it and extract the SDK into the `/android/libs` folder in your React Native project (if there is no `libs` folder, create one).
 	3. Add `/android/libs` to `.gitignore`.
 
@@ -135,7 +135,7 @@ In your `app.json` file, add the following configuration:
   			"@expensify/react-native-wallet",
   			{
   				enableApplePayProvisioning: true,
-  				googleTapAndPaySdkPath: "./libs/tapandpay-v18.7.0.zip", // path to the Google Tap & Pay SDK zip file
+  				googleTapAndPaySdkPath: "./libs/tapandpay-v18.10.1.zip", // path to the Google Tap & Pay SDK zip file
   			},
       ],
     ]
@@ -180,7 +180,7 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **checkWalletAvailability** | Checks if the wallet is ready and initializes it if possible. | None | `boolean` | ✅ | ✅ |
 | **getCardStatusBySuffix** | Retrieves the current status of a card in the wallet. | `lastDigits: string`<br>(The last few digits of the card number) | `CardStatus` | ✅ | ✅ |
 | **getCardStatusByIdentifier** | Returns the state of a card based on a platform-specific identifier. On Android, it's `Token Reference ID` and on iOS, it's `Primary Account Identifier`. | `identifier: string`,<br>`tsp: string` | `CardStatus` | ✅ | ✅ |
-| **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. For UAPP flow, pass a handler as the second parameter. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials?`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
+| **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. Requires a handler that returns the payment credentials for the UAPP flow. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
 | **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |

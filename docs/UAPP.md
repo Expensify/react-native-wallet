@@ -22,7 +22,7 @@ This library handles the UAPP flow automatically. You just need to set up a hand
 
 ## Setup
 
-To enable UAPP support, pass a payment credentials handler directly to the `addCardToGoogleWallet()` function:
+UAPP is always enabled on Android, so `addCardToGoogleWallet()` requires a payment credentials handler as its second argument:
 
 ```typescript
 import { addCardToGoogleWallet } from '@expensify/react-native-wallet';
@@ -119,6 +119,8 @@ Initiates the Google Wallet card provisioning flow with UAPP support.
 - `handlePaymentCredentialsGeneration: (data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` - Handler function that receives the payment credentials request and returns encrypted credentials from your backend
 
 **Returns:** `Promise<TokenizationStatus>` - Status of the tokenization process ('success', 'canceled', or 'error')
+
+The handler is only called when Google Wallet requests a Google OPC. If it throws, the request is reported to Google Wallet as failed. If it does not resolve within 60 seconds, the request fails with a timeout.
 
 **Platform:** Android only
 
