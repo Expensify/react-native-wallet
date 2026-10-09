@@ -120,16 +120,37 @@ open class WalletManager: UIViewController {
     }
     
     DispatchQueue.main.async {
-      if self.addPassViewController == nil {
-        self.presentAddPaymentPassCompletionHandler = completion
-        self.addPassViewController = enrollViewController
-        RCTPresentedViewController()?.present(enrollViewController, animated: true, completion: nil)
-      } else {
+      if let enrollVC = self.addPassViewController, enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
         self.logInfo(message: "EnrollViewController is already presented.")
         completion(.error, [
           "errorMessage": "EnrollViewController is already presented."
         ])
+        return
       }
+
+      let presentPassHandler = self.presentAddPaymentPassCompletionHandler
+      let addPaymentPassHandler = self.addPaymentPassCompletionHandler
+      self.addPassViewController = nil
+      self.presentAddPaymentPassCompletionHandler = nil
+      self.addPaymentPassCompletionHandler = nil
+      self.addPassHandler = nil
+
+      let errorResponse: NSDictionary = [
+        "errorMessage": "EnrollViewController is no longer presented."
+      ]
+      presentPassHandler?(.error, errorResponse)
+      addPaymentPassHandler?(.error, errorResponse)
+
+      guard let presentingViewController = RCTPresentedViewController() else {
+        completion(.error, [
+          "errorMessage": "Presenting view controller is unavailable."
+        ])
+        return
+      }
+
+      self.presentAddPaymentPassCompletionHandler = completion
+      self.addPassViewController = enrollViewController
+      presentingViewController.present(enrollViewController, animated: true, completion: nil)
     }
   }
   
@@ -197,12 +218,23 @@ open class WalletManager: UIViewController {
   }
   
   private func hideModal() {
+    guard let enrollVC = addPassViewController else {
+      return
+    }
+
     DispatchQueue.main.async {
-      if let enrollVC = self.addPassViewController, enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
+      guard self.addPassViewController === enrollVC else {
+        return
+      }
+
+      if enrollVC.isBeingPresented || enrollVC.presentingViewController != nil {
         enrollVC.dismiss(animated: true, completion: {
-          self.addPassViewController = nil
+          if self.addPassViewController === enrollVC {
+            self.addPassViewController = nil
+          }
         })
       } else {
+        self.addPassViewController = nil
         self.logInfo(message: "EnrollViewController is not presented currently.")
       }
     }
@@ -220,6 +252,10 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
     generateRequestWithCertificateChain certificates: [Data],
     nonce: Data, nonceSignature: Data,
     completionHandler handler: @escaping (PKAddPaymentPassRequest) -> Void) {
+      guard controller === addPassViewController else {
+        return
+      }
+
       let stringNonce = nonce.base64EncodedString() as NSString
       let stringNonceSignature = nonceSignature.base64EncodedString() as NSString
       let stringCertificates = certificates.map {
@@ -230,15 +266,16 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       
       // Retry the JS issuer callback if the user tries again to add a payment pass
       if let addPaymentPassHandler = addPaymentPassCompletionHandler {
-        addPaymentPassHandler(.retry, reqestCardData.toNSDictionary())
+        // The callback can synchronously register the next completion.
         addPaymentPassCompletionHandler = nil
+        addPaymentPassHandler(.retry, reqestCardData.toNSDictionary())
         return
       }
       
       // Finish IOSPresentAddPaymentPassView function
       if let presentPassHandler = presentAddPaymentPassCompletionHandler {
-        presentPassHandler(.completed, reqestCardData.toNSDictionary())
         presentAddPaymentPassCompletionHandler = nil
+        presentPassHandler(.completed, reqestCardData.toNSDictionary())
       }
     }
     
@@ -247,10 +284,16 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
     _ controller: PKAddPaymentPassViewController,
     didFinishAdding pass: PKPaymentPass?,
     error: Error?) {
-      if addPassViewController == nil {
+      guard controller === addPassViewController else {
         return
       }
-      
+
+      let presentPassHandler = presentAddPaymentPassCompletionHandler
+      let addPaymentPassHandler = addPaymentPassCompletionHandler
+      presentAddPaymentPassCompletionHandler = nil
+      addPaymentPassCompletionHandler = nil
+      addPassHandler = nil
+
       let errorMessage = error?.localizedDescription ?? ""
 
       if error != nil {
@@ -261,13 +304,13 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       }
       
       // Cancel the IOSPresentAddPaymentPassView function when the user cancelled the modal
-      if let handler = presentAddPaymentPassCompletionHandler {
+      if let handler = presentPassHandler {
         let response = AddPassResponse(status: .canceled, nonce: nil, nonceSignature: nil, certificates: nil)
         handler(.canceled, response.toNSDictionary())
       }
       
       // If the pass is returned complete the IOSHandleAddPaymentPassResponse function
-      if let addPaymentPassHandler = addPaymentPassCompletionHandler {
+      if let addPaymentPassHandler = addPaymentPassHandler {
         if pass != nil {
           addPaymentPassHandler(.completed, nil)
         } else {
@@ -276,11 +319,8 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
           ])
         }
       }
-      
-      addPassHandler = nil
+
       hideModal()
-      addPaymentPassCompletionHandler = nil
-      presentAddPaymentPassCompletionHandler = nil
     }
 }
 
