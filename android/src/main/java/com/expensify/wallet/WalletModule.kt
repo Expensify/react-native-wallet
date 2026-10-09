@@ -132,29 +132,33 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           return
         }
 
-        if (data != null) {
-          val result =
-            IntentCompat.getParcelableExtra<PushTokenizeResult?>(
-              data, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java
-            )
+        val result = data?.let {
+          IntentCompat.getParcelableExtra<PushTokenizeResult?>(
+            it, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java
+          )
+        }
 
-          if (result != null) {
-            val isSavedToCloud = result.cardResult
-            val successfulOutcome = result.tokenizationOutcomes.firstOrNull { it.tokenResult }
-
-            if (isSavedToCloud || successfulOutcome != null) {
-              val tokenId = successfulOutcome?.issuerTokenId
-
-              sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
-              localPromise?.resolve(TokenizationStatus.SUCCESS.code)
-            } else {
-              val errorMsg = "Card not saved. Status: ${result.cardStatus}"
-              localPromise?.reject(E_OPERATION_FAILED, errorMsg)
-            }
+        if (result == null) {
+          if (resultCode == RESULT_OK) {
+            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", null).toMap())
+            localPromise?.resolve(TokenizationStatus.SUCCESS.code)
           } else {
-            // Data intent is null (rare but possible failure case). Report to Google if you observe this.
-            localPromise?.reject(E_OPERATION_FAILED, "Unexpected error.")
+            localPromise?.resolve(TokenizationStatus.ERROR.code)
           }
+          return
+        }
+
+        val isSavedToCloud = result.cardResult
+        val successfulOutcome = result.tokenizationOutcomes.firstOrNull { it.tokenResult }
+
+        if (isSavedToCloud || successfulOutcome != null) {
+          val tokenId = successfulOutcome?.issuerTokenId
+
+          sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
+          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
+        } else {
+          val errorMsg = "Card not saved. Status: ${result.cardStatus}"
+          localPromise?.reject(E_OPERATION_FAILED, errorMsg)
         }
       }
     }
