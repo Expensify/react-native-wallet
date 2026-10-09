@@ -38,6 +38,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import java.nio.charset.Charset
 import java.util.Locale
 import java.util.UUID
@@ -58,10 +60,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     const val E_INVALID_DATA = "E_INVALID_DATA"
   }
 
-  private val activity = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
-  private val tapAndPayClient: TapAndPayClient = TapAndPay.getClient(activity)
+  private val activity: Activity
+    get() = reactApplicationContext.currentActivity ?: throw ActivityNotFoundException()
+
+  private val tapAndPayClient: TapAndPayClient
+    get() = TapAndPay.getClient(activity)
   private var pendingCreateWalletPromise: Promise? = null
   private var pendingPushTokenizePromise: Promise? = null
+  private val moduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   private val pendingProvisioningFutures = ConcurrentHashMap<String, CompletableFuture<GeneratePaymentCredentialsResponse>>()
 
@@ -72,6 +78,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   override fun invalidate() {
     super.invalidate()
+    moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
   }
 
@@ -83,13 +90,15 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
         pendingCreateWalletPromise = null
       } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
+        val localPromise = pendingPushTokenizePromise
+        pendingPushTokenizePromise = null
         if (resultCode == RESULT_CANCELED) {
           sendEvent(
             context,
             OnCardActivatedEvent.NAME,
             OnCardActivatedEvent("canceled", null).toMap()
           )
-          pendingPushTokenizePromise?.resolve(TokenizationStatus.CANCELED.code)
+          localPromise?.resolve(TokenizationStatus.CANCELED.code)
           return
         }
 
@@ -107,14 +116,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
               val tokenId = tokenOutcomes.firstOrNull()?.issuerTokenId ?: "card_on_file_only"
 
               sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
-              pendingPushTokenizePromise?.resolve(TokenizationStatus.SUCCESS.code)
+              localPromise?.resolve(TokenizationStatus.SUCCESS.code)
             } else {
               val errorMsg = "Card not saved. Status: ${result.cardStatus}"
-              pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, errorMsg)
+              localPromise?.reject(E_OPERATION_FAILED, errorMsg)
             }
           } else {
             // Data intent is null (rare but possible failure case). Report to Google if you observe this.
-            pendingPushTokenizePromise?.reject(E_OPERATION_FAILED, "Unexpected error.")
+            localPromise?.reject(E_OPERATION_FAILED, "Unexpected error.")
           }
         }
       }
@@ -137,19 +146,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   @ReactMethod
   override fun checkWalletAvailability(promise: Promise) {
     tapAndPayClient.environment.addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        promise.resolve(true)
-      } else {
-        promise.resolve(false)
-      }
-    }.addOnFailureListener { e ->
-      promise.reject(E_OPERATION_FAILED, "Checking Wallet availability failed: ${e.localizedMessage}")
+      promise.resolve(task.isSuccessful)
     }
   }
 
   @ReactMethod
   override fun getSecureWalletInfo(promise: Promise) {
-    CoroutineScope(Dispatchers.Main).launch {
+    moduleScope.launch {
       try {
         val walletId = getWalletIdAsync()
         val hardwareId = getHardwareIdAsync()
@@ -214,6 +217,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   override fun addCardToGoogleWallet(
     data: ReadableMap, promise: Promise
   ) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val cardData = data.toCardData() ?: return promise.reject(E_INVALID_DATA, "Insufficient data")
       val cardNetwork = getCardNetwork(cardData.network)
@@ -253,6 +259,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           promise.reject(E_OPERATION_FAILED, "Google Pay API Error: ${e.message}")
         }
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
@@ -324,6 +331,9 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun resumeAddCardToGoogleWallet(data: ReadableMap, promise: Promise) {
+    if (pendingPushTokenizePromise != null) {
+      return promise.reject(E_OPERATION_FAILED, "A tokenization request is already in progress")
+    }
     try {
       val tokenReferenceID = data.getString("tokenReferenceID")
         ?: return promise.reject(E_INVALID_DATA, "Missing tokenReferenceID")
@@ -345,6 +355,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         REQUEST_CODE_PUSH_TOKENIZE
       )
     } catch (e: java.lang.Exception) {
+      pendingPushTokenizePromise = null
       promise.reject(e)
     }
   }
