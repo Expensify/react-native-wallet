@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @lwc/lwc/no-async-await */
 import {NativeEventEmitter, Platform} from 'react-native';
 import type {EmitterSubscription} from 'react-native';
@@ -11,8 +12,10 @@ import type {
   IOSEncryptPayload,
   AndroidWalletData,
   onCardActivatedPayload,
+  onPaymentCredentialsRequestPayload,
   IOSAddPaymentPassData,
   TokenInfo,
+  AndroidPaymentCredentialsResponse,
 } from './NativeWallet';
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
@@ -22,6 +25,25 @@ function getModuleLinkingRejection() {
 }
 
 let eventEmitter: NativeEventEmitter | undefined;
+let paymentCredentialsHandler: ((data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>) | null = null;
+
+if (Platform.OS === 'android' && Wallet) {
+  eventEmitter ??= new NativeEventEmitter(Wallet);
+  eventEmitter.addListener('onPaymentCredentialsRequest', async (data: onPaymentCredentialsRequestPayload) => {
+    if (!paymentCredentialsHandler) {
+      console.warn(`[${PACKAGE_NAME}] Received payment credentials request but no handler is set`);
+      await Wallet?.AndroidRejectPaymentCredentials(data.requestId, 'No payment credentials handler is set').catch(() => undefined);
+      return;
+    }
+    try {
+      const responseData = await paymentCredentialsHandler(data);
+      await Wallet?.AndroidProvidePaymentCredentials(data.requestId, responseData);
+    } catch (error) {
+      console.error(`[${PACKAGE_NAME}] Error handling payment credentials request:`, error);
+      await Wallet?.AndroidRejectPaymentCredentials(data.requestId, error instanceof Error ? error.message : String(error)).catch(() => undefined);
+    }
+  });
+}
 
 function addListener(event: string, callback: (data: onCardActivatedPayload) => void): EmitterSubscription {
   if (!Wallet) {
@@ -84,7 +106,10 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
   return getCardState(tokenState);
 }
 
-async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<TokenizationStatus> {
+async function addCardToGoogleWallet(
+  cardData: AndroidCardData,
+  handlePaymentCredentialsGeneration: (data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>,
+): Promise<TokenizationStatus> {
   if (Platform.OS === 'ios') {
     throw new Error('addCardToGoogleWallet is not available on iOS');
   }
@@ -96,8 +121,14 @@ async function addCardToGoogleWallet(cardData: AndroidCardData): Promise<Tokeniz
   if (!isWalletInitialized) {
     throw new Error('Wallet could not be initialized');
   }
-  const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
-  return getTokenizationStatus(tokenizationStatus);
+
+  paymentCredentialsHandler = handlePaymentCredentialsGeneration;
+  try {
+    const tokenizationStatus = await Wallet.addCardToGoogleWallet(cardData);
+    return getTokenizationStatus(tokenizationStatus);
+  } finally {
+    paymentCredentialsHandler = null;
+  }
 }
 
 async function resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<TokenizationStatus> {
@@ -164,7 +195,19 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
-export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus, TokenInfo};
+export type {
+  AndroidCardData,
+  AndroidWalletData,
+  CardStatus,
+  IOSEncryptPayload,
+  IOSCardData,
+  IOSAddPaymentPassData,
+  onCardActivatedPayload,
+  onPaymentCredentialsRequestPayload,
+  TokenizationStatus,
+  TokenInfo,
+  AndroidPaymentCredentialsResponse,
+};
 export {
   AddToWalletButton,
   checkWalletAvailability,
