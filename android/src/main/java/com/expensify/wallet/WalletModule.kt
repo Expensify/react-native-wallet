@@ -79,15 +79,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         val localPromise = pendingPushTokenizePromise
         pendingPushTokenizePromise = null
         if (resultCode == RESULT_OK) {
-          data?.let {
-            val tokenId = it.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID).toString()
-            sendEvent(
-              context,
-              OnCardActivatedEvent.NAME,
-              OnCardActivatedEvent("activated", tokenId).toMap()
-            )
-            localPromise?.resolve(TokenizationStatus.SUCCESS.code)
-          }
+          val tokenId = data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID)
+          sendEvent(
+            context,
+            OnCardActivatedEvent.NAME,
+            OnCardActivatedEvent("activated", tokenId).toMap()
+          )
+          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
         } else if (resultCode == RESULT_CANCELED) {
           sendEvent(
             context,
@@ -95,6 +93,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
             OnCardActivatedEvent("canceled", null).toMap()
           )
           localPromise?.resolve(TokenizationStatus.CANCELED.code)
+        } else {
+          localPromise?.resolve(TokenizationStatus.ERROR.code)
         }
       }
     }
