@@ -95,75 +95,70 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     override fun onActivityResult(
       activity: Activity, requestCode: Int, resultCode: Int, data: Intent?
     ) {
-      if (requestCode == REQUEST_CREATE_WALLET) {
-        pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
-        pendingCreateWalletPromise = null
-      } else if (requestCode == REQUEST_CODE_RESUME_TOKENIZE) {
-        val localPromise = pendingPushTokenizePromise
-        pendingPushTokenizePromise = null
-        if (resultCode == RESULT_OK) {
-          val tokenId = data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID)
-          sendEvent(
-            context,
-            OnCardActivatedEvent.NAME,
-            OnCardActivatedEvent("activated", tokenId).toMap()
-          )
-          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
-        } else if (resultCode == RESULT_CANCELED) {
-          sendEvent(
-            context,
-            OnCardActivatedEvent.NAME,
-            OnCardActivatedEvent("canceled", null).toMap()
-          )
-          localPromise?.resolve(TokenizationStatus.CANCELED.code)
-        } else {
-          localPromise?.resolve(TokenizationStatus.ERROR.code)
+      when (requestCode) {
+        REQUEST_CREATE_WALLET -> {
+          pendingCreateWalletPromise?.resolve(resultCode == RESULT_OK)
+          pendingCreateWalletPromise = null
         }
-      } else if (requestCode == REQUEST_CODE_PUSH_TOKENIZE) {
-        val localPromise = pendingPushTokenizePromise
-        pendingPushTokenizePromise = null
-        if (resultCode == RESULT_CANCELED) {
-          sendEvent(
-            context,
-            OnCardActivatedEvent.NAME,
-            OnCardActivatedEvent("canceled", null).toMap()
-          )
-          localPromise?.resolve(TokenizationStatus.CANCELED.code)
-          return
-        }
-
-        val result = data?.let {
-          IntentCompat.getParcelableExtra<PushTokenizeResult?>(
-            it, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java
-          )
-        }
-
-        if (result == null) {
-          if (resultCode == RESULT_OK) {
-            sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", null).toMap())
-            localPromise?.resolve(TokenizationStatus.SUCCESS.code)
-          } else {
-            localPromise?.resolve(TokenizationStatus.ERROR.code)
-          }
-          return
-        }
-
-        val isSavedToCloud = result.cardResult
-        val successfulOutcome = result.tokenizationOutcomes.firstOrNull { it.tokenResult }
-
-        if (isSavedToCloud || successfulOutcome != null) {
-          val tokenId = successfulOutcome?.issuerTokenId
-
-          sendEvent(context, OnCardActivatedEvent.NAME, OnCardActivatedEvent("activated", tokenId).toMap())
-          localPromise?.resolve(TokenizationStatus.SUCCESS.code)
-        } else {
-          val errorMsg = "Card not saved. Status: ${result.cardStatus}"
-          localPromise?.reject(E_OPERATION_FAILED, errorMsg)
-        }
+        REQUEST_CODE_RESUME_TOKENIZE -> handleResumeTokenizeResult(resultCode, data)
+        REQUEST_CODE_PUSH_TOKENIZE -> handlePushTokenizeResult(resultCode, data)
       }
     }
 
     override fun onNewIntent(intent: Intent) {}
+  }
+
+  private fun takePendingTokenizePromise(): Promise? =
+    pendingPushTokenizePromise.also { pendingPushTokenizePromise = null }
+
+  private fun sendCardActivatedEvent(status: String, tokenId: String?) {
+    sendEvent(reactApplicationContext, OnCardActivatedEvent.NAME, OnCardActivatedEvent(status, tokenId).toMap())
+  }
+
+  private fun handleResumeTokenizeResult(resultCode: Int, data: Intent?) {
+    val promise = takePendingTokenizePromise()
+    when (resultCode) {
+      RESULT_OK -> {
+        sendCardActivatedEvent("activated", data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID))
+        promise?.resolve(TokenizationStatus.SUCCESS.code)
+      }
+      RESULT_CANCELED -> {
+        sendCardActivatedEvent("canceled", null)
+        promise?.resolve(TokenizationStatus.CANCELED.code)
+      }
+      else -> promise?.resolve(TokenizationStatus.ERROR.code)
+    }
+  }
+
+  private fun handlePushTokenizeResult(resultCode: Int, data: Intent?) {
+    val promise = takePendingTokenizePromise()
+    if (resultCode == RESULT_CANCELED) {
+      sendCardActivatedEvent("canceled", null)
+      promise?.resolve(TokenizationStatus.CANCELED.code)
+      return
+    }
+
+    val result = data?.let {
+      IntentCompat.getParcelableExtra(it, TapAndPay.EXTRA_PUSH_TOKENIZE_RESULT, PushTokenizeResult::class.java)
+    }
+
+    if (result == null) {
+      if (resultCode == RESULT_OK) {
+        sendCardActivatedEvent("activated", null)
+        promise?.resolve(TokenizationStatus.SUCCESS.code)
+      } else {
+        promise?.resolve(TokenizationStatus.ERROR.code)
+      }
+      return
+    }
+
+    val successfulOutcome = result.tokenizationOutcomes.firstOrNull { it.tokenResult }
+    if (result.cardResult || successfulOutcome != null) {
+      sendCardActivatedEvent("activated", successfulOutcome?.issuerTokenId)
+      promise?.resolve(TokenizationStatus.SUCCESS.code)
+    } else {
+      promise?.reject(E_OPERATION_FAILED, "Card not saved. Status: ${result.cardStatus}")
+    }
   }
 
   @ReactMethod
