@@ -32,10 +32,13 @@ import com.google.android.gms.tapandpay.TapAndPayClient
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsException
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
+import com.google.android.gms.tapandpay.issuer.GetTokenStatusRequest
+import com.google.android.gms.tapandpay.issuer.ListTokensRequest
 import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
 import com.google.android.gms.tapandpay.issuer.PushTokenizeExtraOptions
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
+import com.google.android.gms.tapandpay.issuer.TokenizeRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -227,7 +230,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun getCardStatusBySuffix(last4Digits: String, promise: Promise) {
-    tapAndPayClient.listTokens()
+    tapAndPayClient.listTokens(ListTokensRequest.Builder().build())
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
@@ -246,7 +249,12 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun getCardStatusByIdentifier(identifier: String, tsp: String, promise: Promise) {
-    tapAndPayClient.getTokenStatus(getTokenServiceProvider(tsp), identifier)
+    tapAndPayClient.getTokenStatus(
+      GetTokenStatusRequest.Builder()
+        .setTokenServiceProvider(getTokenServiceProvider(tsp))
+        .setIssuerTokenId(identifier)
+        .build()
+    )
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(CardStatus.NOT_FOUND_IN_WALLET.code)
@@ -421,14 +429,13 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       val displayName = getDisplayName(data, network)
       pendingPushTokenizePromise = promise
 
-      tapAndPayClient.tokenize(
-        activity,
-        tokenReferenceID,
-        tokenServiceProvider,
-        displayName,
-        cardNetwork,
-        REQUEST_CODE_RESUME_TOKENIZE
-      )
+      val tokenizeRequest = TokenizeRequest.Builder()
+        .setIssuerTokenId(tokenReferenceID)
+        .setTokenServiceProvider(tokenServiceProvider)
+        .setCardDisplayName(displayName)
+        .setCardNetwork(cardNetwork)
+        .build()
+      tapAndPayClient.tokenize(activity, tokenizeRequest, REQUEST_CODE_RESUME_TOKENIZE)
     } catch (e: java.lang.Exception) {
       pendingPushTokenizePromise = null
       promise.reject(e)
@@ -437,7 +444,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun listTokens(promise: Promise) {
-    tapAndPayClient.listTokens()
+    tapAndPayClient.listTokens(ListTokensRequest.Builder().build())
       .addOnCompleteListener { task ->
         if (!task.isSuccessful || task.result == null) {
           promise.resolve(Arguments.createArray())
