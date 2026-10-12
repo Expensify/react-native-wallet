@@ -12,10 +12,21 @@ import type {
   AndroidWalletData,
   onCardActivatedPayload,
   IOSAddPaymentPassData,
+  IOSPassActivationData,
+  IOSWalletPassNative,
   TokenInfo,
 } from './NativeWallet';
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
+
+type IOSWalletPass = {
+  passTypeIdentifier: string;
+  serialNumber: string;
+  primaryAccountIdentifier?: string;
+  lastDigits?: string;
+  activationState: CardStatus;
+  isRemote: boolean;
+};
 
 function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
@@ -131,6 +142,24 @@ async function listTokens(): Promise<TokenInfo[]> {
   return Wallet.listTokens();
 }
 
+async function listAppleWalletPasses(): Promise<IOSWalletPass[]> {
+  if (Platform.OS === 'android') {
+    return Promise.resolve([]);
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  const passes = await Wallet.listAppleWalletPasses();
+  return passes.map((pass: IOSWalletPassNative) => ({
+    ...pass,
+    primaryAccountIdentifier: pass.primaryAccountIdentifier || undefined,
+    lastDigits: pass.lastDigits || undefined,
+    activationState: getCardState(pass.activationState),
+  }));
+}
+
 async function addCardToAppleWallet(
   cardData: IOSCardData,
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
@@ -164,7 +193,31 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
-export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus, TokenInfo};
+async function activateAppleWalletPass(passData: IOSPassActivationData): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    throw new Error('activateAppleWalletPass is not available on Android');
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.activateAppleWalletPass(passData);
+}
+
+export type {
+  AndroidCardData,
+  AndroidWalletData,
+  CardStatus,
+  IOSEncryptPayload,
+  IOSCardData,
+  IOSAddPaymentPassData,
+  IOSPassActivationData,
+  IOSWalletPass,
+  onCardActivatedPayload,
+  TokenizationStatus,
+  TokenInfo,
+};
 export {
   AddToWalletButton,
   checkWalletAvailability,
@@ -174,7 +227,9 @@ export {
   addCardToGoogleWallet,
   resumeAddCardToGoogleWallet,
   listTokens,
+  listAppleWalletPasses,
   addCardToAppleWallet,
+  activateAppleWalletPass,
   addListener,
   removeListener,
 };

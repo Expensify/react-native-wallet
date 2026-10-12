@@ -365,6 +365,14 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     // no-op
   }
 
+  override fun listAppleWalletPasses(promise: Promise) {
+    // no-op
+  }
+
+  override fun activateAppleWalletPass(passData: ReadableMap?, promise: Promise?) {
+    // no-op
+  }
+
   override fun addListener(eventType: String?) {
     // no-op
   }

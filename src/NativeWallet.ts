@@ -61,6 +61,22 @@ type IOSEncryptPayload = {
   ephemeralPublicKey: string;
 };
 
+type IOSPassActivationData = {
+  passTypeIdentifier: string;
+  serialNumber: string;
+  activationData: string;
+  isRemote: boolean;
+};
+
+type IOSWalletPassNative = {
+  passTypeIdentifier: string;
+  serialNumber: string;
+  primaryAccountIdentifier?: string;
+  lastDigits?: string;
+  activationState: number;
+  isRemote: boolean;
+};
+
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
 type TokenInfo = {
@@ -78,8 +94,10 @@ export interface Spec extends TurboModule {
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<number>;
   resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<number>;
   listTokens(): Promise<TokenInfo[]>;
+  listAppleWalletPasses(): Promise<IOSWalletPassNative[]>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
+  activateAppleWalletPass(passData: IOSPassActivationData): Promise<boolean>;
   addListener: (eventType: string) => void;
   removeListeners: (count: number) => void;
 }
@@ -110,6 +128,8 @@ export type {
   Platform,
   IOSAddPaymentPassData,
   IOSEncryptPayload,
+  IOSPassActivationData,
+  IOSWalletPassNative,
   TokenizationStatus,
   TokenInfo,
 };

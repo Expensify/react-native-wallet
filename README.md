@@ -168,7 +168,7 @@ Here you can find data elements used in the library, essential to work with Goog
 - **Ephemeral Public Key** - a key used by elliptic curve cryptography (ECC) (Base 64 encoded).
 
 # API Reference
-The library offers seven functions for seamless integration and use of the Apple Wallet and Google Wallet APIs. Additionally, it includes one listener that informs when the added card has been activated. Below, these functions are described along with the data types involved.
+The library offers ten functions for seamless integration and use of the Apple Wallet and Google Wallet APIs. Additionally, it includes one listener that informs when the added card has been activated. Below, these functions are described along with the data types involved.
 
 ## Functions
 
@@ -181,7 +181,9 @@ The library offers seven functions for seamless integration and use of the Apple
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. | `data`: `AndroidCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
+| **listAppleWalletPasses** | Lists Apple Wallet Secure Element passes available to the app, including activation state and whether the pass is remote (for example on Apple Watch). Filter the result for `activationState === 'requireActivation'` or `activationState === 'pending'` to build a pending-cards UI. | None | `IOSWalletPass[]` | ✅ | ❌ |
 | **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
+| **activateAppleWalletPass** | Activates an existing Secure Element pass in Apple Wallet using activation data from your issuer backend. Best used for passes in the `requireActivation` state. | `data`: `IOSPassActivationData` | `boolean` | ✅ | ❌ |
 
 
 ## Data Types
@@ -196,13 +198,15 @@ The library offers seven functions for seamless integration and use of the Apple
 | **onCardActivatedPayload** | Data used by listener to notice when a card's status changes. | `tokenId: string`,<br> `status: 'activated' \| 'canceled'`<br> |
 | **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet. | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
 | **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`,<br>`activationData: string`,<br>`ephemeralPublicKey: string` |
+| **IOSPassActivationData** | Identifies an existing Apple Wallet Secure Element pass and provides the activation payload returned by your issuer backend. `activationData` must be Base 64 encoded. | `passTypeIdentifier: string`,<br>`serialNumber: string`,<br>`activationData: string`,<br>`isRemote: boolean` |
+| **IOSWalletPass** | Information about an Apple Wallet Secure Element pass currently available on the device or a paired remote device. | `passTypeIdentifier: string`,<br>`serialNumber: string`,<br>`primaryAccountIdentifier?: string`,<br>`lastDigits?: string`,<br>`activationState: CardStatus`,<br>`isRemote: boolean` |
 | **TokenInfo** | Information about a token stored in Google Wallet. | `identifier: string`,<br>`lastDigits: string`,<br>`tokenState: number` |
 
 ## Card Status
 
 | Type | Possible Values |
 |------|-----------------|
-| **CardStatus** | `not found`, `active`, `requireAuthorization`, `pending`, `suspended`, `deactivated` |
+| **CardStatus** | `not found`, `active`, `requireActivation`, `pending`, `suspended`, `deactivated` |
 
 ## Listeners
 

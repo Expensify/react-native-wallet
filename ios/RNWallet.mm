@@ -123,6 +123,51 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
   resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
 }
 
+RCT_REMAP_METHOD(listAppleWalletPasses,
+                 listAppleWalletPasses:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve([walletManager listAppleWalletPasses]);
+}
+
+RCT_REMAP_METHOD(activateAppleWalletPass,
+#ifdef RCT_NEW_ARCH_ENABLED
+                 activateAppleWalletPass:(JS::NativeWallet::IOSPassActivationData &)passData
+#else
+                 activateAppleWalletPass:(NSDictionary *)passData
+#endif
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  @try {
+    NSDictionary *passDataDict = nil;
+
+#ifdef RCT_NEW_ARCH_ENABLED
+    passDataDict = @{
+      @"passTypeIdentifier": [self safeString:passData.passTypeIdentifier()],
+      @"serialNumber": [self safeString:passData.serialNumber()],
+      @"activationData": [self safeString:passData.activationData()],
+      @"isRemote": @(passData.isRemote()),
+    };
+#else
+    id rawIsRemote = passData[@"isRemote"];
+    BOOL isRemote = [rawIsRemote isKindOfClass:[NSNumber class]] && [rawIsRemote boolValue];
+    passDataDict = @{
+      @"passTypeIdentifier": [self safeString:passData[@"passTypeIdentifier"]],
+      @"serialNumber": [self safeString:passData[@"serialNumber"]],
+      @"activationData": [self safeString:passData[@"activationData"]],
+      @"isRemote": @(isRemote),
+    };
+#endif
+
+    [self->walletManager activateAppleWalletPassWithPassData:passDataDict completion:^(OperationResult result, NSDictionary* data) {
+      [self handleBooleanWalletResponse:result data:data completedBlock:resolve errorPrefix:@"activate_card_failed" defaultErrorMessage:@"Failed to activate the Apple Wallet pass" rejecter:reject];
+    }];
+  } @catch (NSException *exception) {
+    [self rejectWithErrorType:@"activate_card_failed" code:500 description:exception.reason ?: @"An unexpected error occurred." rejecter:reject];
+  }
+}
+
 - (void)addCardToGoogleWallet:
 #ifdef RCT_NEW_ARCH_ENABLED
   (JS::NativeWallet::AndroidCardData &)cardData
@@ -169,6 +214,20 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
                     rejecter:(RCTPromiseRejectBlock)reject {
   if (result < 3) {
     resolve(data);
+  } else {
+    NSString *errorMessage = data[@"errorMessage"] ?: defaultErrorMsg ?: @"Operation failed";
+    [self rejectWithErrorType:errorPrefix code:1001 description:errorMessage rejecter:reject];
+  }
+}
+
+- (void)handleBooleanWalletResponse:(OperationResult)result
+                               data:(NSDictionary *)data
+                     completedBlock:(RCTPromiseResolveBlock)resolve
+                        errorPrefix:(NSString *)errorPrefix
+                defaultErrorMessage:(NSString *)defaultErrorMsg
+                           rejecter:(RCTPromiseRejectBlock)reject {
+  if (result < 3) {
+    resolve(@([data[@"success"] boolValue]));
   } else {
     NSString *errorMessage = data[@"errorMessage"] ?: defaultErrorMsg ?: @"Operation failed";
     [self rejectWithErrorType:errorPrefix code:1001 description:errorMessage rejecter:reject];
