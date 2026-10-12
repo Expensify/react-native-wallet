@@ -113,6 +113,12 @@ open class WalletManager: UIViewController {
     configuration.localizedDescription = String(card.cardDescription)
     if let primaryAccountIdentifier = card.primaryAccountIdentifier {
       configuration.primaryAccountIdentifier = primaryAccountIdentifier
+      if !passLibrary.canAddSecureElementPass(primaryAccountIdentifier: primaryAccountIdentifier) {
+        completion(.error, [
+          "errorMessage": "This card has already been added to all available devices."
+        ])
+        return
+      }
     }
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
