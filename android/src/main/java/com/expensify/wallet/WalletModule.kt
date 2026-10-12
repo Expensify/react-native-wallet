@@ -143,12 +143,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     }
 
     if (result == null) {
-      if (resultCode == RESULT_OK) {
-        sendCardActivatedEvent("activated", null)
-        promise?.resolve(TokenizationStatus.SUCCESS.code)
-      } else {
-        promise?.resolve(TokenizationStatus.ERROR.code)
-      }
+      handlePushTokenizeResultExtras(resultCode, data, promise)
       return
     }
 
@@ -158,6 +153,32 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       promise?.resolve(TokenizationStatus.SUCCESS.code)
     } else {
       promise?.reject(E_OPERATION_FAILED, "Card not saved. Status: ${result.cardStatus}")
+    }
+  }
+
+  // Google documents the result both as PushTokenizeResult and as separate extras, so read the extras when the object is missing
+  private fun handlePushTokenizeResultExtras(resultCode: Int, data: Intent?, promise: Promise?) {
+    val hasTokenResult = data?.hasExtra(TapAndPay.EXTRA_TOKEN_RESULT) == true
+    val hasCardResult = data?.hasExtra(TapAndPay.EXTRA_CARD_RESULT) == true
+
+    if (!hasTokenResult && !hasCardResult) {
+      if (resultCode == RESULT_OK) {
+        sendCardActivatedEvent("activated", data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID))
+        promise?.resolve(TokenizationStatus.SUCCESS.code)
+      } else {
+        promise?.resolve(TokenizationStatus.ERROR.code)
+      }
+      return
+    }
+
+    val tokenResult = data?.getBooleanExtra(TapAndPay.EXTRA_TOKEN_RESULT, false) == true
+    val cardResult = data?.getBooleanExtra(TapAndPay.EXTRA_CARD_RESULT, false) == true
+    if (tokenResult || cardResult) {
+      val tokenId = if (tokenResult) data?.getStringExtra(TapAndPay.EXTRA_ISSUER_TOKEN_ID) else null
+      sendCardActivatedEvent("activated", tokenId)
+      promise?.resolve(TokenizationStatus.SUCCESS.code)
+    } else {
+      promise?.reject(E_OPERATION_FAILED, "Card not saved")
     }
   }
 
