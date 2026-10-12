@@ -30,7 +30,7 @@ import { addCardToGoogleWallet } from '@expensify/react-native-wallet';
 // Define your handler function
 const handlePaymentCredentials = async (data) => {
   const { requestId, serverSessionId, walletId, opaquePaymentCard } = data;
-  
+
   // Call your backend to get encrypted credentials
   const response = await fetch('https://your-backend.com/api/wallet/credentials', {
     method: 'POST',
@@ -41,9 +41,9 @@ const handlePaymentCredentials = async (data) => {
       walletId,
     }),
   });
-  
+
   const credentials = await response.json();
-  
+
   // Return the credentials - library will automatically send them to Google Wallet
   return {
     opaquePaymentCard: credentials.tspOpc,
@@ -83,11 +83,11 @@ Payload received when Google Wallet requests payment credentials during UAPP pro
 
 ```typescript
 {
-  requestId: string;           // Unique identifier for this request
-  serverSessionId: string;     // Session ID from Google (crucial for backend)
-  walletId: string;            // Google Wallet ID
+  requestId: string;               // Unique identifier for this request
+  serverSessionId: string;         // Session ID from Google (crucial for backend)
+  walletId: string;                // Google Wallet ID
   tokenRequestorId: string | null; // Token Requestor ID of the tokenization target (needed for Visa on Fitbit)
-  opaquePaymentCard: string;   // Original OPC from TSP
+  opaquePaymentCard: string;       // Original OPC from TSP
 }
 ```
 
