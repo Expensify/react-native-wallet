@@ -120,7 +120,7 @@ Initiates the Google Wallet card provisioning flow with UAPP support.
 
 **Returns:** `Promise<TokenizationStatus>` - Status of the tokenization process ('success', 'canceled', or 'error')
 
-The handler is only called when Google Wallet requests a Google OPC. If it throws, the request is reported to Google Wallet as failed. If it does not resolve within 60 seconds, the request fails with a timeout.
+The handler is only called when Google Wallet requests a Google OPC, and it must return both `opaquePaymentCard` and `googleOpaquePaymentCard`. If it throws, returns no Google OPC, or does not resolve within 60 seconds, the request is reported to Google Wallet as failed (`GeneratePaymentCredentialsException.UNKNOWN_ERROR`). Google does not guarantee a fallback to TSP-only provisioning in that case, so do not rely on the card being added.
 
 **Platform:** Android only
 

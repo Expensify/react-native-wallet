@@ -29,6 +29,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tapandpay.TapAndPay
 import com.google.android.gms.tapandpay.TapAndPayClient
+import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsException
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
 import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
@@ -47,7 +48,6 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Future
-import java.util.concurrent.TimeoutException
 
 
 class WalletModule internal constructor(context: ReactApplicationContext) :
@@ -87,7 +87,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
     mainHandler.removeCallbacksAndMessages(null)
-    pendingProvisioningFutures.values.forEach { it.completeExceptionally(IllegalStateException("Wallet module invalidated")) }
+    pendingProvisioningFutures.values.forEach { it.completeExceptionally(paymentCredentialsError()) }
     pendingProvisioningFutures.clear()
   }
 
@@ -295,6 +295,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     }
   }
 
+  // Google Wallet only understands GeneratePaymentCredentialsException; UNKNOWN_ERROR covers backend failures and timeouts
+  private fun paymentCredentialsError() =
+    GeneratePaymentCredentialsException(GeneratePaymentCredentialsException.UNKNOWN_ERROR)
+
   private fun createPaymentCredentialsGenerator(
     cardData: CardData
   ): PaymentCredentialsGenerator {
@@ -313,7 +317,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         pendingProvisioningFutures[requestId] = future
         mainHandler.postDelayed({
           pendingProvisioningFutures.remove(requestId)
-            ?.completeExceptionally(TimeoutException("Payment credentials were not provided in time"))
+            ?.completeExceptionally(paymentCredentialsError())
         }, PAYMENT_CREDENTIALS_TIMEOUT_MS)
 
         val params = Arguments.createMap().apply {
@@ -350,8 +354,11 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       if (tspOpc == null) {
         throw Exception("opaquePaymentCard is required")
       }
+      if (googleOpc == null) {
+        throw Exception("googleOpaquePaymentCard is required")
+      }
       val response = GeneratePaymentCredentialsResponse.Builder()
-        .setGoogleOpaquePaymentCard(googleOpc?.toByteArray(Charsets.UTF_8))
+        .setGoogleOpaquePaymentCard(googleOpc.toByteArray(Charsets.UTF_8))
         .setOpaquePaymentCard(tspOpc.toByteArray(Charsets.UTF_8))
         .build()
 
@@ -359,7 +366,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       promise.resolve(true)
 
     } catch (e: Exception) {
-      future.completeExceptionally(e)
+      future.completeExceptionally(paymentCredentialsError())
       promise.reject(E_OPERATION_FAILED, e.message)
     }
   }
@@ -371,7 +378,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
       return
     }
-    future.completeExceptionally(Exception(errorMessage))
+    future.completeExceptionally(paymentCredentialsError())
     promise.resolve(true)
   }
 
