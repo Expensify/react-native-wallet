@@ -21,6 +21,8 @@ open class WalletManager: UIViewController {
   private var addPaymentPassCompletionHandler: (CompletionHandler)?
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
+
+  private var addPassTargetDevice: String?
   
   @objc public var packageName = "react-native-wallet"
   
@@ -121,6 +123,8 @@ open class WalletManager: UIViewController {
       }
     }
 
+    let targetDevice = provisioningTargetDevice(for: card.primaryAccountIdentifier)
+
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
       completion(.error, [
         "errorMessage": "InApp enrollment controller configuration fails"
@@ -143,6 +147,7 @@ open class WalletManager: UIViewController {
       self.presentAddPaymentPassCompletionHandler = nil
       self.addPaymentPassCompletionHandler = nil
       self.addPassHandler = nil
+      self.addPassTargetDevice = nil
 
       let errorResponse: NSDictionary = [
         "errorMessage": "EnrollViewController is no longer presented."
@@ -159,6 +164,7 @@ open class WalletManager: UIViewController {
 
       self.presentAddPaymentPassCompletionHandler = completion
       self.addPassViewController = enrollViewController
+      self.addPassTargetDevice = targetDevice
       presentingViewController.present(enrollViewController, animated: true, completion: nil)
     }
   }
@@ -221,6 +227,44 @@ open class WalletManager: UIViewController {
       return pass.primaryAccountIdentifier == identifier as String
     }
   }
+
+  @objc public func canAddCardToAppleWallet(primaryAccountIdentifier: NSString) -> Bool {
+    return passLibrary.canAddSecureElementPass(primaryAccountIdentifier: primaryAccountIdentifier as String)
+  }
+
+  private func provisioningTargetDevice(for primaryAccountIdentifier: String?) -> String {
+    guard let primaryAccountIdentifier = primaryAccountIdentifier else {
+      return "unknown"
+    }
+
+    let onPhone = hasProvisionedPass(identifier: primaryAccountIdentifier, in: passLibrary.passes(of: .secureElement))
+    let onWatch = hasProvisionedPass(identifier: primaryAccountIdentifier, in: passLibrary.remoteSecureElementPasses)
+
+    if onPhone && !onWatch {
+      return "watch"
+    }
+    if onWatch && !onPhone {
+      return "phone"
+    }
+    return "unknown"
+  }
+
+  private func hasProvisionedPass(identifier: String, in passes: [PKPass]) -> Bool {
+    passes.contains { pass in
+      guard let securePass = pass.secureElementPass else {
+        return false
+      }
+      return isProvisioned(securePass, identifier: identifier)
+    }
+  }
+
+  private func hasProvisionedPass(identifier: String, in passes: [PKSecureElementPass]) -> Bool {
+    passes.contains { isProvisioned($0, identifier: identifier) }
+  }
+
+  private func isProvisioned(_ pass: PKSecureElementPass, identifier: String) -> Bool {
+    pass.primaryAccountIdentifier == identifier && pass.passActivationState != .deactivated
+  }
   
   private func isPassKitAvailable() -> Bool {
     return PKAddPaymentPassViewController.canAddPaymentPass()
@@ -270,7 +314,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       let stringCertificates = certificates.map {
         $0.base64EncodedString() as NSString
       }
-      let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates)
+      let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates, deviceType: addPassTargetDevice as NSString?)
       self.addPassHandler = handler
       
       // Retry the JS issuer callback if the user tries again to add a payment pass
@@ -302,6 +346,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       presentAddPaymentPassCompletionHandler = nil
       addPaymentPassCompletionHandler = nil
       addPassHandler = nil
+      addPassTargetDevice = nil
 
       let errorMessage = error?.localizedDescription ?? ""
 

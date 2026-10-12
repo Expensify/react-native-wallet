@@ -131,6 +131,14 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
   resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
 }
 
+RCT_REMAP_METHOD(canAddCardToAppleWallet,
+                 canAddCardToAppleWallet:(NSString *)primaryAccountIdentifier
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve(@([walletManager canAddCardToAppleWalletWithPrimaryAccountIdentifier:primaryAccountIdentifier]));
+}
+
 - (void)addCardToGoogleWallet:
 #ifdef RCT_NEW_ARCH_ENABLED
   (JS::NativeWallet::AndroidCardData &)cardData
