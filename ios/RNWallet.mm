@@ -1,12 +1,11 @@
 #import <PassKit/PassKit.h>
 #import "RNWallet.h"
 
-#if RNWallet_USE_FRAMEWORKS
+#if __has_include(<react_native_wallet/react_native_wallet-Swift.h>)
 #import <react_native_wallet/react_native_wallet-Swift.h>
 #else
 #import <react_native_wallet-Swift.h>
 #endif
-
 
 @interface RNWallet () <WalletDelegate>
 @end
@@ -34,21 +33,41 @@ RCT_REMAP_METHOD(checkWalletAvailability,
 }
 
 RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
+#ifdef RCT_NEW_ARCH_ENABLED
                  IOSPresentAddPaymentPassView:(JS::NativeWallet::IOSCardData &)cardData
+#else
+                 IOSPresentAddPaymentPassView:(NSDictionary *)cardData
+#endif
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    NSMutableDictionary *cardDataDict = [@{
+    NSMutableDictionary *cardDataDict = nil;
+    NSString *primaryAccountIdentifier = nil;
+
+#ifdef RCT_NEW_ARCH_ENABLED
+    cardDataDict = [@{
       @"network": [self safeString:cardData.network()],
       @"cardHolderName": [self safeString:cardData.cardHolderName()],
       @"lastDigits": [self safeString:cardData.lastDigits()],
       @"cardDescription": [self safeString:cardData.cardDescription()],
     } mutableCopy];
-    NSString *primaryAccountIdentifier = [self safeString:cardData.primaryAccountIdentifier()];
+    primaryAccountIdentifier = [self safeString:cardData.primaryAccountIdentifier()];
+#else
+    cardDataDict = [@{
+      @"network": [self safeString:cardData[@"network"]],
+      @"cardHolderName": [self safeString:cardData[@"cardHolderName"]],
+      @"lastDigits": [self safeString:cardData[@"lastDigits"]],
+      @"cardDescription": [self safeString:cardData[@"cardDescription"]],
+    } mutableCopy];
+    id rawIdentifier = cardData[@"primaryAccountIdentifier"];
+    primaryAccountIdentifier = [self safeString:[rawIdentifier isKindOfClass:[NSString class]] ? rawIdentifier : nil];
+#endif
+
     if (primaryAccountIdentifier.length > 0) {
       cardDataDict[@"primaryAccountIdentifier"] = primaryAccountIdentifier;
     }
+
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
         [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"present_payment_pass_view_failed" defaultErrorMessage:@"Failed to present the payment pass view" rejecter:reject];
@@ -60,16 +79,31 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
 }
 
 RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
+#ifdef RCT_NEW_ARCH_ENABLED
                  IOSHandleAddPaymentPassResponse:(JS::NativeWallet::IOSEncryptPayload &)payload
+#else
+                 IOSHandleAddPaymentPassResponse:(NSDictionary *)payload
+#endif
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    NSDictionary *payloadDict = @{
+    NSDictionary *payloadDict = nil;
+
+#ifdef RCT_NEW_ARCH_ENABLED
+    payloadDict = @{
       @"encryptedPassData": [self safeString:payload.encryptedPassData()],
       @"activationData": [self safeString:payload.activationData()],
       @"ephemeralPublicKey": [self safeString:payload.ephemeralPublicKey()],
     };
+#else
+    payloadDict = @{
+      @"encryptedPassData": [self safeString:payload[@"encryptedPassData"]],
+      @"activationData": [self safeString:payload[@"activationData"]],
+      @"ephemeralPublicKey": [self safeString:payload[@"ephemeralPublicKey"]],
+    };
+#endif
+
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict completion:^(OperationResult result, NSDictionary* data) {
         [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"add_card_failed" defaultErrorMessage:@"Failed to add the card to the wallet" rejecter:reject];
@@ -97,7 +131,15 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
   resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
 }
 
-- (void)addCardToGoogleWallet:(JS::NativeWallet::AndroidCardData &)cardData resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject { 
+- (void)addCardToGoogleWallet:
+#ifdef RCT_NEW_ARCH_ENABLED
+  (JS::NativeWallet::AndroidCardData &)cardData
+#else
+  (NSDictionary *)cardData
+#endif
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+{
   // no-op
 }
 
@@ -152,6 +194,5 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
     return std::make_shared<facebook::react::NativeWalletSpecJSI>(params);
 }
 #endif
-
 
 @end
