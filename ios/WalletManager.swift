@@ -113,21 +113,23 @@ open class WalletManager: UIViewController {
     configuration.cardholderName = card.cardHolderName
     configuration.primaryAccountSuffix = card.lastDigits
     configuration.localizedDescription = String(card.cardDescription)
-    if let primaryAccountIdentifier = card.primaryAccountIdentifier {
+    let primaryAccountIdentifier = card.primaryAccountIdentifier.map {
+      resolvedPrimaryAccountIdentifier($0, lastDigits: card.lastDigits)
+    }
+    if let primaryAccountIdentifier = primaryAccountIdentifier {
       configuration.primaryAccountIdentifier = primaryAccountIdentifier
-      if !passLibrary.canAddSecureElementPass(primaryAccountIdentifier: primaryAccountIdentifier) {
-        completion(.error, [
-          "errorMessage": "This card has already been added to all available devices."
-        ])
-        return
-      }
     }
 
-    let targetDevice = provisioningTargetDevice(for: card.primaryAccountIdentifier)
+    let targetDevice = provisioningTargetDevice(for: primaryAccountIdentifier)
 
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
+      let alreadyOnEveryDevice = primaryAccountIdentifier.map {
+        !passLibrary.canAddSecureElementPass(primaryAccountIdentifier: $0)
+      } ?? false
       completion(.error, [
-        "errorMessage": "InApp enrollment controller configuration fails"
+        "errorMessage": alreadyOnEveryDevice
+          ? "This card has already been added to all available devices."
+          : "InApp enrollment controller configuration fails"
       ])
       return
     }
@@ -249,9 +251,30 @@ open class WalletManager: UIViewController {
     return "unknown"
   }
 
+  private func resolvedPrimaryAccountIdentifier(_ identifier: String, lastDigits: String) -> String {
+    let passes = allSecureElementPasses()
+    if passes.contains(where: { $0.primaryAccountIdentifier == identifier }) {
+      return identifier
+    }
+
+    let suffixMatches = passes.filter { $0.primaryAccountNumberSuffix.hasSuffix(lastDigits) }
+    let identifiers = Set(suffixMatches.map(\.primaryAccountIdentifier))
+    if identifiers.count == 1, let resolvedIdentifier = identifiers.first {
+      return resolvedIdentifier
+    }
+    return identifier
+  }
+
+  private func allSecureElementPasses() -> [PKSecureElementPass] {
+    let localPasses = passLibrary.passes(of: .secureElement)
+      .filter { !$0.isRemotePass }
+      .compactMap(\.secureElementPass)
+    return localPasses + passLibrary.remoteSecureElementPasses
+  }
+
   private func hasProvisionedPass(identifier: String, in passes: [PKPass]) -> Bool {
     passes.contains { pass in
-      guard let securePass = pass.secureElementPass else {
+      guard !pass.isRemotePass, let securePass = pass.secureElementPass else {
         return false
       }
       return isProvisioned(securePass, identifier: identifier)
