@@ -62,10 +62,10 @@ const status = await addCardToGoogleWallet(cardData, handlePaymentCredentials);
 
 Your backend needs to:
 
-1. Receive the `serverSessionId`, `opaquePaymentCard`, and `walletId`
+1. Receive the `serverSessionId`, `opaquePaymentCard`, `walletId`, and `tokenRequestorId`
 2. Call Google's UAPP API with these parameters
 3. Use Google's encryption keys to generate the Google OPC
-4. Return both the TSP OPC and Google OPC to your app
+4. Return both the TSP OPC and Google OPC to your app. For Visa tokenization on Fitbit, the TSP OPC must include the `tokenRequestorId`, or the request fails
 
 Example backend response:
 ```json
@@ -86,6 +86,7 @@ Payload received when Google Wallet requests payment credentials during UAPP pro
   requestId: string;           // Unique identifier for this request
   serverSessionId: string;     // Session ID from Google (crucial for backend)
   walletId: string;            // Google Wallet ID
+  tokenRequestorId: string | null; // Token Requestor ID of the tokenization target (needed for Visa on Fitbit)
   opaquePaymentCard: string;   // Original OPC from TSP
 }
 ```

@@ -324,6 +324,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
           putString("requestId", requestId)
           putString("serverSessionId", request.serverSessionId)
           putString("walletId", request.walletId)
+          putString("tokenRequestorId", request.tokenRequestorId)
           putString("opaquePaymentCard", cardData.opaquePaymentCard)
         }
 

@@ -54,6 +54,7 @@ type onPaymentCredentialsRequestPayload = {
   requestId: string;
   serverSessionId: string;
   walletId: string;
+  tokenRequestorId: string | null;
   opaquePaymentCard: string;
 };
 
