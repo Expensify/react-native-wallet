@@ -106,6 +106,26 @@ async function getCardStatusByIdentifier(identifier: string, tsp: string): Promi
   return getCardState(tokenState);
 }
 
+/**
+ * Checks whether the card can still be added to a Google Wallet target: the phone or a paired wearable.
+ * Use it to decide whether to show the "Add to Google Wallet" button when wearables are supported.
+ * @param last4Digits - The last 4 digits of the card number (FPAN, not the token)
+ * @param network - The card network, e.g. `VISA`, `MASTERCARD`
+ * @param issuerName - The issuer name used for matching, as in the token metadata (not the card display name)
+ * @returns `true` if at least one target can still receive the card
+ */
+async function hasEligibleTokenizationTarget(last4Digits: string, network: string, issuerName: string): Promise<boolean> {
+  if (Platform.OS === 'ios') {
+    throw new Error('hasEligibleTokenizationTarget is not available on iOS');
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.hasEligibleTokenizationTarget(last4Digits, network.toUpperCase(), issuerName);
+}
+
 async function addCardToGoogleWallet(
   cardData: AndroidCardData,
   handlePaymentCredentialsGeneration: (data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>,
@@ -214,6 +234,7 @@ export {
   getSecureWalletInfo,
   getCardStatusBySuffix,
   getCardStatusByIdentifier,
+  hasEligibleTokenizationTarget,
   addCardToGoogleWallet,
   resumeAddCardToGoogleWallet,
   listTokens,

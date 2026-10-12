@@ -33,6 +33,7 @@ import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsExcepti
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsRequest
 import com.google.android.gms.tapandpay.issuer.GeneratePaymentCredentialsResponse
 import com.google.android.gms.tapandpay.issuer.GetTokenStatusRequest
+import com.google.android.gms.tapandpay.issuer.HasEligibleTokenizationTargetRequest
 import com.google.android.gms.tapandpay.issuer.ListTokensRequest
 import com.google.android.gms.tapandpay.issuer.PaymentCredentialsGenerator
 import com.google.android.gms.tapandpay.issuer.PushTokenizeExtraOptions
@@ -269,6 +270,25 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       .addOnFailureListener { e ->
         promise.reject(E_OPERATION_FAILED, "getCardStatusByIdentifier: ${e.localizedMessage}")
       }
+  }
+
+  @ReactMethod
+  override fun hasEligibleTokenizationTarget(last4Digits: String, network: String, issuerName: String, promise: Promise) {
+    try {
+      val request = HasEligibleTokenizationTargetRequest.Builder()
+        .setIdentifier(last4Digits)
+        .setNetwork(getCardNetwork(network))
+        .setTokenServiceProvider(getTokenServiceProvider(network))
+        .setIssuerName(issuerName)
+        .build()
+      tapAndPayClient.hasEligibleTokenizationTarget(request)
+        .addOnSuccessListener { promise.resolve(it) }
+        .addOnFailureListener { e ->
+          promise.reject(E_OPERATION_FAILED, "hasEligibleTokenizationTarget: ${e.localizedMessage}")
+        }
+    } catch (e: InvalidNetworkError) {
+      promise.reject(E_INVALID_DATA, e.message)
+    }
   }
 
   @ReactMethod
