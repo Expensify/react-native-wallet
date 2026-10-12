@@ -281,7 +281,6 @@ const base64ToHex = (base64: string): string => Buffer.from(base64, "base64").to
 					nonceSignature: base64ToHex(nonceSignature),
 					wspCertificates: certificate,
 				},
-				// Map deviceType to the field your issuer expects, for example "phone" or "watch".
 				deviceType,
 				serialNumber,
 				wspId: "APPLE" as const,
