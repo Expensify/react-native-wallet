@@ -12,6 +12,7 @@ import type {
   AndroidWalletData,
   onCardActivatedPayload,
   IOSAddPaymentPassData,
+  IOSDeviceType,
   TokenInfo,
 } from './NativeWallet';
 import {getCardState, getTokenizationStatus} from './utils';
@@ -131,9 +132,32 @@ async function listTokens(): Promise<TokenInfo[]> {
   return Wallet.listTokens();
 }
 
+function toIOSDeviceType(deviceType: string | undefined): IOSDeviceType {
+  switch (deviceType) {
+    case 'phone':
+    case 'watch':
+    case 'unknown':
+      return deviceType;
+    default:
+      return 'unknown';
+  }
+}
+
+async function canAddCardToAppleWallet(primaryAccountIdentifier: string): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    throw new Error('canAddCardToAppleWallet is not available on Android');
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.canAddCardToAppleWallet(primaryAccountIdentifier);
+}
+
 async function addCardToAppleWallet(
   cardData: IOSCardData,
-  issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
+  issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[], deviceType: IOSDeviceType) => Promise<IOSEncryptPayload>,
 ): Promise<TokenizationStatus> {
   if (Platform.OS === 'android') {
     throw new Error('addCardToAppleWallet is not available on Android');
@@ -151,7 +175,7 @@ async function addCardToAppleWallet(
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
-    const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
+    const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
     const response = await wallet.IOSHandleAddPaymentPassResponse(responseData);
     // Response is null when a pass is successfully added to the wallet or the user cancels the process
     // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
@@ -164,7 +188,7 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
-export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, onCardActivatedPayload, TokenizationStatus, TokenInfo};
+export type {AndroidCardData, AndroidWalletData, CardStatus, IOSEncryptPayload, IOSCardData, IOSAddPaymentPassData, IOSDeviceType, onCardActivatedPayload, TokenizationStatus, TokenInfo};
 export {
   AddToWalletButton,
   checkWalletAvailability,
@@ -174,6 +198,7 @@ export {
   addCardToGoogleWallet,
   resumeAddCardToGoogleWallet,
   listTokens,
+  canAddCardToAppleWallet,
   addCardToAppleWallet,
   addListener,
   removeListener,

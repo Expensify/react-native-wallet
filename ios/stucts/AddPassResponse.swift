@@ -5,12 +5,25 @@ struct AddPassResponse {
   let nonce: NSString?
   let nonceSignature: NSString?
   let certificates: [NSString]?
+  let deviceType: NSString?
+
+  init(status: OperationResult, nonce: NSString?, nonceSignature: NSString?, certificates: [NSString]?, deviceType: NSString? = nil) {
+    self.status = status
+    self.nonce = nonce
+    self.nonceSignature = nonceSignature
+    self.certificates = certificates
+    self.deviceType = deviceType
+  }
   
   func toNSDictionary() -> NSDictionary {
     if status.rawValue > 0 {
-      return [
+      var response: [String: Any] = [
         "status": status.rawValue,
       ]
+      if let deviceType = deviceType {
+        response["deviceType"] = deviceType
+      }
+      return response as NSDictionary
     }
     
     guard let nonce = nonce,
@@ -19,12 +32,16 @@ struct AddPassResponse {
       return [:]
     }
     
-    return [
+    var response: [String: Any] = [
       "status": status.rawValue,
       "nonce": nonce,
       "nonceSignature": nonceSignature,
-      "certificates": certificates
+      "certificates": certificates,
     ]
+    if let deviceType = deviceType {
+      response["deviceType"] = deviceType
+    }
+    return response as NSDictionary
   }
 }
 

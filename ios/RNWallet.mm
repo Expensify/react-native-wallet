@@ -42,23 +42,31 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
                  reject:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    NSDictionary *cardDataDict = nil;
+    NSMutableDictionary *cardDataDict = nil;
+    NSString *primaryAccountIdentifier = nil;
 
 #ifdef RCT_NEW_ARCH_ENABLED
-    cardDataDict = @{
+    cardDataDict = [@{
       @"network": [self safeString:cardData.network()],
       @"cardHolderName": [self safeString:cardData.cardHolderName()],
       @"lastDigits": [self safeString:cardData.lastDigits()],
       @"cardDescription": [self safeString:cardData.cardDescription()],
-    };
+    } mutableCopy];
+    primaryAccountIdentifier = [self safeString:cardData.primaryAccountIdentifier()];
 #else
-    cardDataDict = @{
+    cardDataDict = [@{
       @"network": [self safeString:cardData[@"network"]],
       @"cardHolderName": [self safeString:cardData[@"cardHolderName"]],
       @"lastDigits": [self safeString:cardData[@"lastDigits"]],
       @"cardDescription": [self safeString:cardData[@"cardDescription"]],
-    };
+    } mutableCopy];
+    id rawIdentifier = cardData[@"primaryAccountIdentifier"];
+    primaryAccountIdentifier = [self safeString:[rawIdentifier isKindOfClass:[NSString class]] ? rawIdentifier : nil];
 #endif
+
+    if (primaryAccountIdentifier.length > 0) {
+      cardDataDict[@"primaryAccountIdentifier"] = primaryAccountIdentifier;
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
@@ -121,6 +129,14 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
                  reject:(RCTPromiseRejectBlock)reject)
 {
   resolve([walletManager getCardStatusByIdentifierWithIdentifier:identifier]);
+}
+
+RCT_REMAP_METHOD(canAddCardToAppleWallet,
+                 canAddCardToAppleWallet:(NSString *)primaryAccountIdentifier
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve(@([walletManager canAddCardToAppleWalletWithPrimaryAccountIdentifier:primaryAccountIdentifier]));
 }
 
 - (void)addCardToGoogleWallet:
