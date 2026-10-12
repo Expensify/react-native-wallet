@@ -67,11 +67,19 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
+  public abstract void listAppleWalletPasses(Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void IOSPresentAddPaymentPassView(ReadableMap cardData, Promise promise);
 
   @ReactMethod
   @DoNotStrip
   public abstract void IOSHandleAddPaymentPassResponse(ReadableMap payload, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void activateAppleWalletPass(ReadableMap passData, Promise promise);
 
   @ReactMethod
   @DoNotStrip
