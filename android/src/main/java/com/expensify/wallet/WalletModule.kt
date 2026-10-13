@@ -40,6 +40,7 @@ import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
 import com.google.android.gms.tapandpay.issuer.TokenizeRequest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -362,7 +363,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         val credentials = CompletableDeferred<GeneratePaymentCredentialsResponse>()
         val requestId = UUID.randomUUID().toString()
         pendingPaymentCredentials[requestId] = credentials
-        moduleScope.launch {
+        moduleScope.launch(start = CoroutineStart.UNDISPATCHED) {
           // null on timeout, on reject, or when invalidate() cancels the scope
           val response = runCatching {
             withTimeoutOrNull(PAYMENT_CREDENTIALS_TIMEOUT_MS) { credentials.await() }
