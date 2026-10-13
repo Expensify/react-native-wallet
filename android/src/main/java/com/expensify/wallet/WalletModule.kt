@@ -5,8 +5,6 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import androidx.core.content.IntentCompat
 import com.expensify.wallet.Utils.getAsyncResult
 import com.expensify.wallet.Utils.toCardData
@@ -40,12 +38,14 @@ import com.google.android.gms.tapandpay.issuer.PushTokenizeExtraOptions
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest
 import com.google.android.gms.tapandpay.issuer.PushTokenizeResult
 import com.google.android.gms.tapandpay.issuer.TokenizeRequest
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.charset.Charset
 import java.util.Locale
 import java.util.UUID
@@ -78,8 +78,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
   private var pendingPushTokenizePromise: Promise? = null
   private val moduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-  private val pendingProvisioningFutures = ConcurrentHashMap<String, CompletableFuture<GeneratePaymentCredentialsResponse>>()
-  private val mainHandler = Handler(Looper.getMainLooper())
+  private val pendingPaymentCredentials = ConcurrentHashMap<String, CompletableDeferred<GeneratePaymentCredentialsResponse>>()
 
   override fun initialize() {
     super.initialize()
@@ -90,9 +89,7 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     super.invalidate()
     moduleScope.cancel()
     reactApplicationContext.removeActivityEventListener(cardListener)
-    mainHandler.removeCallbacksAndMessages(null)
-    pendingProvisioningFutures.values.forEach { it.completeExceptionally(paymentCredentialsError()) }
-    pendingProvisioningFutures.clear()
+    pendingPaymentCredentials.clear()
   }
 
   private val cardListener = object : ActivityEventListener {
@@ -362,12 +359,21 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         }
 
         val future = CompletableFuture<GeneratePaymentCredentialsResponse>()
+        val credentials = CompletableDeferred<GeneratePaymentCredentialsResponse>()
         val requestId = UUID.randomUUID().toString()
-        pendingProvisioningFutures[requestId] = future
-        mainHandler.postDelayed({
-          pendingProvisioningFutures.remove(requestId)
-            ?.completeExceptionally(paymentCredentialsError())
-        }, PAYMENT_CREDENTIALS_TIMEOUT_MS)
+        pendingPaymentCredentials[requestId] = credentials
+        moduleScope.launch {
+          // null on timeout, on reject, or when invalidate() cancels the scope
+          val response = runCatching {
+            withTimeoutOrNull(PAYMENT_CREDENTIALS_TIMEOUT_MS) { credentials.await() }
+          }.getOrNull()
+          pendingPaymentCredentials.remove(requestId)
+          if (response != null) {
+            future.complete(response)
+          } else {
+            future.completeExceptionally(paymentCredentialsError())
+          }
+        }
 
         val params = Arguments.createMap().apply {
           putString("requestId", requestId)
@@ -391,8 +397,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
 
   @ReactMethod
   override fun AndroidProvidePaymentCredentials(requestId: String, responseData: ReadableMap, promise: Promise) {
-    val future = pendingProvisioningFutures.remove(requestId)
-    if (future == null) {
+    val credentials = pendingPaymentCredentials.remove(requestId)
+    if (credentials == null) {
       promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
       return
     }
@@ -412,23 +418,23 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
         .setOpaquePaymentCard(tspOpc.toByteArray(Charsets.UTF_8))
         .build()
 
-      future.complete(response)
+      credentials.complete(response)
       promise.resolve(true)
 
     } catch (e: Exception) {
-      future.completeExceptionally(paymentCredentialsError())
+      credentials.completeExceptionally(paymentCredentialsError())
       promise.reject(E_OPERATION_FAILED, e.message)
     }
   }
 
   @ReactMethod
   override fun AndroidRejectPaymentCredentials(requestId: String, errorMessage: String, promise: Promise) {
-    val future = pendingProvisioningFutures.remove(requestId)
-    if (future == null) {
+    val credentials = pendingPaymentCredentials.remove(requestId)
+    if (credentials == null) {
       promise.reject(E_OPERATION_FAILED, "Request ID not found or timed out")
       return
     }
-    future.completeExceptionally(paymentCredentialsError())
+    credentials.completeExceptionally(paymentCredentialsError())
     promise.resolve(true)
   }
 
