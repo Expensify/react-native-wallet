@@ -7,7 +7,7 @@ UAPP (Unified Android Push Provisioning) is an enhanced security flow for Google
 This library handles the UAPP flow automatically. You just need to set up a handler that communicates with your backend to retrieve the encrypted credentials.
 
 > [!IMPORTANT]
-> Please familiarize yourself with [official Google docs ](https://developers.google.com/pay/issuers/apis/push-provisioning/android)before starting the implementation!
+> Please familiarize yourself with [official Google docs](https://developers.google.com/pay/issuers/apis/push-provisioning/android) before starting the implementation!
 
 ## How UAPP Works
 

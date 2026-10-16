@@ -217,7 +217,7 @@ When set to `true`, this flag informs Google Wallet that the card being provisio
 
 #### `isBounceProvisioned?: boolean`
 
-Indicates whether the card has been provisioned through "bounce provisioning." Bounce provisioning is a two-step provisioning flow where:
+Indicates whether the card has been provisioned through "bounce provisioning". Bounce provisioning is a two-step provisioning flow where:
 1. The user initially provisions a card directly through Google Wallet (outside your app)
 2. Your app later "bounces" or redirects the user back to complete additional verification or setup steps
 
