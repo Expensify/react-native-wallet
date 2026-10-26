@@ -119,6 +119,9 @@
     "react": "*",
     "react-native": "*"
   },
+  "overrides": {
+    "postcss": "^8.5.23"
+  },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
