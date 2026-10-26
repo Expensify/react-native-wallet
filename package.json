@@ -119,6 +119,11 @@
     "react": "*",
     "react-native": "*"
   },
+  "overrides": {
+    "release-it": {
+      "proxy-agent": "^6.5.0"
+    }
+  },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
