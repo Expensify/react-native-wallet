@@ -119,6 +119,9 @@
     "react": "*",
     "react-native": "*"
   },
+  "overrides": {
+    "flatted": "^3.4.2"
+  },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
