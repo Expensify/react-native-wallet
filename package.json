@@ -119,6 +119,9 @@
     "react": "*",
     "react-native": "*"
   },
+  "overrides": {
+    "tmp": "^0.2.6"
+  },
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
