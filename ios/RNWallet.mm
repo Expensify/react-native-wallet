@@ -140,24 +140,28 @@ RCT_REMAP_METHOD(activateAppleWalletPass,
                  reject:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    NSDictionary *passDataDict = nil;
+    NSMutableDictionary *passDataDict = nil;
 
 #ifdef RCT_NEW_ARCH_ENABLED
-    passDataDict = @{
+    passDataDict = [@{
       @"passTypeIdentifier": [self safeString:passData.passTypeIdentifier()],
       @"serialNumber": [self safeString:passData.serialNumber()],
       @"activationData": [self safeString:passData.activationData()],
-      @"isRemote": @(passData.isRemote()),
-    };
+    } mutableCopy];
+    std::optional<bool> isRemote = passData.isRemote();
+    if (isRemote.has_value()) {
+      passDataDict[@"isRemote"] = @(isRemote.value());
+    }
 #else
-    id rawIsRemote = passData[@"isRemote"];
-    BOOL isRemote = [rawIsRemote isKindOfClass:[NSNumber class]] && [rawIsRemote boolValue];
-    passDataDict = @{
+    passDataDict = [@{
       @"passTypeIdentifier": [self safeString:passData[@"passTypeIdentifier"]],
       @"serialNumber": [self safeString:passData[@"serialNumber"]],
       @"activationData": [self safeString:passData[@"activationData"]],
-      @"isRemote": @(isRemote),
-    };
+    } mutableCopy];
+    id rawIsRemote = passData[@"isRemote"];
+    if ([rawIsRemote isKindOfClass:[NSNumber class]]) {
+      passDataDict[@"isRemote"] = rawIsRemote;
+    }
 #endif
 
     [self->walletManager activateAppleWalletPassWithPassData:passDataDict completion:^(OperationResult result, NSDictionary* data) {
