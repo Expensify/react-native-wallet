@@ -215,6 +215,18 @@ async function addCardToAppleWallet(
   return getTokenizationStatus(status);
 }
 
+async function presentAppleWalletPass(lastDigits: string): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    return false;
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.presentAppleWalletPass(lastDigits);
+}
+
 export type {
   AndroidCardData,
   AndroidWalletData,
@@ -238,6 +250,7 @@ export {
   addCardToGoogleWallet,
   resumeAddCardToGoogleWallet,
   listTokens,
+  presentAppleWalletPass,
   addCardToAppleWallet,
   addListener,
   removeListener,

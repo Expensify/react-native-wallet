@@ -114,6 +114,16 @@ RCT_REMAP_METHOD(getCardStatusBySuffix,
   resolve([walletManager getCardStatusBySuffixWithLast4Digits:last4Digits]);
 }
 
+RCT_REMAP_METHOD(presentAppleWalletPass,
+                 presentAppleWalletPass:(NSString *)lastDigits
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    resolve(@([self->walletManager presentAppleWalletPassWithLastDigits:lastDigits]));
+  });
+}
+
 RCT_REMAP_METHOD(getCardStatusByIdentifier,
                  getCardStatusByIdentifier:(NSString *)identifier
                  tsp:(NSString *)tsp

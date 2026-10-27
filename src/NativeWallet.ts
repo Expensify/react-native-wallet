@@ -96,6 +96,7 @@ export interface Spec extends TurboModule {
   AndroidRejectPaymentCredentials(requestId: string, errorMessage: string): Promise<boolean>;
   resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<number>;
   listTokens(): Promise<TokenInfo[]>;
+  presentAppleWalletPass(lastDigits: string): Promise<boolean>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
   addListener: (eventType: string) => void;

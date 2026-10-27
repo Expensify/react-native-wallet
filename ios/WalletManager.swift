@@ -212,6 +212,21 @@ open class WalletManager: UIViewController {
       return pass.primaryAccountIdentifier == identifier as String
     }
   }
+
+  @objc public func presentAppleWalletPass(lastDigits: NSString) -> Bool {
+    let candidates = passLibrary.passes(of: .secureElement)
+      .filter { !$0.isRemotePass }
+      .compactMap(\.secureElementPass)
+      .filter {
+        $0.primaryAccountNumberSuffix.hasSuffix(lastDigits as String) &&
+          $0.passActivationState != .deactivated
+      }
+    guard let pass = candidates.first(where: { $0.passActivationState == .requiresActivation }) ?? candidates.first else {
+      return false
+    }
+    passLibrary.present(pass)
+    return true
+  }
   
   private func isPassKitAvailable() -> Bool {
     return PKAddPaymentPassViewController.canAddPaymentPass()
