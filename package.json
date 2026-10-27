@@ -121,6 +121,7 @@
     },
     "flatted": "^3.4.2",
     "lodash": "^4.18.1",
+    "postcss": "^8.5.23",
     "tmp": "^0.2.6"
   },
   "peerDependencies": {
