@@ -1,6 +1,6 @@
 {
   "name": "@expensify/react-native-wallet",
-  "version": "0.2.1",
+  "version": "0.2.12",
   "description": "A React Native module designed for seamless integration of Card Push Provisioning into Apple Wallet and Google Wallet, enabling easy and secure addition of payment cards directly from your application.",
   "source": "./src/index.tsx",
   "main": "lib/commonjs/index",
@@ -115,12 +115,17 @@
     "turbo": "^1.10.7",
     "typescript": "^5.8.3"
   },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "9.0.9"
+    },
+    "flatted": "^3.4.2",
+    "lodash": "^4.18.1",
+    "tmp": "^0.2.6"
+  },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
-  },
-  "overrides": {
-    "tmp": "^0.2.6"
   },
   "jest": {
     "preset": "react-native",
