@@ -20,6 +20,19 @@ import type {
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
 
+type AppleWalletAddResult = {
+  activationState?: CardStatus;
+  errorDomain?: string;
+  errorCode?: number;
+};
+
+/** Result of IOSHandleAddPaymentPassResponse: a retry nonce, or a finished add. */
+type AddPaymentPassResult = IOSAddPaymentPassData & {
+  activationState?: number;
+  errorDomain?: string;
+  errorCode?: number;
+};
+
 function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
 }
@@ -185,6 +198,7 @@ async function listTokens(): Promise<TokenInfo[]> {
 async function addCardToAppleWallet(
   cardData: IOSCardData,
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
+  onAddFinished?: (result: AppleWalletAddResult) => void,
 ): Promise<TokenizationStatus> {
   if (Platform.OS === 'android') {
     throw new Error('addCardToAppleWallet is not available on Android');
@@ -203,12 +217,23 @@ async function addCardToAppleWallet(
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
-    const response = await wallet.IOSHandleAddPaymentPassResponse(responseData);
-    // Response is null when a pass is successfully added to the wallet or the user cancels the process
-    // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
-    if (response) {
+    const response = (await wallet.IOSHandleAddPaymentPassResponse(responseData)) as AddPaymentPassResult | null;
+    // Try again returns a new nonce. A finished add has no nonce: status 1 is a
+    // user cancel, status -1 is an error Wallet already showed, otherwise success.
+    if (response?.nonce) {
       return addPaymentPassToWallet(response);
     }
+    if (response?.status === 1) {
+      return 1;
+    }
+    if (response?.status === -1) {
+      onAddFinished?.({
+        errorDomain: response.errorDomain,
+        errorCode: response.errorCode,
+      });
+      return -1;
+    }
+    onAddFinished?.(typeof response?.activationState === 'number' ? {activationState: getCardState(response.activationState)} : {});
     return 0;
   }
   const status = await addPaymentPassToWallet(passData);

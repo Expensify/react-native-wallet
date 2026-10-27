@@ -184,7 +184,7 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. Requires a handler that returns the payment credentials for the UAPP flow. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
-| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
+| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. `onAddFinished` receives the pass `activationState` on success, or `errorDomain` and `errorCode` when Wallet declines the card after showing its own message. Cancelling returns `canceled`. A decline no longer rejects, because Wallet has already explained it. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback`,<br>`onAddFinished?: (result: {activationState?: CardStatus, errorDomain?: string, errorCode?: number}) => void` | `TokenizationStatus` | ✅ | ❌ |
 
 ## Data Types
 
