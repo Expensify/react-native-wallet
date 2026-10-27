@@ -133,10 +133,11 @@ RCT_REMAP_METHOD(getCardStatusByIdentifier,
 
 RCT_REMAP_METHOD(canAddCardToAppleWallet,
                  canAddCardToAppleWallet:(NSString *)primaryAccountIdentifier
+                 lastDigits:(NSString *)lastDigits
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject)
 {
-  resolve(@([walletManager canAddCardToAppleWalletWithPrimaryAccountIdentifier:primaryAccountIdentifier]));
+  resolve(@([walletManager canAddCardToAppleWalletWithPrimaryAccountIdentifier:primaryAccountIdentifier lastDigits:lastDigits]));
 }
 
 - (void)addCardToGoogleWallet:

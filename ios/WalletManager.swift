@@ -22,7 +22,7 @@ open class WalletManager: UIViewController {
 
   private var addPassHandler: ((PKAddPaymentPassRequest) -> Void)?
 
-  private var addPassTargetDevice: String?
+  private var addPassPrimaryAccountIdentifier: String?
   
   @objc public var packageName = "react-native-wallet"
   
@@ -120,8 +120,6 @@ open class WalletManager: UIViewController {
       configuration.primaryAccountIdentifier = primaryAccountIdentifier
     }
 
-    let targetDevice = provisioningTargetDevice(for: primaryAccountIdentifier)
-
     guard let enrollViewController = PKAddPaymentPassViewController(requestConfiguration: configuration, delegate: self) else {
       let alreadyOnEveryDevice = primaryAccountIdentifier.map {
         !passLibrary.canAddSecureElementPass(primaryAccountIdentifier: $0)
@@ -149,7 +147,7 @@ open class WalletManager: UIViewController {
       self.presentAddPaymentPassCompletionHandler = nil
       self.addPaymentPassCompletionHandler = nil
       self.addPassHandler = nil
-      self.addPassTargetDevice = nil
+      self.addPassPrimaryAccountIdentifier = nil
 
       let errorResponse: NSDictionary = [
         "errorMessage": "EnrollViewController is no longer presented."
@@ -166,7 +164,7 @@ open class WalletManager: UIViewController {
 
       self.presentAddPaymentPassCompletionHandler = completion
       self.addPassViewController = enrollViewController
-      self.addPassTargetDevice = targetDevice
+      self.addPassPrimaryAccountIdentifier = primaryAccountIdentifier
       presentingViewController.present(enrollViewController, animated: true, completion: nil)
     }
   }
@@ -230,25 +228,29 @@ open class WalletManager: UIViewController {
     }
   }
 
-  @objc public func canAddCardToAppleWallet(primaryAccountIdentifier: NSString) -> Bool {
-    return passLibrary.canAddSecureElementPass(primaryAccountIdentifier: primaryAccountIdentifier as String)
+  @objc public func canAddCardToAppleWallet(primaryAccountIdentifier: NSString, lastDigits: NSString) -> Bool {
+    let suffix = lastDigits as String
+    let resolved = suffix.isEmpty
+      ? primaryAccountIdentifier as String
+      : resolvedPrimaryAccountIdentifier(primaryAccountIdentifier as String, lastDigits: suffix)
+    return passLibrary.canAddSecureElementPass(primaryAccountIdentifier: resolved)
   }
 
-  private func provisioningTargetDevice(for primaryAccountIdentifier: String?) -> String {
+  private func provisioningTargetDevice(for primaryAccountIdentifier: String?) -> ProvisioningDeviceType {
     guard let primaryAccountIdentifier = primaryAccountIdentifier else {
-      return "unknown"
+      return .unknown
     }
 
     let onPhone = hasProvisionedPass(identifier: primaryAccountIdentifier, in: passLibrary.passes(of: .secureElement))
     let onWatch = hasProvisionedPass(identifier: primaryAccountIdentifier, in: passLibrary.remoteSecureElementPasses)
 
     if onPhone && !onWatch {
-      return "watch"
+      return .watch
     }
     if onWatch && !onPhone {
-      return "phone"
+      return .phone
     }
-    return "unknown"
+    return .unknown
   }
 
   private func resolvedPrimaryAccountIdentifier(_ identifier: String, lastDigits: String) -> String {
@@ -257,7 +259,13 @@ open class WalletManager: UIViewController {
       return identifier
     }
 
-    let suffixMatches = passes.filter { $0.primaryAccountNumberSuffix.hasSuffix(lastDigits) }
+    guard !lastDigits.isEmpty else {
+      return identifier
+    }
+
+    let suffixMatches = passes.filter {
+      $0.passActivationState != .deactivated && $0.primaryAccountNumberSuffix.hasSuffix(lastDigits)
+    }
     let identifiers = Set(suffixMatches.map(\.primaryAccountIdentifier))
     if identifiers.count == 1, let resolvedIdentifier = identifiers.first {
       return resolvedIdentifier
@@ -337,7 +345,8 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       let stringCertificates = certificates.map {
         $0.base64EncodedString() as NSString
       }
-      let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates, deviceType: addPassTargetDevice as NSString?)
+      let deviceType = provisioningTargetDevice(for: addPassPrimaryAccountIdentifier)
+      let reqestCardData = AddPassResponse(status: .completed, nonce: stringNonce, nonceSignature: stringNonceSignature, certificates: stringCertificates, deviceType: deviceType)
       self.addPassHandler = handler
       
       // Retry the JS issuer callback if the user tries again to add a payment pass
@@ -369,7 +378,7 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
       presentAddPaymentPassCompletionHandler = nil
       addPaymentPassCompletionHandler = nil
       addPassHandler = nil
-      addPassTargetDevice = nil
+      addPassPrimaryAccountIdentifier = nil
 
       let errorMessage = error?.localizedDescription ?? ""
 

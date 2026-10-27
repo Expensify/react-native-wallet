@@ -588,8 +588,8 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
     // no-op
   }
 
-  override fun canAddCardToAppleWallet(primaryAccountIdentifier: String, promise: Promise) {
-    // no-op
+  override fun canAddCardToAppleWallet(primaryAccountIdentifier: String, lastDigits: String, promise: Promise) {
+    promise.resolve(false)
   }
 
   override fun addListener(eventType: String?) {

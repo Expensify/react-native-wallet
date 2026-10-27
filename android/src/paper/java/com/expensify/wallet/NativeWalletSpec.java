@@ -83,7 +83,7 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
-  public abstract void canAddCardToAppleWallet(String primaryAccountIdentifier, Promise promise);
+  public abstract void canAddCardToAppleWallet(String primaryAccountIdentifier, String lastDigits, Promise promise);
 
   @ReactMethod
   @DoNotStrip

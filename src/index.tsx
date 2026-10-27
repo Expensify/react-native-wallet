@@ -194,16 +194,16 @@ function toIOSDeviceType(deviceType: string | undefined): IOSDeviceType {
   }
 }
 
-async function canAddCardToAppleWallet(primaryAccountIdentifier: string): Promise<boolean> {
+async function canAddCardToAppleWallet(primaryAccountIdentifier: string, lastDigits?: string): Promise<boolean> {
   if (Platform.OS === 'android') {
-    throw new Error('canAddCardToAppleWallet is not available on Android');
+    return false;
   }
 
   if (!Wallet) {
     return getModuleLinkingRejection();
   }
 
-  return Wallet.canAddCardToAppleWallet(primaryAccountIdentifier);
+  return Wallet.canAddCardToAppleWallet(primaryAccountIdentifier, lastDigits ?? '');
 }
 
 async function addCardToAppleWallet(
