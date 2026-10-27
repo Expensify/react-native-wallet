@@ -27,6 +27,8 @@ type AndroidCardData = {
   cardHolderName: string;
   lastDigits: string;
   userAddress: UserAddress;
+  isVirtualCard?: boolean;
+  isBounceProvisioned?: boolean;
 };
 
 type AndroidResumeCardData = {
@@ -44,8 +46,16 @@ type IOSCardData = {
 };
 
 type onCardActivatedPayload = {
-  tokenId: string;
+  tokenId?: string | null;
   status: 'activated' | 'canceled';
+};
+
+type onPaymentCredentialsRequestPayload = {
+  requestId: string;
+  serverSessionId: string;
+  walletId: string;
+  tokenRequestorId: string | null;
+  opaquePaymentCard: string;
 };
 
 type IOSAddPaymentPassData = {
@@ -85,13 +95,21 @@ type TokenInfo = {
   tokenState: number;
 };
 
+type AndroidPaymentCredentialsResponse = {
+  opaquePaymentCard: string;
+  googleOpaquePaymentCard: string;
+};
+
 export interface Spec extends TurboModule {
   checkWalletAvailability(): Promise<boolean>;
   ensureGoogleWalletInitialized(): Promise<boolean>;
   getSecureWalletInfo(): Promise<AndroidWalletData>;
   getCardStatusBySuffix(last4Digits: string): Promise<number>;
   getCardStatusByIdentifier(identifier: string, tsp: string): Promise<number>;
+  hasEligibleTokenizationTarget(last4Digits: string, network: string, issuerName: string): Promise<boolean>;
   addCardToGoogleWallet(cardData: AndroidCardData): Promise<number>;
+  AndroidProvidePaymentCredentials(requestId: string, responseData: AndroidPaymentCredentialsResponse): Promise<boolean>;
+  AndroidRejectPaymentCredentials(requestId: string, errorMessage: string): Promise<boolean>;
   resumeAddCardToGoogleWallet(cardData: AndroidResumeCardData): Promise<number>;
   listTokens(): Promise<TokenInfo[]>;
   listAppleWalletPasses(): Promise<IOSWalletPassNative[]>;
@@ -125,6 +143,7 @@ export type {
   CardStatus,
   UserAddress,
   onCardActivatedPayload,
+  onPaymentCredentialsRequestPayload,
   Platform,
   IOSAddPaymentPassData,
   IOSEncryptPayload,
@@ -132,4 +151,5 @@ export type {
   IOSWalletPassNative,
   TokenizationStatus,
   TokenInfo,
+  AndroidPaymentCredentialsResponse,
 };

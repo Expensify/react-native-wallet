@@ -23,5 +23,23 @@
 		"eslint": "^8.19.0",
 		"eslint-config-expo": "^10.0.0"
 	},
+	"overrides": {
+		"@xmldom/xmldom": "^0.8.15",
+		"metro": "0.83.8",
+		"metro-babel-transformer": "0.83.8",
+		"metro-cache": "0.83.8",
+		"metro-cache-key": "0.83.8",
+		"metro-config": "0.83.8",
+		"metro-core": "0.83.8",
+		"metro-file-map": "0.83.8",
+		"metro-minify-terser": "0.83.8",
+		"metro-resolver": "0.83.8",
+		"metro-runtime": "0.83.8",
+		"metro-source-map": "0.83.8",
+		"metro-symbolicate": "0.83.8",
+		"metro-transform-plugins": "0.83.8",
+		"metro-transform-worker": "0.83.8",
+		"postcss": "^8.5.23"
+	},
 	"private": true
 }
