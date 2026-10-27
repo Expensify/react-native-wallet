@@ -98,6 +98,7 @@ export interface Spec extends TurboModule {
   listTokens(): Promise<TokenInfo[]>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
+  IOSFailAddPaymentPass(): Promise<void>;
   addListener: (eventType: string) => void;
   removeListeners: (count: number) => void;
 }

@@ -106,6 +106,16 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
   }
 }
 
+RCT_REMAP_METHOD(IOSFailAddPaymentPass,
+                 IOSFailAddPaymentPass:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject)
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self->walletManager IOSFailAddPaymentPass];
+    resolve(nil);
+  });
+}
+
 RCT_REMAP_METHOD(getCardStatusBySuffix,
                  getCardStatusBySuffix:(NSString *)last4Digits
                  resolve:(RCTPromiseResolveBlock)resolve

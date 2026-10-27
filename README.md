@@ -184,7 +184,7 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. Requires a handler that returns the payment credentials for the UAPP flow. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
-| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
+| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. If the issuer callback throws, the Add Payment Pass sheet is closed and that error is returned. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
 
 ## Data Types
 
