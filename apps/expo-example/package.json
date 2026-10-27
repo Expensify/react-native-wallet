@@ -24,6 +24,7 @@
 		"eslint-config-expo": "^10.0.0"
 	},
 	"overrides": {
+		"@xmldom/xmldom": "^0.8.15",
 		"metro": "0.83.8",
 		"metro-babel-transformer": "0.83.8",
 		"metro-cache": "0.83.8",
