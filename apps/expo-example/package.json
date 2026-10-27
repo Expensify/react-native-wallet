@@ -38,7 +38,8 @@
 		"metro-source-map": "0.83.8",
 		"metro-symbolicate": "0.83.8",
 		"metro-transform-plugins": "0.83.8",
-		"metro-transform-worker": "0.83.8"
+		"metro-transform-worker": "0.83.8",
+		"postcss": "^8.5.23"
 	},
 	"private": true
 }
