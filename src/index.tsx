@@ -14,6 +14,7 @@ import type {
   onCardActivatedPayload,
   onPaymentCredentialsRequestPayload,
   IOSAddPaymentPassData,
+  IOSDeviceType,
   TokenInfo,
   AndroidPaymentCredentialsResponse,
 } from './NativeWallet';
@@ -182,9 +183,32 @@ async function listTokens(): Promise<TokenInfo[]> {
   return Wallet.listTokens();
 }
 
+function toIOSDeviceType(deviceType: string | undefined): IOSDeviceType {
+  switch (deviceType) {
+    case 'phone':
+    case 'watch':
+    case 'unknown':
+      return deviceType;
+    default:
+      return 'unknown';
+  }
+}
+
+async function canAddCardToAppleWallet(primaryAccountIdentifier: string, lastDigits?: string): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    return false;
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.canAddCardToAppleWallet(primaryAccountIdentifier, lastDigits ?? '');
+}
+
 async function addCardToAppleWallet(
   cardData: IOSCardData,
-  issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[]) => Promise<IOSEncryptPayload>,
+  issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[], deviceType: IOSDeviceType) => Promise<IOSEncryptPayload>,
 ): Promise<TokenizationStatus> {
   if (Platform.OS === 'android') {
     throw new Error('addCardToAppleWallet is not available on Android');
@@ -204,7 +228,7 @@ async function addCardToAppleWallet(
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
     let responseData: IOSEncryptPayload;
     try {
-      responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates);
+      responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
     } catch (error) {
       try {
         await wallet.IOSFailAddPaymentPass();
@@ -232,6 +256,7 @@ export type {
   IOSEncryptPayload,
   IOSCardData,
   IOSAddPaymentPassData,
+  IOSDeviceType,
   onCardActivatedPayload,
   onPaymentCredentialsRequestPayload,
   TokenizationStatus,
@@ -248,6 +273,7 @@ export {
   addCardToGoogleWallet,
   resumeAddCardToGoogleWallet,
   listTokens,
+  canAddCardToAppleWallet,
   addCardToAppleWallet,
   addListener,
   removeListener,

@@ -43,6 +43,7 @@ type IOSCardData = {
   cardHolderName: string;
   lastDigits: string;
   cardDescription: string;
+  primaryAccountIdentifier?: string;
 };
 
 type onCardActivatedPayload = {
@@ -63,7 +64,10 @@ type IOSAddPaymentPassData = {
   nonce: string;
   nonceSignature: string;
   certificates: string[];
+  deviceType?: string;
 };
+
+type IOSDeviceType = 'phone' | 'watch' | 'unknown';
 
 type IOSEncryptPayload = {
   encryptedPassData: string;
@@ -99,6 +103,7 @@ export interface Spec extends TurboModule {
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
   IOSFailAddPaymentPass(): Promise<void>;
+  canAddCardToAppleWallet(primaryAccountIdentifier: string, lastDigits: string): Promise<boolean>;
   addListener: (eventType: string) => void;
   removeListeners: (count: number) => void;
 }
@@ -129,6 +134,7 @@ export type {
   onPaymentCredentialsRequestPayload,
   Platform,
   IOSAddPaymentPassData,
+  IOSDeviceType,
   IOSEncryptPayload,
   TokenizationStatus,
   TokenInfo,
