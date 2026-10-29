@@ -5,6 +5,7 @@ struct CardInfo {
   let cardHolderName: String
   let lastDigits: String
   let cardDescription: String
+  let primaryAccountIdentifier: String?
 
   init(cardData: NSDictionary) throws {
     guard let networkString = cardData["network"] as? String, !networkString.isEmpty,
@@ -19,6 +20,11 @@ struct CardInfo {
     self.cardHolderName = cardHolderName
     self.lastDigits = lastDigits
     self.cardDescription = cardDescription
+    if let identifier = cardData["primaryAccountIdentifier"] as? String, !identifier.isEmpty {
+      self.primaryAccountIdentifier = identifier
+    } else {
+      self.primaryAccountIdentifier = nil
+    }
   }
 
   private static func getNetwork(from identifier: String) -> PKPaymentNetwork? {
