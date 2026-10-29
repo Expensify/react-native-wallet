@@ -23,13 +23,9 @@ struct AddPassResponse {
   
   func toNSDictionary() -> NSDictionary {
     if status.rawValue > 0 {
-      var response: [String: Any] = [
+      return [
         "status": status.rawValue,
-      ]
-      if let deviceType = deviceType {
-        response["deviceType"] = deviceType.rawValue
-      }
-      return response as NSDictionary
+      ] as NSDictionary
     }
     
     guard let nonce = nonce,

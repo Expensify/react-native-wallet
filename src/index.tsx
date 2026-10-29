@@ -266,7 +266,17 @@ async function addCardToAppleWallet(
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<IOSAddCardResult> {
-    const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
+    let responseData: IOSEncryptPayload;
+    try {
+      responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
+    } catch (error) {
+      try {
+        await wallet.IOSFailAddPaymentPass();
+      } catch {
+        // Closing the sheet is best-effort. The issuer error is what the user sees.
+      }
+      throw error;
+    }
     const response = (await wallet.IOSHandleAddPaymentPassResponse(responseData)) as AddPaymentPassResult | null;
     // Try again returns a new nonce. A finished add has no nonce, and status
     // matches OperationResult: declined, completed, or canceled.
