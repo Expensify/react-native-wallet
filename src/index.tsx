@@ -279,6 +279,18 @@ async function activateAppleWalletPass(passData: IOSPassActivationData): Promise
   return Wallet.activateAppleWalletPass(passData);
 }
 
+async function presentAppleWalletPass(lastDigits: string): Promise<boolean> {
+  if (Platform.OS === 'android') {
+    return false;
+  }
+
+  if (!Wallet) {
+    return getModuleLinkingRejection();
+  }
+
+  return Wallet.presentAppleWalletPass(lastDigits);
+}
+
 export type {
   AndroidCardData,
   AndroidWalletData,
@@ -306,6 +318,7 @@ export {
   resumeAddCardToGoogleWallet,
   listTokens,
   listAppleWalletPasses,
+  presentAppleWalletPass,
   canAddCardToAppleWallet,
   addCardToAppleWallet,
   activateAppleWalletPass,
