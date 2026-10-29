@@ -87,6 +87,10 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
+  public abstract void canAddCardToAppleWallet(String primaryAccountIdentifier, String lastDigits, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void addListener(String eventType);
 
   @ReactMethod
