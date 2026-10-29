@@ -102,6 +102,13 @@ type IOSWalletPass = {
 
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
+type IOSAddCardResult = {
+  status: TokenizationStatus;
+  activationState?: CardStatus;
+  errorDomain?: string;
+  errorCode?: number;
+};
+
 type TokenInfo = {
   identifier: string;
   lastDigits: string;
@@ -167,6 +174,7 @@ export type {
   IOSPassActivationData,
   IOSWalletPass,
   IOSWalletPassNative,
+  IOSAddCardResult,
   TokenizationStatus,
   TokenInfo,
   AndroidPaymentCredentialsResponse,

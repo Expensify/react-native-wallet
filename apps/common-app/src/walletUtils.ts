@@ -32,7 +32,8 @@ async function addCardToWallet(cardStatus?: CardStatus) {
     }
     return addCardToGoogleWallet(CONST.AndroidDummyCardData, handlePaymentCredentialsGeneration);
   } else {
-    return addCardToAppleWallet(CONST.IOSDummyCardData, issuerEncryptPayloadCallback);
+    const result = await addCardToAppleWallet(CONST.IOSDummyCardData, issuerEncryptPayloadCallback);
+    return result.status;
   }
 }
 

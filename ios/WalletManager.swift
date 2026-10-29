@@ -570,10 +570,28 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         handler(.canceled, response.toNSDictionary())
       }
       
-      // If the pass is returned complete the IOSHandleAddPaymentPassResponse function
+      // If the pass is returned complete the IOSHandleAddPaymentPassResponse function.
+      // A resolved dictionary (result < .error) carries the outcome. Rejecting
+      // would hide whether Wallet already showed its own message.
       if let addPaymentPassHandler = addPaymentPassHandler {
-        if pass != nil {
-          addPaymentPassHandler(.completed, nil)
+        if let pass = pass {
+          let activationState = (pass.secureElementPass?.passActivationState ?? pass.passActivationState).rawValue
+          addPaymentPassHandler(.completed, [
+            "status": NSNumber(value: OperationResult.completed.rawValue),
+            "activationState": NSNumber(value: activationState),
+          ])
+        } else if let nsError = error as NSError?,
+                  nsError.domain == PKPassKitErrorDomain,
+                  nsError.code == PKAddPaymentPassError.userCancelled.rawValue {
+          addPaymentPassHandler(.canceled, [
+            "status": NSNumber(value: OperationResult.canceled.rawValue),
+          ])
+        } else if let nsError = error as NSError? {
+          addPaymentPassHandler(.declined, [
+            "status": NSNumber(value: OperationResult.declined.rawValue),
+            "errorDomain": nsError.domain,
+            "errorCode": NSNumber(value: nsError.code),
+          ])
         } else {
           addPaymentPassHandler(.error, [
             "errorMessage": "Could not add card. \(errorMessage)."
