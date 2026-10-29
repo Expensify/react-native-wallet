@@ -580,6 +580,10 @@ class WalletModule internal constructor(context: ReactApplicationContext) :
       .emit(eventName, params)
   }
 
+  override fun presentAppleWalletPass(lastDigits: String, promise: Promise?) {
+    promise?.resolve(false)
+  }
+
   override fun IOSPresentAddPaymentPassView(cardData: ReadableMap?, promise: Promise?) {
     // no-op
   }
