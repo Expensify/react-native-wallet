@@ -229,14 +229,20 @@ open class WalletManager: UIViewController {
   }
 
   @objc public func presentAppleWalletPass(lastDigits: NSString) -> Bool {
+    let suffix = lastDigits as String
+    guard !suffix.isEmpty else {
+      return false
+    }
+
     let candidates = passLibrary.passes(of: .secureElement)
       .filter { !$0.isRemotePass }
       .compactMap(\.secureElementPass)
       .filter {
-        $0.primaryAccountNumberSuffix.hasSuffix(lastDigits as String) &&
+        $0.primaryAccountNumberSuffix.hasSuffix(suffix) &&
           $0.passActivationState != .deactivated
       }
-    guard let pass = candidates.first(where: { $0.passActivationState == .requiresActivation }) ?? candidates.first else {
+    guard Set(candidates.map(\.primaryAccountIdentifier)).count == 1,
+          let pass = candidates.first(where: { $0.passActivationState == .requiresActivation }) ?? candidates.first else {
       return false
     }
     passLibrary.present(pass)
