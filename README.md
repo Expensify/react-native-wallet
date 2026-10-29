@@ -186,8 +186,10 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. Requires a handler that returns the payment credentials for the UAPP flow. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
+| **listAppleWalletPasses** | Lists Apple Wallet Secure Element passes available to the app, including activation state and whether the pass is remote (for example on Apple Watch). Filter the result for `activationState === 'requireActivation'` or `activationState === 'pending'` to build a pending-cards UI. | None | `IOSWalletPass[]` | ✅ | ❌ |
 | **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. When `IOSCardData.primaryAccountIdentifier` is set, the device picker only lists devices that do not already have the card. If PassKit cannot present the flow because the card is already on every device, the call fails with a clear error. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback` | `void` | ✅ | ❌ |
 | **canAddCardToAppleWallet** | Checks whether the card can still be added to the iPhone or a paired Apple Watch. Pass `lastDigits` to use the same id lookup as `addCardToAppleWallet`. Returns `false` on Android. | `primaryAccountIdentifier: string`,<br>`lastDigits?: string` | `boolean` | ✅ | ✅ |
+| **activateAppleWalletPass** | Activates an existing Secure Element pass in Apple Wallet using activation data from your issuer backend. Resolves `true` when the pass is already active. For `requireActivation`, returns Apple's result, which can be `false`. Rejects for any other state (`pending`, `suspended`), a missing pass, unavailable activation, or invalid or non-base64 activation data. | `data`: `IOSPassActivationData` | `boolean` | ✅ | ❌ |
 
 ## Data Types
 
@@ -205,6 +207,8 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **IOSDeviceType** | Best-effort device the card is being provisioned to. PassKit does not report the selected device, so this is inferred from existing passes when `primaryAccountIdentifier` is set, using the same id lookup as `addCardToAppleWallet`. The value is computed when Apple asks for the encrypted payload, including when the user tries again. Passes on a paired Apple Watch are never counted as iPhone passes. `phone` means the card is already on the paired Apple Watch only. `watch` means it is already on the iPhone only. `unknown` means the card is on neither device, or no identifier was provided, so the user may still choose either device. Passes in the `deactivated` state count as not present. | `'phone' \| 'watch' \| 'unknown'` |
 | **IOSAddPaymentPassData** | Data returned when the user continues the provisioning flow. Apple supplies the nonce, its signature, and the certificates. The library adds `deviceType`; Apple does not return it. See `IOSDeviceType`. | `status: number`,<br>`nonce: string`,<br>`nonceSignature: string`,<br>`certificates: string[]`,<br>`deviceType?: string` |
 | **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`,<br>`activationData: string`,<br>`ephemeralPublicKey: string` |
+| **IOSPassActivationData** | Identifies an existing Apple Wallet Secure Element pass and provides the activation payload returned by your issuer backend. `activationData` must be Base 64 encoded. Set `isRemote` to `true` for a paired Apple Watch pass or `false` for the iPhone pass when the same card is on both. Omit it to look up the iPhone pass first and then the Watch. | `passTypeIdentifier: string`,<br>`serialNumber: string`,<br>`activationData: string`,<br>`isRemote?: boolean` |
+| **IOSWalletPass** | Information about an Apple Wallet Secure Element pass currently available on the device or a paired remote device. | `passTypeIdentifier: string`,<br>`serialNumber: string`,<br>`primaryAccountIdentifier?: string`,<br>`lastDigits?: string`,<br>`activationState: CardStatus`,<br>`isRemote: boolean` |
 | **TokenInfo** | Information about a token stored in Google Wallet. | `identifier: string`,<br>`lastDigits: string`,<br>`tokenState: number` |
 
 ### AndroidCardData Optional Fields
@@ -232,7 +236,7 @@ This flag helps Google Wallet track cards that were initially added through the 
 
 | Type | Possible Values |
 |------|-----------------|
-| **CardStatus** | `not found`, `active`, `requireAuthorization`, `pending`, `suspended`, `deactivated` |
+| **CardStatus** | `not found`, `active`, `requireActivation`, `pending`, `suspended`, `deactivated` |
 
 ## Listeners
 
