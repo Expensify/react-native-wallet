@@ -199,6 +199,16 @@ open class WalletManager: UIViewController {
     self.addPassHandler?(addPaymentPassRequest)
     self.addPassHandler = nil
   }
+
+  /// Closes the Add Payment Pass sheet when the issuer encrypt call fails.
+  /// The PassKit completion handler is dropped: there is no payload to give it.
+  @objc
+  public func IOSFailAddPaymentPass() {
+    self.addPassHandler = nil
+    self.addPaymentPassCompletionHandler = nil
+    self.addPassPrimaryAccountIdentifier = nil
+    hideModal()
+  }
   
   private func getPassActivationState(matching condition: (PKSecureElementPass) -> Bool) -> NSNumber {
     let paymentPasses = passLibrary.passes(of: .payment)

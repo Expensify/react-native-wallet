@@ -244,7 +244,17 @@ async function addCardToAppleWallet(
   }
 
   async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
-    const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
+    let responseData: IOSEncryptPayload;
+    try {
+      responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
+    } catch (error) {
+      try {
+        await wallet.IOSFailAddPaymentPass();
+      } catch {
+        // Closing the sheet is best-effort. The issuer error is what the user sees.
+      }
+      throw error;
+    }
     const response = await wallet.IOSHandleAddPaymentPassResponse(responseData);
     // Response is null when a pass is successfully added to the wallet or the user cancels the process
     // In case the user presses the `Try again` option, new pass data is returned, and it should reenter the function
