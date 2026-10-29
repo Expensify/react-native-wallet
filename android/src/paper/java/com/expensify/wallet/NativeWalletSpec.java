@@ -55,6 +55,10 @@ public abstract class NativeWalletSpec extends ReactContextBaseJavaModule implem
 
   @ReactMethod
   @DoNotStrip
+  public abstract void hasEligibleTokenizationTarget(String last4Digits, String network, String issuerName, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
   public abstract void addCardToGoogleWallet(ReadableMap cardData, Promise promise);
 
   @ReactMethod
