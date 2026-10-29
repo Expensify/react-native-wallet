@@ -70,7 +70,7 @@ RCT_REMAP_METHOD(IOSPresentAddPaymentPassView,
 
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSPresentAddPaymentPassViewWithCardData:cardDataDict completion:^(OperationResult result, NSDictionary* data) {
-        [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"present_payment_pass_view_failed" defaultErrorMessage:@"Failed to present the payment pass view" rejecter:reject];
+        [self handleWalletResponse:result data:data resolveValue:data completedBlock:resolve errorPrefix:@"present_payment_pass_view_failed" defaultErrorMessage:@"Failed to present the payment pass view" rejecter:reject];
       }];
     });
   } @catch (NSException *exception) {
@@ -106,7 +106,7 @@ RCT_REMAP_METHOD(IOSHandleAddPaymentPassResponse,
 
     dispatch_async(dispatch_get_main_queue(), ^{
       [self->walletManager IOSHandleAddPaymentPassResponseWithPayload:payloadDict completion:^(OperationResult result, NSDictionary* data) {
-        [self handleWalletResponse:result data:data completedBlock:resolve errorPrefix:@"add_card_failed" defaultErrorMessage:@"Failed to add the card to the wallet" rejecter:reject];
+        [self handleWalletResponse:result data:data resolveValue:data completedBlock:resolve errorPrefix:@"add_card_failed" defaultErrorMessage:@"Failed to add the card to the wallet" rejecter:reject];
       }];
     });
   } @catch (NSException *exception) {
@@ -173,7 +173,7 @@ RCT_REMAP_METHOD(activateAppleWalletPass,
 #endif
 
     [self->walletManager activateAppleWalletPassWithPassData:passDataDict completion:^(OperationResult result, NSDictionary* data) {
-      [self handleBooleanWalletResponse:result data:data completedBlock:resolve errorPrefix:@"activate_card_failed" defaultErrorMessage:@"Failed to activate the Apple Wallet pass" rejecter:reject];
+      [self handleWalletResponse:result data:data resolveValue:@([data[@"success"] boolValue]) completedBlock:resolve errorPrefix:@"activate_card_failed" defaultErrorMessage:@"Failed to activate the Apple Wallet pass" rejecter:reject];
     }];
   } @catch (NSException *exception) {
     [self rejectWithErrorType:@"activate_card_failed" code:500 description:exception.reason ?: @"An unexpected error occurred." rejecter:reject];
@@ -259,26 +259,13 @@ RCT_REMAP_METHOD(canAddCardToAppleWallet,
 
 - (void)handleWalletResponse:(OperationResult)result
                         data:(NSDictionary *)data
+                resolveValue:(id)resolveValue
               completedBlock:(RCTPromiseResolveBlock)resolve
                  errorPrefix:(NSString *)errorPrefix
          defaultErrorMessage:(NSString *)defaultErrorMsg
                     rejecter:(RCTPromiseRejectBlock)reject {
   if (result < 3) {
-    resolve(data);
-  } else {
-    NSString *errorMessage = data[@"errorMessage"] ?: defaultErrorMsg ?: @"Operation failed";
-    [self rejectWithErrorType:errorPrefix code:1001 description:errorMessage rejecter:reject];
-  }
-}
-
-- (void)handleBooleanWalletResponse:(OperationResult)result
-                               data:(NSDictionary *)data
-                     completedBlock:(RCTPromiseResolveBlock)resolve
-                        errorPrefix:(NSString *)errorPrefix
-                defaultErrorMessage:(NSString *)defaultErrorMsg
-                           rejecter:(RCTPromiseRejectBlock)reject {
-  if (result < 3) {
-    resolve(@([data[@"success"] boolValue]));
+    resolve(resolveValue);
   } else {
     NSString *errorMessage = data[@"errorMessage"] ?: defaultErrorMsg ?: @"Operation failed";
     [self rejectWithErrorType:errorPrefix code:1001 description:errorMessage rejecter:reject];

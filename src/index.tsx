@@ -15,22 +15,13 @@ import type {
   onPaymentCredentialsRequestPayload,
   IOSAddPaymentPassData,
   IOSPassActivationData,
-  IOSWalletPassNative,
+  IOSWalletPass,
   IOSDeviceType,
   TokenInfo,
   AndroidPaymentCredentialsResponse,
 } from './NativeWallet';
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
-
-type IOSWalletPass = {
-  passTypeIdentifier: string;
-  serialNumber: string;
-  primaryAccountIdentifier?: string;
-  lastDigits?: string;
-  activationState: CardStatus;
-  isRemote: boolean;
-};
 
 function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
@@ -227,10 +218,8 @@ async function listAppleWalletPasses(): Promise<IOSWalletPass[]> {
   }
 
   const passes = await Wallet.listAppleWalletPasses();
-  return passes.map((pass: IOSWalletPassNative) => ({
+  return passes.map((pass) => ({
     ...pass,
-    primaryAccountIdentifier: pass.primaryAccountIdentifier || undefined,
-    lastDigits: pass.lastDigits || undefined,
     activationState: getCardState(pass.activationState),
   }));
 }

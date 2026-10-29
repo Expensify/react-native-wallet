@@ -91,6 +91,15 @@ type IOSWalletPassNative = {
   isRemote: boolean;
 };
 
+type IOSWalletPass = {
+  passTypeIdentifier: string;
+  serialNumber: string;
+  primaryAccountIdentifier?: string;
+  lastDigits?: string;
+  activationState: CardStatus;
+  isRemote: boolean;
+};
+
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
 type TokenInfo = {
@@ -154,6 +163,7 @@ export type {
   IOSDeviceType,
   IOSEncryptPayload,
   IOSPassActivationData,
+  IOSWalletPass,
   IOSWalletPassNative,
   TokenizationStatus,
   TokenInfo,
