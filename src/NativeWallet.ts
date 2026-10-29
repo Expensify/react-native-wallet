@@ -128,6 +128,7 @@ export interface Spec extends TurboModule {
   listAppleWalletPasses(): Promise<IOSWalletPassNative[]>;
   IOSPresentAddPaymentPassView(cardData: IOSCardData): Promise<IOSAddPaymentPassData>;
   IOSHandleAddPaymentPassResponse(payload: IOSEncryptPayload): Promise<IOSAddPaymentPassData | null>;
+  IOSFailAddPaymentPass(): Promise<void>;
   activateAppleWalletPass(passData: IOSPassActivationData): Promise<boolean>;
   canAddCardToAppleWallet(primaryAccountIdentifier: string, lastDigits: string): Promise<boolean>;
   addListener: (eventType: string) => void;
