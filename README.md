@@ -168,6 +168,8 @@ Here you can find data elements used in the library, essential to work with Goog
 - **Certificates** - an array of NSData objects. Each object contains a DER encoded X.509 certificate, with the leaf first and root last. You must download the root CA to validate the entire chain.
 - **Encrypted Pass Data**- an encrypted JSON file containing the sensitive information needed to add a card to Apple Pay (Base 64 encoded). [More details here.](https://developer.apple.com/documentation/passkit/pkaddpaymentpassrequest/encryptedpassdata)
 - **Ephemeral Public Key** - a key used by elliptic curve cryptography (ECC) (Base 64 encoded).
+- **Primary Account Identifier** - an opaque issuer id (also called the FPAN ID) that PassKit uses to recognize the same card across reissues and devices. Pass it in `IOSCardData` and to `canAddCardToAppleWallet`. `getCardStatusByIdentifier` matches this value exactly and does not fall back. `addCardToAppleWallet`, the inferred `deviceType`, and `canAddCardToAppleWallet` when you also pass `lastDigits` share one lookup: an exact id match wins, and otherwise the library uses the id of the only pass that is not `deactivated` and has the same last digits. A different card that is still active and ends in the same digits can be picked. Pass the id PassKit stored on the pass (the `primaryAccountIdentifier` from `listAppleWalletPasses`) to skip that lookup.
+- **Device type** - the device the card is being provisioned to: `phone` or `watch`. PassKit does not report the device the user selected, so the library infers it from where the card is already provisioned. When it cannot tell, the value is `unknown`.
 
 # API Reference
 The library offers functions for seamless integration and use of the Apple Wallet and Google Wallet APIs. Additionally, it includes listeners and handlers for managing provisioning events. Below, these functions are described along with the data types involved.
@@ -184,7 +186,8 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **addCardToGoogleWallet** | Initiates native Push Provisioning flow for adding a card to the Google Wallet. Requires a handler that returns the payment credentials for the UAPP flow. [Learn more →](./docs/UAPP.md) | `data`: `AndroidCardData`,<br>`handlePaymentCredentials`: `(data: onPaymentCredentialsRequestPayload) => Promise<AndroidPaymentCredentialsResponse>` | `TokenizationStatus` | ❌ | ✅ |
 | **resumeAddCardToGoogleWallet** | Resumes the Push Provisioning flow for adding a card to the Google Wallet using existing token reference ID. | `data`: `AndroidResumeCardData` | `TokenizationStatus` | ❌ | ✅ |
 | **listTokens** | Lists all tokens currently stored in the Google Wallet. | None | `TokenInfo[]` | ❌ | ✅ |
-| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. `onAddFinished` receives the pass `activationState` on success, or `errorDomain` and `errorCode` when Wallet declines the card after showing its own message. Cancelling returns `canceled`. A decline no longer rejects, because Wallet has already explained it. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback`,<br>`onAddFinished?: (result: {activationState?: CardStatus, errorDomain?: string, errorCode?: number}) => void` | `TokenizationStatus` | ✅ | ❌ |
+| **addCardToAppleWallet** | Initiates native Push Provisioning flow for adding a card to the Apple Wallet. When `IOSCardData.primaryAccountIdentifier` is set, the device picker only lists devices that do not already have the card. If PassKit cannot present the flow because the card is already on every device, the call fails with a clear error. `onAddFinished` receives the pass `activationState` on success, or `errorDomain` and `errorCode` when Wallet declines the card after showing its own message. Cancelling returns `canceled`. A decline no longer rejects, because Wallet has already explained it. | `data`: `IOSCardData`,<br>`issuerEncrypt-`<br>`PayloadCallback: IOSIssuerCallback`,<br>`onAddFinished?: (result: {activationState?: CardStatus, errorDomain?: string, errorCode?: number}) => void` | `TokenizationStatus` | ✅ | ❌ |
+| **canAddCardToAppleWallet** | Checks whether the card can still be added to the iPhone or a paired Apple Watch. Pass `lastDigits` to use the same id lookup as `addCardToAppleWallet`. Returns `false` on Android. | `primaryAccountIdentifier: string`,<br>`lastDigits?: string` | `boolean` | ✅ | ✅ |
 
 ## Data Types
 
@@ -196,9 +199,11 @@ The library offers functions for seamless integration and use of the Apple Walle
 | **AndroidPaymentCredentialsResponse** | Response object containing encrypted payment credentials for UAPP flow. [Learn more →](./docs/UAPP.md) | `opaquePaymentCard: string`,<br>`googleOpaquePaymentCard: string` |
 | **onPaymentCredentialsRequestPayload** | Payload received when Google Wallet requests payment credentials during UAPP provisioning. [Learn more →](./docs/UAPP.md) | `requestId: string`,<br>`serverSessionId: string`,<br>`walletId: string`,<br>`tokenRequestorId: string \| null`,<br>`opaquePaymentCard: string` |
 | **UserAddress** | Structured address used for cardholder verification. | `name: string`,<br>`addressOne: string`,<br>`addressTwo: string`,<br>`city: string`,<br>`administrativeArea: string`,<br>`countryCode: string`,<br>`postalCode: string`,<br>`phoneNumber: string` |
-| **IOSCardData** | Data related to a card that is to be added on iOS platform. | `network: string`,<br>`activationData: string`,<br>`encryptedPassData: string`,<br>`ephemeralPublicKey: string`,<br>`cardHolderTitle: string`,<br>`cardHolderName: string`,<br>`lastDigits: string`,<br>`cardDescription: string`,<br>`cardDescriptionComment: string` |
+| **IOSCardData** | Data related to a card that is to be added on iOS. Set `primaryAccountIdentifier` after the first provisioning so the next attempt targets devices that do not already have the card. | `network: string`,<br>`activationData: string`,<br>`encryptedPassData: string`,<br>`ephemeralPublicKey: string`,<br>`cardHolderTitle: string`,<br>`cardHolderName: string`,<br>`lastDigits: string`,<br>`cardDescription: string`,<br>`cardDescriptionComment: string`,<br>`primaryAccountIdentifier?: string` |
 | **onCardActivatedPayload** | Data used by listener to notice when a card's status changes. | `tokenId?: string \| null`,<br> `status: 'activated' \| 'canceled'`<br> |
-| **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, and a certificate array obtained from Apple. It is expected that you will forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet. | `(nonce: string, nonceSignature: string, certificate: string[]) => IOSEncryptPayload` |
+| **IOSIssuerCallback** | This callback is invoked with a nonce, its signature, a certificate array obtained from Apple, and the device the card is being added to. Forward these details to your server or the card issuer's API to securely encrypt the payload required for adding cards to the Apple Wallet. `deviceType` is a best-effort value; see `IOSDeviceType`. | `(nonce: string, nonceSignature: string, certificate: string[], deviceType: IOSDeviceType) => IOSEncryptPayload` |
+| **IOSDeviceType** | Best-effort device the card is being provisioned to. PassKit does not report the selected device, so this is inferred from existing passes when `primaryAccountIdentifier` is set, using the same id lookup as `addCardToAppleWallet`. The value is computed when Apple asks for the encrypted payload, including when the user tries again. Passes on a paired Apple Watch are never counted as iPhone passes. `phone` means the card is already on the paired Apple Watch only. `watch` means it is already on the iPhone only. `unknown` means the card is on neither device, or no identifier was provided, so the user may still choose either device. Passes in the `deactivated` state count as not present. | `'phone' \| 'watch' \| 'unknown'` |
+| **IOSAddPaymentPassData** | Data returned when the user continues the provisioning flow. Apple supplies the nonce, its signature, and the certificates. The library adds `deviceType`; Apple does not return it. See `IOSDeviceType`. | `status: number`,<br>`nonce: string`,<br>`nonceSignature: string`,<br>`certificates: string[]`,<br>`deviceType?: string` |
 | **IOSEncryptPayload** | An object containing the necessary elements to complete the addition of a card to Apple Wallet. | `encryptedPassData: string`,<br>`activationData: string`,<br>`ephemeralPublicKey: string` |
 | **TokenInfo** | Information about a token stored in Google Wallet. | `identifier: string`,<br>`lastDigits: string`,<br>`tokenState: number` |
 
@@ -292,6 +297,7 @@ const base64ToHex = (base64: string): string => Buffer.from(base64, "base64").to
 		nonce: string,
 		nonceSignature: string,
 		certificate: string[],
+		deviceType: IOSDeviceType,
 	): Promise<IOSEncryptPayload> => {
 		try {
 			const payload = {
@@ -300,6 +306,7 @@ const base64ToHex = (base64: string): string => Buffer.from(base64, "base64").to
 					nonceSignature: base64ToHex(nonceSignature),
 					wspCertificates: certificate,
 				},
+				deviceType,
 				serialNumber,
 				wspId: "APPLE" as const,
 			}
@@ -353,7 +360,7 @@ Please refer to the [complete testing criteria documentation](https://developers
 ### iOS
 
 When implementing the In-App Push Provisioning feature in your App make sure that your app follows Apple's [branding guidelines connected to Apple Wallet](https://developer.apple.com/wallet/add-to-apple-wallet-guidelines/). Remember that you must not create your own buttons or your app could be rejected at revision. You can use the[ AddWalletButton component](#components) instead!
-When the pass is already provisioned, make sure to hide this button and replace it with text like `Added to Apple Wallet`. The card is fully provisioned once it added to your main device (user's iPhone) and all linked devices (for example Apple Watch).
+Keep the Add to Apple Wallet button visible while `canAddCardToAppleWallet(primaryAccountIdentifier, lastDigits)` returns `true`, including after the card is added to the iPhone but not yet to a paired Apple Watch. Show text like `Added to Apple Wallet` only once that call returns `false`. Pass `primaryAccountIdentifier` in `IOSCardData` so the next attempt targets the remaining device, and pass the same `lastDigits` to both calls so they agree. This matches [Apple's in-app provisioning guidance](https://applepaydemo.apple.com/in-app-provisioning#3.3).
 
 Next to branding guidelines, please follow the instructions and best practices from [the In-App provisioning documentation]((#ios)) provided by Apple.
 
