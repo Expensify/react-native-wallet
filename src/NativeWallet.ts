@@ -77,6 +77,13 @@ type IOSEncryptPayload = {
 
 type TokenizationStatus = 'canceled' | 'success' | 'error';
 
+type IOSAddCardResult = {
+  status: TokenizationStatus;
+  activationState?: CardStatus;
+  errorDomain?: string;
+  errorCode?: number;
+};
+
 type TokenInfo = {
   identifier: string;
   lastDigits: string;
@@ -135,6 +142,7 @@ export type {
   IOSAddPaymentPassData,
   IOSDeviceType,
   IOSEncryptPayload,
+  IOSAddCardResult,
   TokenizationStatus,
   TokenInfo,
   AndroidPaymentCredentialsResponse,

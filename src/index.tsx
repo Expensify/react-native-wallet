@@ -14,6 +14,7 @@ import type {
   onCardActivatedPayload,
   onPaymentCredentialsRequestPayload,
   IOSAddPaymentPassData,
+  IOSAddCardResult,
   IOSDeviceType,
   TokenInfo,
   AndroidPaymentCredentialsResponse,
@@ -21,18 +22,26 @@ import type {
 import {getCardState, getTokenizationStatus} from './utils';
 import AddToWalletButton from './AddToWalletButton';
 
-type AppleWalletAddResult = {
-  activationState?: CardStatus;
-  errorDomain?: string;
-  errorCode?: number;
-};
-
 /** Result of IOSHandleAddPaymentPassResponse: a retry nonce, or a finished add. */
 type AddPaymentPassResult = IOSAddPaymentPassData & {
   activationState?: number;
   errorDomain?: string;
   errorCode?: number;
 };
+
+function toCardStatus(stateId: number | undefined): CardStatus | undefined {
+  switch (stateId) {
+    case -1:
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      return getCardState(stateId);
+    default:
+      return undefined;
+  }
+}
 
 function getModuleLinkingRejection() {
   return Promise.reject(new Error(`Failed to load Wallet module, make sure to link ${PACKAGE_NAME} correctly`));
@@ -222,8 +231,7 @@ async function canAddCardToAppleWallet(primaryAccountIdentifier: string, lastDig
 async function addCardToAppleWallet(
   cardData: IOSCardData,
   issuerEncryptPayloadCallback: (nonce: string, nonceSignature: string, certificate: string[], deviceType: IOSDeviceType) => Promise<IOSEncryptPayload>,
-  onAddFinished?: (result: AppleWalletAddResult) => void,
-): Promise<TokenizationStatus> {
+): Promise<IOSAddCardResult> {
   if (Platform.OS === 'android') {
     throw new Error('addCardToAppleWallet is not available on Android');
   }
@@ -236,32 +244,27 @@ async function addCardToAppleWallet(
   const passData = await wallet.IOSPresentAddPaymentPassView(cardData);
 
   if (!passData || passData.status !== 0) {
-    return getTokenizationStatus(passData?.status || -1);
+    return {status: getTokenizationStatus(passData?.status || -1)};
   }
 
-  async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<number> {
+  async function addPaymentPassToWallet(paymentPassData: IOSAddPaymentPassData): Promise<IOSAddCardResult> {
     const responseData = await issuerEncryptPayloadCallback(paymentPassData.nonce, paymentPassData.nonceSignature, paymentPassData.certificates, toIOSDeviceType(paymentPassData.deviceType));
     const response = (await wallet.IOSHandleAddPaymentPassResponse(responseData)) as AddPaymentPassResult | null;
-    // Try again returns a new nonce. A finished add has no nonce: status 1 is a
-    // user cancel, status -1 is an error Wallet already showed, otherwise success.
+    // Try again returns a new nonce. A finished add has no nonce, and status
+    // matches OperationResult: declined, completed, or canceled.
     if (response?.nonce) {
       return addPaymentPassToWallet(response);
     }
-    if (response?.status === 1) {
-      return 1;
-    }
-    if (response?.status === -1) {
-      onAddFinished?.({
-        errorDomain: response.errorDomain,
-        errorCode: response.errorCode,
-      });
-      return -1;
-    }
-    onAddFinished?.(typeof response?.activationState === 'number' ? {activationState: getCardState(response.activationState)} : {});
-    return 0;
+
+    const activationState = toCardStatus(response?.activationState);
+    return {
+      status: getTokenizationStatus(response?.status ?? 0),
+      ...(activationState ? {activationState} : {}),
+      ...(typeof response?.errorDomain === 'string' ? {errorDomain: response.errorDomain} : {}),
+      ...(typeof response?.errorCode === 'number' ? {errorCode: response.errorCode} : {}),
+    };
   }
-  const status = await addPaymentPassToWallet(passData);
-  return getTokenizationStatus(status);
+  return addPaymentPassToWallet(passData);
 }
 
 export type {
@@ -271,6 +274,7 @@ export type {
   IOSEncryptPayload,
   IOSCardData,
   IOSAddPaymentPassData,
+  IOSAddCardResult,
   IOSDeviceType,
   onCardActivatedPayload,
   onPaymentCredentialsRequestPayload,

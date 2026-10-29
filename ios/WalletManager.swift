@@ -402,18 +402,18 @@ extension WalletManager: PKAddPaymentPassViewControllerDelegate {
         if let pass = pass {
           let activationState = (pass.secureElementPass?.passActivationState ?? pass.passActivationState).rawValue
           addPaymentPassHandler(.completed, [
-            "status": NSNumber(value: 0),
+            "status": NSNumber(value: OperationResult.completed.rawValue),
             "activationState": NSNumber(value: activationState),
           ])
         } else if let nsError = error as NSError?,
                   nsError.domain == PKPassKitErrorDomain,
                   nsError.code == PKAddPaymentPassError.userCancelled.rawValue {
           addPaymentPassHandler(.canceled, [
-            "status": NSNumber(value: 1),
+            "status": NSNumber(value: OperationResult.canceled.rawValue),
           ])
         } else if let nsError = error as NSError? {
-          addPaymentPassHandler(.completed, [
-            "status": NSNumber(value: -1),
+          addPaymentPassHandler(.declined, [
+            "status": NSNumber(value: OperationResult.declined.rawValue),
             "errorDomain": nsError.domain,
             "errorCode": NSNumber(value: nsError.code),
           ])
